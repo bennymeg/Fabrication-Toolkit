@@ -90,39 +90,41 @@ class ProcessThread(Thread):
         else:
             footprints = list(board.GetFootprints())
 
-        for i, f in enumerate(footprints):
+        for i, footprint in enumerate(footprints):
             try:
-                footprint_name = str(f.GetFPID().GetFootprintName())
+                footprint_name = str(footprint.GetFPID().GetFootprintName())
             except AttributeError:
-                footprint_name = str(f.GetFPID().GetLibItemName())
+                footprint_name = str(footprint.GetFPID().GetLibItemName())
 
             layer = {
                 pcbnew.F_Cu: 'top',
                 pcbnew.B_Cu: 'bottom',
-            }.get(f.GetLayer())
+            }.get(footprint.GetLayer())
 
-            mount_type = {
-                0: 'smt',
-                1: 'tht',
-                2: 'smt'
-            }.get(f.GetAttributes())
+            # mount_type = {
+            #     0: 'smt',
+            #     1: 'tht',
+            #     2: 'smt'
+            # }.get(footprint.GetAttributes())
 
-            components.append({
-                'Designator': f.GetReference(),
-                'Mid X': (f.GetPosition()[0] - board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0,
-                'Mid Y': (f.GetPosition()[1] - board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0,
-                'Rotation': f.GetOrientation() / 10.0,
-                'Layer': layer,
-            })
+            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES:
+                components.append({
+                    'Designator': footprint.GetReference(),
+                    'Mid X': (footprint.GetPosition()[0] - board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0,
+                    'Mid Y': (footprint.GetPosition()[1] - board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0,
+                    'Rotation': footprint.GetOrientation() / 10.0,
+                    'Layer': layer,
+                })
 
-            bom.append({
-                'Designator': f.GetReference(),
-                'Footprint': footprint_name,
-                'Quantity': 1,
-                'Value': f.GetValue(),
-                'Mount': mount_type,
-                'LCSC Part #': self.getMpnFromFootprint(f),
-            })
+            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM:
+                bom.append({
+                    'Designator': footprint.GetReference(),
+                    'Footprint': footprint_name,
+                    'Quantity': 1,
+                    'Value': footprint.GetValue(),
+                    # 'Mount': mount_type,
+                    'LCSC Part #': self.getMpnFromFootprint(footprint),
+                })
         
         with open((os.path.join(temp_dir, placementFileName)), 'w', newline='') as outfile:
             header = True
@@ -135,7 +137,8 @@ class ProcessThread(Thread):
                     header = False
             
                 # Writing data of CSV file
-                csv_writer.writerow(component.values())
+                if ('**' not in component['Designator']):
+                    csv_writer.writerow(component.values())
 
         # generate BOM file
         self.report(60)
@@ -150,7 +153,8 @@ class ProcessThread(Thread):
                     header = False
             
                 # Writing data of CSV file
-                csv_writer.writerow(component.values())
+                if ('**' not in component['Designator']):
+                    csv_writer.writerow(component.values())
 
 
         # generate production archive
