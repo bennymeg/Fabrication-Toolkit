@@ -160,11 +160,12 @@ class ProcessThread(Thread):
         # generate production archive
         self.report(75)
         temp_file = shutil.make_archive(temp_file, 'zip', temp_dir)
+        temp_file = shutil.move(temp_file, temp_dir)
 
         # remove non essential files
-        # for item in os.listdir(temp_dir):
-        #     if not item.endswith(".zip") and not item.endswith(".csv") and not item.endswith(".ipc"):
-        #         os.remove(os.path.join(temp_dir, item))
+        for item in os.listdir(temp_dir):
+            if not item.endswith(".zip") and not item.endswith(".csv") and not item.endswith(".ipc"):
+                os.remove(os.path.join(temp_dir, item))
 
         # upload files
         self.report(87.5)
@@ -191,6 +192,8 @@ class ProcessThread(Thread):
                 percent = readsofar * 1e2 / totalsize
                 self.report(75 + percent / 8)
 
+        os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
+
         webbrowser.open(temp_dir)
         # webbrowser.open(urls['redirect'])
         self.report(-1)
@@ -198,9 +201,9 @@ class ProcessThread(Thread):
     def report(self, status):
         wx.PostEvent(self.wxObject, ResultEvent(status))
         
-    def getMpnFromFootprint(self, f):
+    def getMpnFromFootprint(self, footprint):
         keys = ['mpn', 'MPN', 'Mpn', 'JLC_MPN', 'LCSC_MPN', 'LCSC Part #']
         for key in keys:
-            if f.HasProperty(key):
-                return f.GetProperty(key)
+            if footprint.HasProperty(key):
+                return footprint.GetProperty(key)
     

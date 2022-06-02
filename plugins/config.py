@@ -5,7 +5,7 @@ baseUrl = 'https://www.jlcpcb.com'
 netlistFileName = 'netlist.ipc'
 placementFileName = 'positions.csv'
 bomFileName = 'bom.csv'
-gerberArchiveName = 'gerber'
+gerberArchiveName = 'gerber.zip'
 outputFolder = 'production'
 
 plotPlan = [
