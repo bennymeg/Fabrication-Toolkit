@@ -20,7 +20,7 @@ Download the latest ZIP file from https://github.com/bennymeg/JLC-Plugin-for-KiC
 Add 'MPN' field with the LCSC component part number to the footprint component options.
 
 ### Ignore Footprint in Production Files
-Select 'Exclude form position files' or 'Exclude form BOM' in the footprint component options to ignore te footprint from the relevant file.
+Select 'Exclude from position files' or 'Exclude from BOM' in the footprint component options to ignore te footprint from the relevant file.
 
 ## Author
 
