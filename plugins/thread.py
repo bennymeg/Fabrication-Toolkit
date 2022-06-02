@@ -124,7 +124,7 @@ class ProcessThread(Thread):
                 'LCSC Part #': self.getMpnFromFootprint(f),
             })
         
-        with open((os.path.join(temp_dir, placementFileName)), 'w') as outfile:
+        with open((os.path.join(temp_dir, placementFileName)), 'w', newline='') as outfile:
             header = True
             csv_writer = csv.writer(outfile)
  
@@ -139,7 +139,7 @@ class ProcessThread(Thread):
 
         # generate BOM file
         self.report(60)
-        with open((os.path.join(temp_dir, bomFileName)), 'w') as outfile:
+        with open((os.path.join(temp_dir, bomFileName)), 'w', newline='') as outfile:
             header = True
             csv_writer = csv.writer(outfile)
  
@@ -158,9 +158,9 @@ class ProcessThread(Thread):
         temp_file = shutil.make_archive(temp_file, 'zip', temp_dir)
 
         # remove non essential files
-        for item in os.listdir(temp_dir):
-            if not item.endswith(".zip") and not item.endswith(".csv"):
-                os.remove(os.path.join(temp_dir, item))
+        # for item in os.listdir(temp_dir):
+        #     if not item.endswith(".zip") and not item.endswith(".csv") and not item.endswith(".ipc"):
+        #         os.remove(os.path.join(temp_dir, item))
 
         # upload files
         self.report(87.5)
