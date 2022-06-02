@@ -17,7 +17,7 @@
             "web": "https://github.com/bennymeg/JLC-Plugin-for-KiCad"
         }
     },
-    "license": "MIT",
+    "license": "Apache-2.0",
     "resources": {
         "homepage": "https://github.com/bennymeg/JLC-Plugin-for-KiCad"
     },
