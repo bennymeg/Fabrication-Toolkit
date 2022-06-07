@@ -1,6 +1,6 @@
 {
     "$schema": "https://go.kicad.org/pcm/schemas/v1",
-    "name": "JLC PCB Plugin for KiCad",
+    "name": "Fabrication Toolkit",
     "description": "JLC PCB fabrication toolkit",
     "description_full": "Toolkit for automating PCB fabrication process with KiCad and JLC PCB",
     "identifier": "com.github.bennymeg.JLC-Plugin-for-KiCad",
@@ -23,7 +23,7 @@
     },
     "versions": [
         {
-            "version": "0.1.0",
+            "version": "0.2.0",
             "status": "testing",
             "kicad_version": "6.00"
         }
