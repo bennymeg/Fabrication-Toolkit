@@ -1,5 +1,5 @@
 # original copyright Aisler and licensed under the MIT license.
-# https://opensource.org/licenses/MIT 
+# https://opensource.org/licenses/MIT
 
 # from urllib import response
 # import json
@@ -10,6 +10,7 @@ import csv
 import shutil
 import tempfile
 import webbrowser
+from collections import defaultdict
 from threading import Thread
 from .result_event import *
 from .config import *
@@ -64,7 +65,7 @@ class ProcessThread(Thread):
 
         pctl.ClosePlot()
 
-        #generate drill file
+        # generate drill file
         self.report(15)
         drlwriter = pcbnew.EXCELLON_WRITER(board)
 
@@ -90,6 +91,17 @@ class ProcessThread(Thread):
         else:
             footprints = list(board.GetFootprints())
 
+        # unique designator dictionary
+        footprint_designators = defaultdict(int)
+        for i, footprint in enumerate(footprints):
+            # count unique designators
+            footprint_designators[footprint.GetReference()] += 1
+        bom_designators = footprint_designators.copy()
+
+        with open((os.path.join(temp_dir, designatorsFileName)), 'w') as f:
+            for key, value in footprint_designators.items():
+                f.write('%s:%s\n' % (key, value))
+
         for i, footprint in enumerate(footprints):
             try:
                 footprint_name = str(footprint.GetFPID().GetFootprintName())
@@ -108,8 +120,14 @@ class ProcessThread(Thread):
             # }.get(footprint.GetAttributes())
 
             if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES:
+                # append unique ID if duplicate footprint designator
+                unique_id = ""
+                if footprint_designators[footprint.GetReference()] > 1:
+                    unique_id = str(footprint_designators[footprint.GetReference()])
+                    footprint_designators[footprint.GetReference()] -= 1
+
                 components.append({
-                    'Designator': footprint.GetReference(),
+                    'Designator': "{}_{}".format(footprint.GetReference(), unique_id),
                     'Mid X': (footprint.GetPosition()[0] - board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0,
                     'Mid Y': (footprint.GetPosition()[1] - board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0,
                     'Rotation': footprint.GetOrientation() / 10.0,
@@ -117,26 +135,34 @@ class ProcessThread(Thread):
                 })
 
             if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM:
+                # append unique ID if we are dealing with duplicate bom designator
+                unique_id = ""
+                if bom_designators[footprint.GetReference()] > 1:
+                    unique_id = str(bom_designators[footprint.GetReference()])
+                    bom_designators[footprint.GetReference()] -= 1
+
+                # todo: merge similar parts into single entry
+
                 bom.append({
-                    'Designator': footprint.GetReference(),
+                    'Designator': "{}_{}".format(footprint.GetReference(), unique_id),
                     'Footprint': footprint_name,
                     'Quantity': 1,
                     'Value': footprint.GetValue(),
                     # 'Mount': mount_type,
                     'LCSC Part #': self.getMpnFromFootprint(footprint),
                 })
-        
+
         with open((os.path.join(temp_dir, placementFileName)), 'w', newline='') as outfile:
             header = True
             csv_writer = csv.writer(outfile)
- 
+
             for component in components:
                 if header:
-                    # Writing headers of CSV file
+                    # writing headers of CSV file
                     csv_writer.writerow(component.keys())
                     header = False
-            
-                # Writing data of CSV file
+
+                # writing data of CSV file
                 if ('**' not in component['Designator']):
                     csv_writer.writerow(component.values())
 
@@ -145,17 +171,16 @@ class ProcessThread(Thread):
         with open((os.path.join(temp_dir, bomFileName)), 'w', newline='') as outfile:
             header = True
             csv_writer = csv.writer(outfile)
- 
+
             for component in bom:
                 if header:
-                    # Writing headers of CSV file
+                    # writing headers of CSV file
                     csv_writer.writerow(component.keys())
                     header = False
-            
-                # Writing data of CSV file
+
+                # writing data of CSV file
                 if ('**' not in component['Designator']):
                     csv_writer.writerow(component.values())
-
 
         # generate production archive
         self.report(75)
@@ -172,13 +197,13 @@ class ProcessThread(Thread):
         boardWidth = pcbnew.Iu2Millimeter(board.GetBoardEdgesBoundingBox().GetWidth())
         boardHeight = pcbnew.Iu2Millimeter(board.GetBoardEdgesBoundingBox().GetHeight())
         boardLayer = board.GetCopperLayerCount()
-        
+
         # files = {'upload[file]': open(temp_file, 'rb')}
         # upload_url = baseUrl + '/Common/KiCadUpFile/'
-        
+
         # response = requests.post(
         #     upload_url, files=files, data={'boardWidth':boardWidth,'boardHeight':boardHeight,'boardLayer':boardLayer})
-        
+
         # urls = json.loads(response.content)
 
         readsofar = 0
@@ -200,10 +225,9 @@ class ProcessThread(Thread):
 
     def report(self, status):
         wx.PostEvent(self.wxObject, ResultEvent(status))
-        
+
     def getMpnFromFootprint(self, footprint):
-        keys = ['mpn', 'MPN', 'Mpn', 'JLC_MPN', 'LCSC_MPN', 'LCSC Part #']
+        keys = ['mpn', 'Mpn', 'MPN', 'JLC_MPN', 'LCSC_MPN', 'LCSC Part #', 'JLC', 'LCSC']
         for key in keys:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
-    

@@ -3,6 +3,7 @@ import pcbnew
 baseUrl = 'https://www.jlcpcb.com'
 
 netlistFileName = 'netlist.ipc'
+designatorsFileName = 'designators.csv'
 placementFileName = 'positions.csv'
 bomFileName = 'bom.csv'
 gerberArchiveName = 'gerber.zip'
