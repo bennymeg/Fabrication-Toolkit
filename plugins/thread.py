@@ -127,7 +127,7 @@ class ProcessThread(Thread):
                     footprint_designators[footprint.GetReference()] -= 1
 
                 components.append({
-                    'Designator': "{}_{}".format(footprint.GetReference(), unique_id),
+                    'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
                     'Mid X': (footprint.GetPosition()[0] - board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0,
                     'Mid Y': (footprint.GetPosition()[1] - board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0,
                     'Rotation': footprint.GetOrientation() / 10.0,
@@ -144,7 +144,7 @@ class ProcessThread(Thread):
                 # todo: merge similar parts into single entry
 
                 bom.append({
-                    'Designator': "{}_{}".format(footprint.GetReference(), unique_id),
+                    'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
                     'Footprint': footprint_name,
                     'Quantity': 1,
                     'Value': footprint.GetValue(),
