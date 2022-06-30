@@ -9,7 +9,7 @@
 ## Installation
 
 ### Official Installation
-Open the "Plugin and Content Manager" from the KiCad main menu an install the "Fabrication Toolkit" plugin from the selection list.
+Open the "Plugin and Content Manager" from the KiCad main menu an install the "<ins>Fabrication Toolkit</ins>" plugin from the selection list.
 
 ### Manual installation
 Download the latest ZIP file from https://github.com/bennymeg/JLC-Plugin-for-KiCad. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
