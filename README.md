@@ -17,14 +17,18 @@ Download the latest ZIP file from https://github.com/bennymeg/JLC-Plugin-for-KiC
 ## Options
 
 ### Include Component Part Number in Production Files
-Add an 'MPN'* field with the LCSC component part number to the footprint component options.
+Add an 'MPN'* field with the LCSC component part number to the symbol's fields property.
+
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/mpn.png?raw=true" height=420>
 
 #### Similar Fields*:
 |'mpn' | 'Mpn' | 'MPN' | 'JLC_MPN' | 'LCSC_MPN' | 'LCSC Part #' | 'JLC' | 'LCSC'|
 | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ### Ignore Footprint in Production Files
-Select 'Exclude from position files' or 'Exclude from BOM' in the footprint component options in order to ignore the footprint from the relevant file.
+Select 'Exclude from position files' or 'Exclude from BOM' in the symbol's attributes property in order to ignore the footprint from the relevant file.
+
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/attributes.png?raw=true" height=420>
 
 ## Author
 
