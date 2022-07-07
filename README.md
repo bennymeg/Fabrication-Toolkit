@@ -1,4 +1,6 @@
-# JLC PCB Plug-in for KiCad (Fabrication Toolkit)
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/logo.svg?raw=true" height=180 
+    style="display:block margin-left: auto; margin-right: auto;">
+<h1 style="text-align: center;">JLC PCB Plug-in for KiCad</h1>
 
 ## Features
 1.	Generates gerber files in correct format for production
