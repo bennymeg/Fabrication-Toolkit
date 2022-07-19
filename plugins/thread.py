@@ -219,7 +219,7 @@ class ProcessThread(Thread):
 
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
 
-        webbrowser.open(temp_dir)
+        webbrowser.open("file://%s" % (temp_dir))
         # webbrowser.open(urls['redirect'])
         self.report(-1)
 
