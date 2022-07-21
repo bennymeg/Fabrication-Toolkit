@@ -4,5 +4,5 @@ try:
     plugin.register()
 except Exception as e:
     import logging
-    root = logging.getLogger()
-    root.debug(repr(e))
+    logger = logging.getLogger()
+    logger.debug(repr(e))

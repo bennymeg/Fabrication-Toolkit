@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="81624dc4-41ca-48ac-93b8-92da00936c57" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/plugins/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/plugins/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugins/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/plugins/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugins/plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/plugins/plugin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugins/result_event.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plugins/thread.py" beforeDir="false" afterPath="$PROJECT_DIR$/plugins/thread.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="2C7tSUh2zYdb8tYB6kgwqDOifTc" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="81624dc4-41ca-48ac-93b8-92da00936c57" name="Changes" comment="" />
+      <created>1658165450946</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1658165450946</updated>
+    </task>
+    <servers />
+  </component>
+</project>

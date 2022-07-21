@@ -1,10 +1,12 @@
+import os
 import wx
 import pcbnew
 
-from .thread import *
-from .result_event import *
+from .thread import ProcessThread
+from .events import StatusEvent
 
 
+# WX GUI form that show the plugin progress
 class KiCadToJLCForm(wx.Frame):
     def __init__(self):
         wx.Dialog.__init__(
@@ -32,8 +34,9 @@ class KiCadToJLCForm(wx.Frame):
 
         self.Centre(wx.BOTH)
 
-        EVT_RESULT(self, self.updateDisplay)
+        StatusEvent.invoke(self, self.updateDisplay)
         ProcessThread(self)
+
 
     def updateDisplay(self, status):
         if status.data == -1:
@@ -43,6 +46,7 @@ class KiCadToJLCForm(wx.Frame):
             self.m_gaugeStatus.SetValue(status.data)
 
 
+# Plugin definition
 class Plugin(pcbnew.ActionPlugin):
     def __init__(self):
         self.name = "Fabrication Toolkit"
@@ -50,10 +54,8 @@ class Plugin(pcbnew.ActionPlugin):
         self.description = "Toolkit for automating PCB fabrication process with KiCad and JLC PCB"
         self.pcbnew_icon_support = hasattr(self, "show_toolbar_button")
         self.show_toolbar_button = True
-        self.icon_file_name = os.path.join(
-            os.path.dirname(__file__), 'icon.png')
-        self.dark_icon_file_name = os.path.join(
-            os.path.dirname(__file__), 'icon.png')
+        self.icon_file_name = os.path.join(os.path.dirname(__file__), 'icon.png')
+        self.dark_icon_file_name = os.path.join(os.path.dirname(__file__), 'icon.png')
 
     def Run(self):
         KiCadToJLCForm().Show()
