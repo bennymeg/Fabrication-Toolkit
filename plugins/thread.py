@@ -73,9 +73,9 @@ class ProcessThread(Thread):
                 shutil.rmtree(output_path)
 
             shutil.copytree(temp_dir, output_path)
-            webbrowser.open(output_path)
+            webbrowser.open("file://%s" % (output_path))
         except Exception as e: 
-            webbrowser.open(temp_dir)
+            webbrowser.open("file://%s" % (temp_dir))
 
         self.report(-1)
 
