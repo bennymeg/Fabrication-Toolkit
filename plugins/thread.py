@@ -50,10 +50,6 @@ class ProcessThread(Thread):
         self.report(75)
         temp_file = self.process_manager.generate_archive(temp_dir, temp_file)
 
-        # upload files
-        #self.report(87.5)
-        #self.process_manager.upload_archive(temp_file)
-
         # progress bar done animation
         read_so_far = 0
         total_size = os.path.getsize(temp_file)
