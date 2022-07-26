@@ -1,6 +1,5 @@
-# from urllib import response
-# import json
-# import requests
+import json
+import requests
 import os
 import csv
 import shutil
@@ -176,11 +175,11 @@ class ProcessManager:
         boardLayer = self.board.GetCopperLayerCount()
 
         files = { 'upload[file]': open(temp_file, 'rb') }
+        data = { 'boardWidth': boardWidth, 'boardHeight': boardHeight, 'boardLayer': boardLayer }
         upload_url = baseUrl + '/Common/KiCadUpFile/'
 
-        # response = requests.post(
-        #     upload_url, files=files, data={ 'boardWidth': boardWidth, 'boardHeight': boardHeight, 'boardLayer': boardLayer })
-        # urls = json.loads(response.content)
+        response = requests.post(upload_url, files=files, data=data)
+        urls = json.loads(response.content)
 
     def _getMpnFromFootprint(self, footprint):
         keys = ['mpn', 'Mpn', 'MPN', 'JLC_MPN', 'LCSC_MPN', 'LCSC Part #', 'JLC', 'LCSC']
