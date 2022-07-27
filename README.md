@@ -40,7 +40,7 @@ Select 'Exclude from board' or 'Exclude from BOM' in the symbol's attributes pro
 
 Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fabrication attributes property in order to ignore the footprint from the relevant file.
 
-<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/fabrication.png?raw=true" height=460>
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/fabrication.png?raw=true" height=505>
 
 ## Author
 
