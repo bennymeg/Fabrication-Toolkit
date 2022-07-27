@@ -2,7 +2,7 @@
     "$schema": "https://go.kicad.org/pcm/schemas/v1",
     "name": "Fabrication Toolkit",
     "description": "JLC PCB fabrication toolkit",
-    "description_full": "Toolkit for automating PCB fabrication process with KiCad and JLC PCB. \n\n OPTIONS: \n\u2022 Include Component Part Number in Production Files \n Add an 'MPN' field with the LCSC component part number to the footprint component options.  \n\n\u2022 Ignore Footprint in Production Files \n Select 'Exclude from position files' or 'Exclude from BOM' in the footprint component options to in order ignore the footprint from the relevant file.",
+    "description_full": "Toolkit for automating PCB fabrication process with KiCad and JLC PCB. \n\n OPTIONS: \n\u2022 Include Component Part Number in Production Files \n Add an 'MPN' field with the LCSC component part number to the footprint component options.  \n\n\u2022 Ignore Footprint in Production Files \n Select 'Exclude from position files' or 'Exclude from BOM' in the footprint properties fabrication attributes in order to ignore the footprint from the relevant file.",
     "identifier": "com.github.bennymeg.JLC-Plugin-for-KiCad",
     "type": "plugin",
     "author": {
@@ -29,8 +29,8 @@
     ],
     "versions": [
         {
-            "version": "0.4.2",
-            "status": "testing",
+            "version": "1.0.0",
+            "status": "stable",
             "kicad_version": "6.00"
         }
     ]
