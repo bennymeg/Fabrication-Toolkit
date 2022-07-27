@@ -34,9 +34,13 @@ Add an 'MPN'* field with the LCSC component part number to the symbol's fields p
 | --- | --- | --- | --- | --- | --- | --- | --- |
 
 ### Ignore Footprint in Production Files
-Select 'Exclude from position files' or 'Exclude from BOM' in the symbol's attributes property in order to ignore the footprint from the relevant file.
+Select 'Exclude from board' or 'Exclude from BOM' in the symbol's attributes property in order to ignore the footprint from the relevant file.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/attributes.png?raw=true" height=420>
+
+Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fabrication attributes property in order to ignore the footprint from the relevant file.
+
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/fabrication.png?raw=true" height=460>
 
 ## Author
 
