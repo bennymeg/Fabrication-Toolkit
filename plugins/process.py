@@ -154,15 +154,12 @@ class ProcessManager:
     def generate_bom(self, temp_dir):
 
         with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8') as outfile:
-            header = True
             csv_writer = csv.writer(outfile)
+            # writing headers of CSV file
+            csv_writer.writerow(self.bom[0].keys())
 
+            # Output all of the component information
             for component in self.bom:
-                if header:
-                    # writing headers of CSV file
-                    csv_writer.writerow(component.keys())
-                    header = False
-
                 # writing data of CSV file
                 if ('**' not in component['Designator']):
                     csv_writer.writerow(component.values())
