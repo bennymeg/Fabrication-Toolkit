@@ -65,6 +65,9 @@ class ProcessManager:
         else:
             footprints = list(self.board.GetFootprints())
 
+        # sort footprint after designator
+        footprints.sort(key=lambda x: x.GetReference())
+
         # unique designator dictionary
         footprint_designators = defaultdict(int)
         for i, footprint in enumerate(footprints):
@@ -116,15 +119,23 @@ class ProcessManager:
                     bom_designators[footprint.GetReference()] -= 1
 
                 # todo: merge similar parts into single entry
-
-                self.bom.append({
-                    'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
-                    'Footprint': footprint_name,
-                    'Quantity': 1,
-                    'Value': footprint.GetValue(),
-                    # 'Mount': mount_type,
-                    'LCSC Part #': self._getMpnFromFootprint(footprint),
-                })
+                # merge similar parts into single entry
+                insert = True
+                for component in self.bom:
+                    if component['Footprint'].upper() == footprint_name.upper() and component['Value'].upper() == footprint.GetValue().upper():
+                        component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
+                        component['Quantity'] += 1
+                        insert = False
+                # add component to BOM
+                if insert:
+                    self.bom.append({
+                        'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
+                        'Footprint': footprint_name,
+                        'Quantity': 1,
+                        'Value': footprint.GetValue(),
+                        # 'Mount': mount_type,
+                        'LCSC Part #': self._getMpnFromFootprint(footprint),
+                    })
 
         with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8') as outfile:
             header = True
@@ -143,15 +154,12 @@ class ProcessManager:
     def generate_bom(self, temp_dir):
 
         with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8') as outfile:
-            header = True
             csv_writer = csv.writer(outfile)
+            # writing headers of CSV file
+            csv_writer.writerow(self.bom[0].keys())
 
+            # Output all of the component information
             for component in self.bom:
-                if header:
-                    # writing headers of CSV file
-                    csv_writer.writerow(component.keys())
-                    header = False
-
                 # writing data of CSV file
                 if ('**' not in component['Designator']):
                     csv_writer.writerow(component.values())
