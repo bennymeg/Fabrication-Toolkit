@@ -123,7 +123,7 @@ class ProcessManager:
                 insert = True
                 for component in self.bom:
                     if component['Footprint'].upper() == footprint_name.upper() and component['Value'].upper() == footprint.GetValue().upper():
-                        component['Designator'] += ", " + footprint.GetReference()
+                        component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
                 # add component to BOM
