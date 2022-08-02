@@ -118,7 +118,6 @@ class ProcessManager:
                     unique_id = str(bom_designators[footprint.GetReference()])
                     bom_designators[footprint.GetReference()] -= 1
 
-                # todo: merge similar parts into single entry
                 # merge similar parts into single entry
                 insert = True
                 for component in self.bom:
@@ -126,6 +125,7 @@ class ProcessManager:
                         component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
+
                 # add component to BOM
                 if insert:
                     self.bom.append({
@@ -138,15 +138,11 @@ class ProcessManager:
                     })
 
         with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8') as outfile:
-            header = True
             csv_writer = csv.writer(outfile)
+            # writing headers of CSV file
+            csv_writer.writerow(component.keys())
 
             for component in self.components:
-                if header:
-                    # writing headers of CSV file
-                    csv_writer.writerow(component.keys())
-                    header = False
-
                 # writing data of CSV file
                 if ('**' not in component['Designator']):
                     csv_writer.writerow(component.values())
