@@ -140,7 +140,7 @@ class ProcessManager:
         with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8') as outfile:
             csv_writer = csv.writer(outfile)
             # writing headers of CSV file
-            csv_writer.writerow(component.keys())
+            csv_writer.writerow(self.components[0].keys())
 
             for component in self.components:
                 # writing data of CSV file
