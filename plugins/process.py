@@ -172,7 +172,13 @@ class ProcessManager:
         return temp_file
 
     def _getMpnFromFootprint(self, footprint):
-        keys = ['mpn', 'Mpn', 'MPN', 'JLC_MPN', 'LCSC_MPN', 'LCSC Part #', 'JLC', 'LCSC']
+        keys = ['LCSC Part #', 'JLCPCB Part #']
+        fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
+
         for key in keys:
+            if footprint.HasProperty(key):
+                return footprint.GetProperty(key)
+
+        for key in fallback_keys:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
