@@ -22,6 +22,9 @@ Open the "Plugin and Content Manager" from the KiCad main menu and install the "
 ### Manual installation
 Download the latest ZIP file from https://github.com/bennymeg/JLC-Plugin-for-KiCad. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
 
+## Usage
+Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="magin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
+
 ## Options
 
 ### Include Component Part Number in Production Files
