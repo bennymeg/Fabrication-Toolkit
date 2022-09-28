@@ -27,7 +27,8 @@ class ProcessManager:
         plot_options.SetScale(1)
         plot_options.SetMirror(False)
         plot_options.SetUseGerberAttributes(True)
-        plot_options.SetExcludeEdgeLayer(True)
+        if hasattr(plot_options, "SetExcludeEdgeLayer"):
+            plot_options.SetExcludeEdgeLayer(True)
         plot_options.SetUseGerberProtelExtensions(False)
         plot_options.SetUseAuxOrigin(True)
         plot_options.SetSubtractMaskFromSilk(False)
@@ -107,7 +108,7 @@ class ProcessManager:
                     'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
                     'Mid X': (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0,
                     'Mid Y': (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0,
-                    'Rotation': footprint.GetOrientation() / 10.0,
+                    'Rotation': footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0,
                     'Layer': layer,
                 })
 
