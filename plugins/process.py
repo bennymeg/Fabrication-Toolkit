@@ -27,12 +27,13 @@ class ProcessManager:
         plot_options.SetScale(1)
         plot_options.SetMirror(False)
         plot_options.SetUseGerberAttributes(True)
-        if hasattr(plot_options, "SetExcludeEdgeLayer"):
-            plot_options.SetExcludeEdgeLayer(True)
         plot_options.SetUseGerberProtelExtensions(False)
         plot_options.SetUseAuxOrigin(True)
         plot_options.SetSubtractMaskFromSilk(False)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
+        
+        if hasattr(plot_options, "SetExcludeEdgeLayer"):
+            plot_options.SetExcludeEdgeLayer(True)
 
         for layer_info in plotPlan:
             if self.board.IsLayerEnabled(layer_info[1]):
