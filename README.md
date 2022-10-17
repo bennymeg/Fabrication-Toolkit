@@ -53,6 +53,28 @@ Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fa
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/fabrication.png?raw=true" height=505>
 
+### Rotate a Component
+The rotation of components in KiCad Footprints does not always match the orientation in the JLC library.
+Add an 'JLC Rotation Offset' field with an counter-clockwise orientation offset in degrees to correct this.
+
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation-jlc.png?raw=true" height=164>
+
+If the JLC preview shows a footprint like this, enter a rotation offset of -90 to rotate pin 1 to the lower right corner.
+
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation.png?raw=true" height=505>
+
+#### Primary Fields*:
+| 'JLCPCB Rotation Offset' |
+| --- |
+
+_The fields will be queried in the order denoted above._
+
+#### Fallback Fields*:
+| 'JlcRotOffset' | 'JLCRotOffset' |
+| --- | --- |
+
+_The fields will be queried in the order denoted above._
+
 ## Author
 
 Benny Megidish
