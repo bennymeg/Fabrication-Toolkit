@@ -26,29 +26,34 @@ class ProcessThread(Thread):
         project_directory = os.path.dirname(self.process_manager.board.GetFileName())
         output_path = os.path.join(project_directory, outputFolder)
 
-        # configure and generate gerber
-        self.report(5)
-        self.process_manager.generate_gerber(temp_dir)
+        try:
+            # configure and generate gerber
+            self.report(5)
+            self.process_manager.generate_gerber(temp_dir)
 
-        # generate drill file
-        self.report(15)
-        self.process_manager.generate_drills(temp_dir)
-        
-        # generate netlist
-        self.report(25)
-        self.process_manager.generate_netlist(temp_dir)
+            # generate drill file
+            self.report(15)
+            self.process_manager.generate_drills(temp_dir)
 
-        # generate pick and place file
-        self.report(40)
-        self.process_manager.generate_positions(temp_dir)
+            # generate netlist
+            self.report(25)
+            self.process_manager.generate_netlist(temp_dir)
 
-        # generate BOM file
-        self.report(60)
-        self.process_manager.generate_bom(temp_dir)
+            # generate pick and place file
+            self.report(40)
+            self.process_manager.generate_positions(temp_dir)
 
-        # generate production archive
-        self.report(75)
-        temp_file = self.process_manager.generate_archive(temp_dir, temp_file)
+            # generate BOM file
+            self.report(60)
+            self.process_manager.generate_bom(temp_dir)
+
+            # generate production archive
+            self.report(75)
+            temp_file = self.process_manager.generate_archive(temp_dir, temp_file)
+        except Exception as e:
+            wx.MessageBox(str(e), "Error", wx.OK | wx.ICON_ERROR)
+            self.report(-1)
+            return
 
         # progress bar done animation
         read_so_far = 0
