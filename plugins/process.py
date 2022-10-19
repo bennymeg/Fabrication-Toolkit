@@ -77,9 +77,10 @@ class ProcessManager:
             footprint_designators[footprint.GetReference()] += 1
         bom_designators = footprint_designators.copy()
 
-        with open((os.path.join(temp_dir, designatorsFileName)), 'w', encoding='utf-8') as f:
-            for key, value in footprint_designators.items():
-                f.write('%s:%s\n' % (key, value))
+        if len(footprint_designators.items()) > 0:
+            with open((os.path.join(temp_dir, designatorsFileName)), 'w', encoding='utf-8') as f:
+                for key, value in footprint_designators.items():
+                    f.write('%s:%s\n' % (key, value))
 
         for i, footprint in enumerate(footprints):
             try:
@@ -139,28 +140,29 @@ class ProcessManager:
                         'LCSC Part #': self._getMpnFromFootprint(footprint),
                     })
 
-        with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8') as outfile:
-            csv_writer = csv.writer(outfile)
-            # writing headers of CSV file
-            csv_writer.writerow(self.components[0].keys())
+        if len(self.components) > 0:
+            with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8') as outfile:
+                csv_writer = csv.writer(outfile)
+                # writing headers of CSV file
+                csv_writer.writerow(self.components[0].keys())
 
-            for component in self.components:
-                # writing data of CSV file
-                if ('**' not in component['Designator']):
-                    csv_writer.writerow(component.values())
+                for component in self.components:
+                    # writing data of CSV file
+                    if ('**' not in component['Designator']):
+                        csv_writer.writerow(component.values())
 
     def generate_bom(self, temp_dir):
+        if len(self.bom) > 0:
+            with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8') as outfile:
+                csv_writer = csv.writer(outfile)
+                # writing headers of CSV file
+                csv_writer.writerow(self.bom[0].keys())
 
-        with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8') as outfile:
-            csv_writer = csv.writer(outfile)
-            # writing headers of CSV file
-            csv_writer.writerow(self.bom[0].keys())
-
-            # Output all of the component information
-            for component in self.bom:
-                # writing data of CSV file
-                if ('**' not in component['Designator']):
-                    csv_writer.writerow(component.values())
+                # Output all of the component information
+                for component in self.bom:
+                    # writing data of CSV file
+                    if ('**' not in component['Designator']):
+                        csv_writer.writerow(component.values())
 
     def generate_archive(self, temp_dir, temp_file):
         temp_file = shutil.make_archive(temp_file, 'zip', temp_dir)
