@@ -105,11 +105,17 @@ class ProcessManager:
                     unique_id = str(footprint_designators[footprint.GetReference()])
                     footprint_designators[footprint.GetReference()] -= 1
 
+                designator = "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
+                mid_x = (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
+                mid_y = (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
+                rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
+                rotation = (rotation + self._getRotOffsetFromFootprint(footprint)) % 360.0
+
                 self.components.append({
-                    'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
-                    'Mid X': (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0,
-                    'Mid Y': (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0,
-                    'Rotation': footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0,
+                    'Designator': designator,
+                    'Mid X': mid_x,
+                    'Mid Y': mid_y,
+                    'Rotation': rotation,
                     'Layer': layer,
                 })
 
@@ -184,3 +190,22 @@ class ProcessManager:
         for key in fallback_keys:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
+
+    def _getRotOffsetFromFootprint(self, footprint):
+        keys = ['JLCPCB Rotation Offset']
+        fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
+
+        offset = None
+
+        for key in keys + fallback_keys:
+            if footprint.HasProperty(key):
+                offset = footprint.GetProperty(key)
+                break
+
+        if offset is None or offset == "":
+            return 0
+        else:
+            try:
+                return float(offset)
+            except ValueError:
+                raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
