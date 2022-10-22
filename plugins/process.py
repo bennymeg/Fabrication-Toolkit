@@ -1,8 +1,17 @@
+# For better annotation.
+from __future__ import annotations
+
+# System base libraries
 import os
 import csv
 import shutil
-import pcbnew
 from collections import defaultdict
+import re
+
+# Interaction with KiCad.
+import pcbnew
+
+# Application definitions.
 from .config import *
 
 
@@ -11,8 +20,40 @@ class ProcessManager:
         self.board = pcbnew.GetBoard()
         self.bom = []
         self.components = []
+        self.__rotation_db = self.__read_rotation_db()
+
+    @staticmethod
+    def __read_rotation_db(filename: str = os.path.join(os.path.dirname(__file__), 'rotations.cf')) -> dict[str, float]:
+        '''Read the rotations.cf config file so we know what rotations
+        to apply later.
+        '''
+        db = {}
+        with open(filename, 'r') as fh:
+            for line in fh:
+                line = line.rstrip()
+                line = re.sub('#.*$', '', line)         # remove anything after a comment
+                line = re.sub('\s*$', '', line)         # remove all trailing space
+                if (line == ""):
+                    continue
+                m = re.match('^([^\s]+)\s+(\d+)$', line)
+                if m:
+                    db.update({m.group(1): int(m.group(2))})
+        return db
+
+    def _get_rotation_from_db(self, footprint: str) -> float:
+        '''Get the rotation to be added from the database file.'''
+        # Lookfor regular expression math of the footprint name and not its root library.
+        fpshort = footprint.split(':')[-1]
+        for expression, delta in self.db.items():
+            fp = fpshort
+            if (re.search(':', expression)):
+                fp = footprint
+            if(re.search(expression, fp)):
+                return delta
+        return 0.0
 
     def generate_gerber(self, temp_dir):
+        '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 0
         settings.m_SolderMaskMinWidth = 0
@@ -47,6 +88,7 @@ class ProcessManager:
         plot_controller.ClosePlot()
 
     def generate_drills(self, temp_dir):
+        '''Generate the drill file.'''
         drill_writer = pcbnew.EXCELLON_WRITER(self.board)
 
         drill_writer.SetOptions(
@@ -58,10 +100,12 @@ class ProcessManager:
         drill_writer.CreateDrillandMapFilesSet(temp_dir, True, False)
 
     def generate_netlist(self, temp_dir):
+        '''Generate the conenction netlist.'''
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
     def generate_positions(self, temp_dir):
+        '''Generate the position files.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
         else:
@@ -110,7 +154,10 @@ class ProcessManager:
                 mid_x = (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
-                rotation = (rotation + self._getRotOffsetFromFootprint(footprint)) % 360.0
+                # Get the rotation offset to be added to the actual rotation prioritazing the explicited by the
+                # designer at the standards symbol fields. If not speficied use the internal database.
+                rotation_offset = self._get_rotation_offset_from_footprint(footprint) #or self._get_rotation_from_db(footprint)
+                rotation = (rotation + rotation_offset) % 360.0
 
                 self.components.append({
                     'Designator': designator,
@@ -143,7 +190,7 @@ class ProcessManager:
                         'Quantity': 1,
                         'Value': footprint.GetValue(),
                         # 'Mount': mount_type,
-                        'LCSC Part #': self._getMpnFromFootprint(footprint),
+                        'LCSC Part #': self._get_mpn_from_footprint(footprint),
                     })
 
         if len(self.components) > 0:
@@ -171,6 +218,7 @@ class ProcessManager:
                         csv_writer.writerow(component.values())
 
     def generate_archive(self, temp_dir, temp_file):
+        '''Generate the files.'''
         temp_file = shutil.make_archive(temp_file, 'zip', temp_dir)
         temp_file = shutil.move(temp_file, temp_dir)
 
@@ -181,7 +229,8 @@ class ProcessManager:
 
         return temp_file
 
-    def _getMpnFromFootprint(self, footprint):
+    def _get_mpn_from_footprint(self, footprint: str):
+        ''''Get the MPN/LCSS stock code from standard sylbol fields.'''
         keys = ['LCSC Part #', 'JLCPCB Part #']
         fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
@@ -193,7 +242,8 @@ class ProcessManager:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
 
-    def _getRotOffsetFromFootprint(self, footprint):
+    def _get_rotation_offset_from_footprint(self, footprint: str) -> float:
+        '''Get the rotation from standard symbol fileds.'''
         keys = ['JLCPCB Rotation Offset']
         fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
 
