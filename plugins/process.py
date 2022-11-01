@@ -109,6 +109,7 @@ class ProcessManager:
                 designator = "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                 mid_x = (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
+                mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), self._getPosOffsetFromFootprint(footprint))))
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
                 rotation = (rotation + self._getRotOffsetFromFootprint(footprint)) % 360.0
 
@@ -211,3 +212,22 @@ class ProcessManager:
                 return float(offset)
             except ValueError:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
+
+    def _getPosOffsetFromFootprint(self, footprint):
+        keys = ['JLCPCB Position Offset']
+        fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
+
+        offset = None
+
+        for key in keys + fallback_keys:
+            if footprint.HasProperty(key):
+                offset = footprint.GetProperty(key)
+                break
+
+        if offset is None or offset == "":
+            return (0, 0)
+        else:
+            try:
+                return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )
+            except ValueError:
+                raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
