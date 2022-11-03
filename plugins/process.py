@@ -1,5 +1,6 @@
 import os
 import csv
+import math
 import shutil
 import pcbnew
 from collections import defaultdict
@@ -109,9 +110,15 @@ class ProcessManager:
                 designator = "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                 mid_x = (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
-                mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), self._getPosOffsetFromFootprint(footprint))))
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
                 rotation = (rotation + self._getRotOffsetFromFootprint(footprint)) % 360.0
+
+                # position offset needs to take rotation into account
+                pos_offset = self._getPosOffsetFromFootprint(footprint)
+                rsin = math.sin(rotation / 180 * math.pi)
+                rcos = math.cos(rotation / 180 * math.pi)
+                pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
+                mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), pos_offset)))
 
                 self.components.append({
                     'Designator': designator,
