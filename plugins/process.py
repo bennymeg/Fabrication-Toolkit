@@ -29,7 +29,7 @@ class ProcessManager:
         plot_options.SetUseGerberAttributes(True)
         plot_options.SetUseGerberProtelExtensions(False)
         plot_options.SetUseAuxOrigin(True)
-        plot_options.SetSubtractMaskFromSilk(False)
+        plot_options.SetSubtractMaskFromSilk(True)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
         
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
