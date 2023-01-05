@@ -60,7 +60,7 @@ The rotation of components in KiCad Footprints does not always match the orienta
 
 If the JLC preview shows a footprint like this, enter a rotation offset of -90 to rotate pin 1 to the lower right corner.
 
-<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation.png?raw=true" height=505>
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation.png?raw=true" height=420>
 
 #### Primary Fields*:
 | 'JLCPCB Rotation Offset' |
@@ -77,7 +77,7 @@ _The fields will be queried in the order denoted above._
 ### Offset Component Position
 The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLC Position Offset' field with an x,y position offset in degrees to correct this.
 
-<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=505>
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
 
 #### Primary Fields*:
 | 'JLCPCB Position Offset' |
