@@ -4,6 +4,7 @@ from __future__ import annotations
 # System base libraries
 import os
 import csv
+import math
 import shutil
 from collections import defaultdict
 import re
@@ -159,6 +160,13 @@ class ProcessManager:
                 rotation_offset = self._get_rotation_offset_from_footprint(footprint) #or self._get_rotation_from_db(footprint)
                 rotation = (rotation + rotation_offset) % 360.0
 
+                # position offset needs to take rotation into account
+                pos_offset = self._getPosOffsetFromFootprint(footprint)
+                rsin = math.sin(rotation / 180 * math.pi)
+                rcos = math.cos(rotation / 180 * math.pi)
+                pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
+                mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), pos_offset)))
+
                 self.components.append({
                     'Designator': designator,
                     'Mid X': mid_x,
@@ -261,3 +269,22 @@ class ProcessManager:
                 return float(offset)
             except ValueError:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
+
+    def _getPosOffsetFromFootprint(self, footprint):
+        keys = ['JLCPCB Position Offset']
+        fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
+
+        offset = None
+
+        for key in keys + fallback_keys:
+            if footprint.HasProperty(key):
+                offset = footprint.GetProperty(key)
+                break
+
+        if offset is None or offset == "":
+            return (0, 0)
+        else:
+            try:
+                return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )
+            except ValueError:
+                raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
