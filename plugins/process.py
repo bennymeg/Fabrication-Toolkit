@@ -29,28 +29,37 @@ class ProcessManager:
         to apply later.
         '''
         db = {}
+
         with open(filename, 'r') as fh:
             for line in fh:
                 line = line.rstrip()
                 line = re.sub('#.*$', '', line)         # remove anything after a comment
                 line = re.sub('\s*$', '', line)         # remove all trailing space
+
                 if (line == ""):
                     continue
-                m = re.match('^([^\s]+)\s+(\d+)$', line)
-                if m:
-                    db.update({m.group(1): int(m.group(2))})
+
+                match = re.match('^([^\s]+)\s+(\d+)$', line)
+
+                if match:
+                    db.update({ match.group(1): int(match.group(2)) })
+
         return db
 
     def _get_rotation_from_db(self, footprint: str) -> float:
         '''Get the rotation to be added from the database file.'''
-        # Lookfor regular expression math of the footprint name and not its root library.
+        # Look for regular expression math of the footprint name and not its root library.
         fpshort = footprint.split(':')[-1]
+
         for expression, delta in self.db.items():
             fp = fpshort
+
             if (re.search(':', expression)):
                 fp = footprint
+                
             if(re.search(expression, fp)):
                 return delta
+
         return 0.0
 
     def generate_gerber(self, temp_dir):
@@ -101,7 +110,7 @@ class ProcessManager:
         drill_writer.CreateDrillandMapFilesSet(temp_dir, True, False)
 
     def generate_netlist(self, temp_dir):
-        '''Generate the conenction netlist.'''
+        '''Generate the connection netlist.'''
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
@@ -155,13 +164,13 @@ class ProcessManager:
                 mid_x = (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
-                # Get the rotation offset to be added to the actual rotation prioritazing the explicited by the
-                # designer at the standards symbol fields. If not speficied use the internal database.
+                # Get the rotation offset to be added to the actual rotation prioritizing the explicated by the
+                # designer at the standards symbol fields. If not specified use the internal database.
                 rotation_offset = self._get_rotation_offset_from_footprint(footprint) #or self._get_rotation_from_db(footprint)
                 rotation = (rotation + rotation_offset) % 360.0
 
                 # position offset needs to take rotation into account
-                pos_offset = self._getPosOffsetFromFootprint(footprint)
+                pos_offset = self._get_position_offset_from_footprint(footprint)
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
                 pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
@@ -238,7 +247,7 @@ class ProcessManager:
         return temp_file
 
     def _get_mpn_from_footprint(self, footprint: str):
-        ''''Get the MPN/LCSS stock code from standard sylbol fields.'''
+        ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         keys = ['LCSC Part #', 'JLCPCB Part #']
         fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
@@ -251,7 +260,7 @@ class ProcessManager:
                 return footprint.GetProperty(key)
 
     def _get_rotation_offset_from_footprint(self, footprint: str) -> float:
-        '''Get the rotation from standard symbol fileds.'''
+        '''Get the rotation from standard symbol fields.'''
         keys = ['JLCPCB Rotation Offset']
         fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
 
@@ -270,7 +279,7 @@ class ProcessManager:
             except ValueError:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
-    def _getPosOffsetFromFootprint(self, footprint):
+    def _get_position_offset_from_footprint(self, footprint):
         keys = ['JLCPCB Position Offset']
         fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
 
