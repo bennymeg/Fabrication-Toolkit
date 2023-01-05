@@ -1,0 +1,61 @@
+#
+# Rotations for jlcpcba
+#
+# This defines additional rotations we need to apply to ensure the
+# footprints are correctly orientated to work with the JLCPCB PBCA
+# service
+#
+# These are regular expressions that are matched by default against
+# the short footprint name (without the library name), however if there
+# is a colon in the regex then the full name (with the library name) is
+# used.
+#
+# The matches are checked against one by one, and the first match
+# is used
+#
+# The regex and the rotation value is separated by any amount of
+# whitespace, blank lines and comments are ignored
+#
+
+#
+# Normal short-name matches
+#
+^SOT-223            180
+^SOT-23             180
+^D_SOT-23           180
+^TSOT-23            180
+^SOT-353            180
+^QFN-               90 
+^qfn-               90 
+^LQFP-              270
+^TQFP-              270
+^MSOP-              270
+^TSSOP-             270
+^DFN-               270
+^SOIC-8_            270
+^SOIC-16_           270
+^VSSOP-10_-         270
+
+#
+# Polarised caps are 180 out
+#
+^CP_Elec_           180
+^C_Elec_            180
+^CP_EIA-            180
+
+#
+# Long name matches
+#
+#^Lees_Footprints:   270
+^LED_WS2812B_PLCC4   180
+
+# More rotation from https://github.com/matthewlai/JLCKicadTools/tree/master/jlc_kicad_tools
+^R_Array_Convex_ 	90
+^R_Array_Concave_ 	90
+^SOP-4_                0
+^SOP-(?!18_)           270
+^SOP-18_               0
+^VSSOP-8_              270
+^Bosch_LGA-            90
+^PowerPAK_SO-8_Single  270
+^HTSSOP-               270
