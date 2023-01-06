@@ -203,7 +203,7 @@ class ProcessManager:
                 if insert:
                     self.bom.append({
                         'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
-                        'Footprint': footprint_name,
+                        'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
                         'Value': footprint.GetValue(),
                         # 'Mount': mount_type,
@@ -297,3 +297,9 @@ class ProcessManager:
                 return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )
             except ValueError:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
+
+    def _normalize_footprint_name(self, footprint):
+        # replace footprint names of resistors, capacitors, inductors, diodes, LEDs, fuses etc, with the footprint size only
+        pattern = re.compile(r'^(\w*_SMD:)?\w{1,4}_(\d+)_\d+Metric.*$')
+
+        return pattern.sub(r'\2', footprint)
