@@ -6,7 +6,7 @@
 | **JLC PCB Plug-in for KiCad** |
 |:-----:|
 
-[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/bennymeg)
+[![Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/bennymeg)
 
 </div>
 
@@ -24,7 +24,7 @@ Fabrication Toolkit is distributed with the official releases of KiCad 6+. Open 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/manager.png?raw=true" height=275>
 
 ### Manual installation
-Download the latest ZIP file from https://github.com/bennymeg/JLC-Plugin-for-KiCad. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
+Download the [latest release](https://github.com/bennymeg/JLC-Plugin-for-KiCad/releases) ZIP file. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
 
 ## Usage
 Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="magin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
