@@ -194,7 +194,7 @@ class ProcessManager:
                 # merge similar parts into single entry
                 insert = True
                 for component in self.bom:
-                    if component['Footprint'].upper() == footprint_name.upper() and component['Value'].upper() == footprint.GetValue().upper():
+                    if self._normalize_footprint_name(component['Footprint']) == self._normalize_footprint_name(footprint_name) and component['Value'].upper() == footprint.GetValue().upper():
                         component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
