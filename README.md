@@ -98,7 +98,3 @@ _The fields will be queried in the order denoted above._
 ## Author
 
 Benny Megidish
-
-## Contributors
-
-Hildo Guillardi Júnior
