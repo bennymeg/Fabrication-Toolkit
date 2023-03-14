@@ -43,8 +43,8 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 _The fields will be query in the order denoted above._
 
 #### Fallback Fields*:
-| 'lcsc#' | 'LCSC' | 'JLC' | 'MPN' | 'Mpn' | 'mpn' |
-| --- | --- | --- | --- | --- | --- |
+| 'JLC Part' | 'LCSC Part' | 'lcsc#' | 'LCSC' | 'JLC' | 'MPN' | 'Mpn' | 'mpn' |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 
 _The fields will be query in the order denoted above._
 
