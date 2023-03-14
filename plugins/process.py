@@ -251,11 +251,7 @@ class ProcessManager:
         keys = ['LCSC Part #', 'JLCPCB Part #']
         fallback_keys = ['LCSC Part', 'JLC Part', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
-        for key in keys:
-            if footprint.HasProperty(key):
-                return footprint.GetProperty(key)
-
-        for key in fallback_keys:
+        for key in keys + fallback_keys:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
 
