@@ -198,6 +198,7 @@ class ProcessManager:
                         component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
+                        # break ? 
 
                 # add component to BOM
                 if insert:
@@ -246,7 +247,7 @@ class ProcessManager:
 
         return temp_file
 
-    def _get_mpn_from_footprint(self, footprint: str):
+    def _get_mpn_from_footprint(self, footprint):
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         keys = ['LCSC Part #', 'JLCPCB Part #']
         fallback_keys = ['LCSC Part', 'JLC Part', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
@@ -255,7 +256,7 @@ class ProcessManager:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
 
-    def _get_rotation_offset_from_footprint(self, footprint: str) -> float:
+    def _get_rotation_offset_from_footprint(self, footprint) -> float:
         '''Get the rotation from standard symbol fields.'''
         keys = ['JLCPCB Rotation Offset']
         fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
