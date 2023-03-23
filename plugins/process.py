@@ -65,7 +65,7 @@ class ProcessManager:
     def generate_gerber(self, temp_dir):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
-        settings.m_SolderMaskMargin = 0
+        settings.m_SolderMaskMargin = 0.05
         settings.m_SolderMaskMinWidth = 0
 
         plot_controller = pcbnew.PLOT_CONTROLLER(self.board)
@@ -132,7 +132,7 @@ class ProcessManager:
         bom_designators = footprint_designators.copy()
 
         if len(footprint_designators.items()) > 0:
-            with open((os.path.join(temp_dir, designatorsFileName)), 'w', encoding='utf-8') as f:
+            with open((os.path.join(temp_dir, designatorsFileName)), 'w', encoding='utf-8-sig') as f:
                 for key, value in footprint_designators.items():
                     f.write('%s:%s\n' % (key, value))
 
@@ -212,7 +212,7 @@ class ProcessManager:
                     })
 
         if len(self.components) > 0:
-            with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8') as outfile:
+            with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8-sig') as outfile:
                 csv_writer = csv.writer(outfile)
                 # writing headers of CSV file
                 csv_writer.writerow(self.components[0].keys())
@@ -224,7 +224,7 @@ class ProcessManager:
 
     def generate_bom(self, temp_dir):
         if len(self.bom) > 0:
-            with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8') as outfile:
+            with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8-sig') as outfile:
                 csv_writer = csv.writer(outfile)
                 # writing headers of CSV file
                 csv_writer.writerow(self.bom[0].keys())
