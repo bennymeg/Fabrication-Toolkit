@@ -195,8 +195,9 @@ class ProcessManager:
                 insert = True
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
-                    same_value     = component['Value'].upper() == footprint.GetValue().upper()
-                    same_lcsc      = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+                    same_value = component['Value'].upper() == footprint.GetValue().upper()
+                    same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+
                     if same_footprint and same_value and same_lcsc:
                         component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
