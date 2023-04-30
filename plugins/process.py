@@ -176,6 +176,10 @@ class ProcessManager:
                 pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
                 mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), pos_offset)))
 
+                # JLC expect 'Rotation' to be 'as viewed from above component', so bottom needs inverting.
+                if layer == 'bottom' and rotation != 0:
+                    rotation = 360.0 - rotation
+                                
                 self.components.append({
                     'Designator': designator,
                     'Mid X': mid_x,
