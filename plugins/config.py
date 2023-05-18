@@ -16,6 +16,8 @@ plotPlan = [
     ("In2.Cu", pcbnew.In2_Cu, "Internal plane 2"),
     ("In3.Cu", pcbnew.In3_Cu, "Internal plane 3"),
     ("In4.Cu", pcbnew.In4_Cu, "Internal plane 4"),
+    ("In5.Cu", pcbnew.In5_Cu, "Internal plane 5"),
+    ("In6.Cu", pcbnew.In6_Cu, "Internal plane 6"),
     ("F.SilkS", pcbnew.F_SilkS, "Top Silkscreen"),
     ("B.SilkS", pcbnew.B_SilkS, "Bottom Silkscreen"),
     ("F.Mask", pcbnew.F_Mask, "Top Soldermask"),

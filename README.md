@@ -31,7 +31,7 @@ Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugi
 
 ## Options
 
-### Include Component Part Number in Production Files
+### ① Include Component Part Number in Production Files
 Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's fields property.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/mpn.png?raw=true" height=420>
@@ -48,7 +48,9 @@ _The fields will be query in the order denoted above._
 
 _The fields will be query in the order denoted above._
 
-### Ignore Footprint in Production Files
+---
+
+### ② Ignore Footprint in Production Files
 Select 'Exclude from board' or 'Exclude from BOM' in the symbol's attributes property in order to ignore the footprint from the relevant file.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/attributes.png?raw=true" height=420>
@@ -57,8 +59,10 @@ Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fa
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/fabrication.png?raw=true" height=505>
 
-### Offset Component Rotation
-The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'JLC Rotation Offset' field with an counter-clockwise orientation offset in degrees to correct this.
+---
+
+### ③ Offset Component Rotation
+The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'JLCPCB Rotation Offset' field with an counter-clockwise orientation offset in degrees to correct this.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation-jlc.png?raw=true" height=164>
 
@@ -78,8 +82,10 @@ _The fields will be queried in the order denoted above._
 
 _The fields will be queried in the order denoted above._
 
-### Offset Component Position
-The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLC Position Offset' field with an comma seperated x,y position offset to correct it.
+---
+
+### ④ Offset Component Position
+The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma seperated x,y position offset to correct it.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
 
