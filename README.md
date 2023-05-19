@@ -70,6 +70,8 @@ If the JLC preview shows a footprint like this, enter a rotation offset of -90 t
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation.png?raw=true" height=420>
 
+As the rotation offset is entered in the Schematic Editor, make sure to update your PCB with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
+
 #### Primary Fields*:
 | 'JLCPCB Rotation Offset' |
 | --- |
@@ -88,6 +90,8 @@ _The fields will be queried in the order denoted above._
 The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma seperated x,y position offset to correct it.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
+
+As the position offset is entered in the Schematic Editor, make sure to update your PCB with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
 
 #### Primary Fields*:
 | 'JLCPCB Position Offset' |
