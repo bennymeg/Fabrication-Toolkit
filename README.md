@@ -29,6 +29,8 @@ Download the [latest release](https://github.com/bennymeg/JLC-Plugin-for-KiCad/r
 ## Usage
 Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="magin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
 
+⊛ Ensure your board is syncronized before invoking this feature.
+
 ## Options
 
 ### ① Include Component Part Number in Production Files
