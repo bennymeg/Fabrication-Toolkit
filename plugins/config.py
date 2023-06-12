@@ -6,7 +6,7 @@ netlistFileName = 'netlist.ipc'
 designatorsFileName = 'designators.csv'
 placementFileName = 'positions.csv'
 bomFileName = 'bom.csv'
-gerberArchiveName = 'gerber.zip'
+gerberArchiveName = 'gerbers.zip'
 outputFolder = 'production'
 
 plotPlan = [
