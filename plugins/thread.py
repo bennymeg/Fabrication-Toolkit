@@ -27,12 +27,12 @@ class ProcessThread(Thread):
 
         temp_dir = tempfile.mkdtemp() + timestamp
         os.makedirs(temp_dir)
+        os.makedirs(temp_dir + "_g")
 
         _, temp_file = tempfile.mkstemp()
         project_directory = os.path.dirname(self.process_manager.board.GetFileName())
 
         try:
-            webbrowser.open("file://%s" % (temp_dir))
             # generate gerber
             self.progress(5)
             self.process_manager.generate_gerber(temp_dir + "_g")
@@ -58,7 +58,7 @@ class ProcessThread(Thread):
             temp_file = self.process_manager.generate_archive(temp_dir + "_g", temp_file)
             shutil.move(temp_file, temp_dir)
             shutil.rmtree(temp_dir + "_g")
-            temp_file = temp_dir + "/" + os.path.basename(temp_file)
+            temp_file = os.path.join(temp_dir, os.path.basename(temp_file))
         except Exception as e:
             wx.MessageBox(str(e), "Error", wx.OK | wx.ICON_ERROR)
             self.progress(-1)
