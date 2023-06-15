@@ -142,11 +142,6 @@ class ProcessManager:
             except AttributeError:
                 footprint_name = str(footprint.GetFPID().GetLibItemName())
 
-            layer = {
-                pcbnew.F_Cu: 'top',
-                pcbnew.B_Cu: 'bottom',
-            }.get(footprint.GetLayer())
-
             # mount_type = {
             #     0: 'smt',
             #     1: 'tht',
@@ -176,6 +171,9 @@ class ProcessManager:
                 pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
                 mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), pos_offset)))
 
+                # Override layer before applying JLC rotation fix
+                layer = self._get_layer_from_footprint(footprint)
+                
                 # JLC expect 'Rotation' to be 'as viewed from above component', so bottom needs inverting.
                 if layer == 'bottom' and rotation != 0:
                     rotation = 360.0 - rotation
@@ -305,6 +303,28 @@ class ProcessManager:
                 return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )
             except ValueError:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
+
+    def _get_layer_from_footprint(self, footprint) -> float:
+        '''Get layer from standard symbol fields.'''
+        keys = ['JLCPCB Layer Override']
+        fallback_keys = ['JlcLayerOverride', 'JLCLayerOverride']
+
+        layer = None
+
+        for key in keys + fallback_keys:
+            if footprint.HasProperty(key):
+                layer = footprint.GetProperty(key)
+                break
+
+        if layer is None or layer == "":
+            return {
+                pcbnew.F_Cu: 'top',
+                pcbnew.B_Cu: 'bottom',
+            }.get(footprint.GetLayer())
+        else if layer == "top" or layer == "bottom":
+            return layer
+        else:
+            raise RuntimeError("Layer override of {} is {} and not valid. Must be top or bottom.".format(footprint.GetReference(), layer))
 
     def _normalize_footprint_name(self, footprint):
         # replace footprint names of resistors, capacitors, inductors, diodes, LEDs, fuses etc, with the footprint size only
