@@ -113,13 +113,13 @@ Some footprints may have it's actual footprint defined on the B.Cu. In these ins
 Values can be `top` or `bottom`.
 
 #### Primary Fields*:
-        | 'JLCPCB Side Override' |
+        | 'JLCPCB Layer Override' |
         | --- |
 
 _The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
-        | 'JlcSideOverride' | 'JLCSideOverride' |
+        | 'JlcLayerOverride' | 'JLCLayerOverride' |
         | --- | --- |
 
 _The fields will be queried in the order denoted above._
