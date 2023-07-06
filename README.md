@@ -31,7 +31,7 @@ Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugi
 
 ⊛ Ensure your board is syncronized before invoking this feature.
 
-⊛ The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else. <span style="text-color: light-grey !important;">_(since v2.5.0)_.</span>
+⊛ The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else. <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
 
 ## Options
 
