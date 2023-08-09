@@ -62,6 +62,19 @@ class ProcessManager:
 
         return 0.0
 
+    def update_zone_fills(self):
+        '''Verify all zones have up-to-date fills.'''
+        filler = pcbnew.ZONE_FILLER(self.board)
+        zones = self.board.Zones()
+
+        # Fill returns true/false if a refill was made
+        # We cant use aCheck = True as that would require a rollback on the commit object if
+        # user decided to not perform the zone fill and the commit object is not exposed to python API
+        filler.Fill(zones, False)
+
+        # Finally rebuild the connectivity db
+        self.board.BuildConnectivity()
+
     def generate_gerber(self, temp_dir):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()

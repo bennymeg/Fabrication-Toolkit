@@ -33,20 +33,24 @@ class ProcessThread(Thread):
         project_directory = os.path.dirname(self.process_manager.board.GetFileName())
 
         try:
+            # Verify all zones are up-to-date
+            self.progress(10)
+            self.process_manager.update_zone_fills()
+
             # generate gerber
-            self.progress(5)
+            self.progress(20)
             self.process_manager.generate_gerber(temp_dir + "_g")
 
             # generate drill file
-            self.progress(15)
+            self.progress(30)
             self.process_manager.generate_drills(temp_dir + "_g")
 
             # generate netlist
-            self.progress(25)
+            self.progress(40)
             self.process_manager.generate_netlist(temp_dir)
 
             # generate pick and place file
-            self.progress(40)
+            self.progress(50)
             self.process_manager.generate_positions(temp_dir)
 
             # generate BOM file
