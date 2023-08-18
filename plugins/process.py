@@ -24,6 +24,10 @@ class ProcessManager:
         self.__rotation_db = self.__read_rotation_db()
 
     @staticmethod
+    def normalize_filename(filename):
+        return re.sub(r'[^\w\s\.\-]', '', filename)
+
+    @staticmethod
     def __read_rotation_db(filename: str = os.path.join(os.path.dirname(__file__), 'rotations.cf')) -> dict[str, float]:
         '''Read the rotations.cf config file so we know what rotations
         to apply later.
