@@ -83,6 +83,7 @@ class ProcessManager:
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
+        settings.m_SolderMaskToCopperClearance = 5000
         settings.m_SolderMaskMinWidth = 0
 
         plot_controller = pcbnew.PLOT_CONTROLLER(self.board)
