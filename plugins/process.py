@@ -104,20 +104,20 @@ class ProcessManager:
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
             plot_options.SetExcludeEdgeLayer(True)
 
-# This includes User_1 with Edge_Cuts to allow V Cuts to be defined as User_1 layer and added so JLC accept it
-# It seems making a separate file just confuses them and they want it in the Edge Cuts file, but that would upset KiCad
         for layer_info in plotPlan:
             if self.board.IsLayerEnabled(layer_info[1]):
                 plot_controller.SetLayer(layer_info[1])
-                plot_controller.OpenPlotfile(
-                    layer_info[0],
-                    pcbnew.PLOT_FORMAT_GERBER,
-                    layer_info[2])
-                seq = pcbnew.LSEQ()
-                seq.push_back(layer_info[1])
-                if layer_info[1] == pcbnew.Edge_Cuts :
+                plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
+                
+                if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'plotLayers'):
+                    # includes User_1 layer with Edge_Cuts layer to allow V Cuts to be defined as User_1 layer
+                    # available for KiCad 7.0.1+
+                    seq = pcbnew.LSEQ()
+                    seq.push_back(layer_info[1])
                     seq.push_back(pcbnew.User_1)
-                plot_controller.PlotLayers(seq)
+                    plot_controller.PlotLayers(seq)
+                else:
+                    plot_controller.PlotLayer()
 
         plot_controller.ClosePlot()
 
