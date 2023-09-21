@@ -1,4 +1,4 @@
-import pcbnew
+import pcbnew  # type: ignore
 
 baseUrl = 'https://www.jlcpcb.com'
 
