@@ -10,7 +10,7 @@ from collections import defaultdict
 import re
 
 # Interaction with KiCad.
-import pcbnew
+import pcbnew  # type: ignore
 
 # Application definitions.
 from .config import *
@@ -138,7 +138,7 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def generate_positions(self, temp_dir):
+    def generate_positions(self, temp_dir, ignore_dnp):
         '''Generate the position files.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
@@ -254,7 +254,7 @@ class ProcessManager:
                     if ('**' not in component['Designator']):
                         csv_writer.writerow(component.values())
 
-    def generate_bom(self, temp_dir):
+    def generate_bom(self, temp_dir, ignore_dnp):
         if len(self.bom) > 0:
             with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8-sig') as outfile:
                 csv_writer = csv.writer(outfile)

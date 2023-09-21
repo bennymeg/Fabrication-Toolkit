@@ -1,6 +1,6 @@
 import os
 import wx
-import pcbnew
+import pcbnew  # type: ignore
 import shutil
 import tempfile
 import webbrowser
@@ -9,14 +9,16 @@ from threading import Thread
 from .events import StatusEvent
 from .process import ProcessManager
 from .config import *
+from .options import *
 
 
 class ProcessThread(Thread):
-    def __init__(self, wx):
+    def __init__(self, wx, options):
         Thread.__init__(self)
 
         self.process_manager = ProcessManager()
         self.wx = wx
+        self.options = options
         self.start()
 
     def run(self):
@@ -51,11 +53,11 @@ class ProcessThread(Thread):
 
             # generate pick and place file
             self.progress(50)
-            self.process_manager.generate_positions(temp_dir)
+            self.process_manager.generate_positions(temp_dir, self.options[IGNORE_DNP_OPT])
 
             # generate BOM file
             self.progress(60)
-            self.process_manager.generate_bom(temp_dir)
+            self.process_manager.generate_bom(temp_dir, self.options[IGNORE_DNP_OPT])
 
             # generate production archive
             self.progress(75)

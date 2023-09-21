@@ -1,9 +1,10 @@
 import os
 import wx
-import pcbnew
+import pcbnew  # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
+from .options import IGNORE_DNP_OPT
 
 
 # WX GUI form that show the plugin progress
@@ -13,37 +14,60 @@ class KiCadToJLCForm(wx.Frame):
             self,
             None,
             id=wx.ID_ANY,
-            title=u"Processing...",
+            title=u"Fabrication Toolkit",
             pos=wx.DefaultPosition,
             size=wx.DefaultSize,
             style=wx.DEFAULT_DIALOG_STYLE)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
 
-        bSizer1 = wx.BoxSizer(wx.VERTICAL)
+        self.mIgnoreDnpCheckbox = wx.CheckBox(self, label='Ignore DNP parts')
+        self.mIgnoreDnpCheckbox.SetValue(False)
 
-        self.m_gaugeStatus = wx.Gauge(
+        self.mGenerateButton = wx.Button(self, label='Generate')
+
+        self.mGaugeStatus = wx.Gauge(
             self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(
                 300, 20), wx.GA_HORIZONTAL)
-        self.m_gaugeStatus.SetValue(0)
-        bSizer1.Add(self.m_gaugeStatus, 0, wx.ALL, 5)
+        self.mGaugeStatus.SetValue(0)
+        self.mGaugeStatus.Hide()
 
-        self.SetSizer(bSizer1)
+        self.mGenerateButton.Bind(wx.EVT_BUTTON, self.onGenerateButtonClick)
+
+        boxSizer = wx.BoxSizer(wx.VERTICAL)
+
+        boxSizer.Add(self.mIgnoreDnpCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
+        boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
+
+        self.SetSizer(boxSizer)
         self.Layout()
-        bSizer1.Fit(self)
+        boxSizer.Fit(self)
 
         self.Centre(wx.BOTH)
 
-        StatusEvent.invoke(self, self.updateDisplay)
-        ProcessThread(self)
 
+    def onGenerateButtonClick(self, event):
+        options = dict()
+        options[IGNORE_DNP_OPT] = self.mIgnoreDnpCheckbox.GetValue()
+
+        self.mIgnoreDnpCheckbox.Hide()
+        self.mGenerateButton.Hide()
+        self.mGaugeStatus.Show()
+
+        self.Fit()
+        self.SetTitle('Fabrication Toolkit (Processing...)')
+
+        StatusEvent.invoke(self, self.updateDisplay)
+        ProcessThread(self, options)
 
     def updateDisplay(self, status):
         if status.data == -1:
+            self.SetTitle('Fabrication Toolkit (Done!)')
             pcbnew.Refresh()
             self.Destroy()
         else:
-            self.m_gaugeStatus.SetValue(int(status.data))
+            self.mGaugeStatus.SetValue(int(status.data))
 
 
 # Plugin definition
