@@ -18,17 +18,22 @@ class KiCadToJLCForm(wx.Frame):
             pos=wx.DefaultPosition,
             size=wx.DefaultSize,
             style=wx.DEFAULT_DIALOG_STYLE)
+        
+        icon = wx.Icon(os.path.join(os.path.dirname(__file__), 'icon.png'))
+        self.SetIcon(icon)
+        self.SetBackgroundColour(wx.LIGHT_GREY)
 
-        self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
+        self.SetSizeHints(wx.Size(600, 100), wx.DefaultSize)
 
-        self.mIgnoreDnpCheckbox = wx.CheckBox(self, label='Ignore DNP parts')
+        self.mOptionsLabel = wx.StaticText(self, label='Options:')
+        # self.mOptionsSeparator = wx.StaticLine(self)
+        self.mIgnoreDnpCheckbox = wx.CheckBox(self, label='Ignore DNP components')
         self.mIgnoreDnpCheckbox.SetValue(False)
 
-        self.mGenerateButton = wx.Button(self, label='Generate')
+        self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(600, 60))
 
         self.mGaugeStatus = wx.Gauge(
-            self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(
-                300, 20), wx.GA_HORIZONTAL)
+            self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(600, 20), wx.GA_HORIZONTAL)
         self.mGaugeStatus.SetValue(0)
         self.mGaugeStatus.Hide()
 
@@ -36,6 +41,8 @@ class KiCadToJLCForm(wx.Frame):
 
         boxSizer = wx.BoxSizer(wx.VERTICAL)
 
+        boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
+        # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
         boxSizer.Add(self.mIgnoreDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
@@ -52,6 +59,7 @@ class KiCadToJLCForm(wx.Frame):
         options[IGNORE_DNP_OPT] = self.mIgnoreDnpCheckbox.GetValue()
 
         self.mIgnoreDnpCheckbox.Hide()
+        self.mOptionsLabel.Hide()
         self.mGenerateButton.Hide()
         self.mGaugeStatus.Show()
 
