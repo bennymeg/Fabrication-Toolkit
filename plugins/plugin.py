@@ -19,6 +19,7 @@ class KiCadToJLCForm(wx.Frame):
             size=wx.DefaultSize,
             style=wx.DEFAULT_DIALOG_STYLE)
         
+        # self.app = wx.PySimpleApp()
         icon = wx.Icon(os.path.join(os.path.dirname(__file__), 'icon.png'))
         self.SetIcon(icon)
         self.SetBackgroundColour(wx.LIGHT_GREY)

@@ -51,16 +51,20 @@ class ProcessThread(Thread):
             self.progress(40)
             self.process_manager.generate_netlist(temp_dir)
 
-            # generate pick and place file
+            # generate data tables
             self.progress(50)
-            self.process_manager.generate_positions(temp_dir, self.options[IGNORE_DNP_OPT])
+            self.process_manager.generate_tables(temp_dir, self.options[IGNORE_DNP_OPT])
+
+            # generate pick and place file
+            self.progress(60)
+            self.process_manager.generate_positions(temp_dir)
 
             # generate BOM file
-            self.progress(60)
-            self.process_manager.generate_bom(temp_dir, self.options[IGNORE_DNP_OPT])
+            self.progress(70)
+            self.process_manager.generate_bom(temp_dir)
 
             # generate production archive
-            self.progress(75)
+            self.progress(85)
             temp_file = self.process_manager.generate_archive(temp_dir + "_g", temp_file)
             shutil.move(temp_file, temp_dir)
             shutil.rmtree(temp_dir + "_g")
@@ -80,7 +84,7 @@ class ProcessThread(Thread):
                     break
                 read_so_far += len(data)
                 percent = read_so_far * 1e2 / total_size
-                self.progress(75 + percent / 8)
+                self.progress(85 + percent / 8)
 
         # generate gerber name
         title_block = self.process_manager.board.GetTitleBlock()

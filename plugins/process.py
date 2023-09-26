@@ -138,8 +138,8 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def generate_positions(self, temp_dir, ignore_dnp):
-        '''Generate the position files.'''
+    def generate_tables(self, temp_dir, ignore_dnp):
+        '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
         else:
@@ -177,7 +177,8 @@ class ProcessManager:
             #     2: 'smt'
             # }.get(footprint.GetAttributes())
 
-            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES:
+            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES or \
+                not (ignore_dnp and footprint.GetValue().upper() == 'DNP'):
                 # append unique ID if duplicate footprint designator
                 unique_id = ""
                 if footprint_designators[footprint.GetReference()] > 1:
@@ -212,7 +213,8 @@ class ProcessManager:
                     'Layer': layer,
                 })
 
-            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM:
+            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM or \
+                not (ignore_dnp and footprint.GetValue().upper() == 'DNP'):
                 # append unique ID if we are dealing with duplicate bom designator
                 unique_id = ""
                 if bom_designators[footprint.GetReference()] > 1:
@@ -243,6 +245,8 @@ class ProcessManager:
                         'LCSC Part #': self._get_mpn_from_footprint(footprint),
                     })
 
+    def generate_positions(self, temp_dir):
+        '''Generate the position file.'''
         if len(self.components) > 0:
             with open((os.path.join(temp_dir, placementFileName)), 'w', newline='', encoding='utf-8-sig') as outfile:
                 csv_writer = csv.writer(outfile)
@@ -254,7 +258,8 @@ class ProcessManager:
                     if ('**' not in component['Designator']):
                         csv_writer.writerow(component.values())
 
-    def generate_bom(self, temp_dir, ignore_dnp):
+    def generate_bom(self, temp_dir):
+        '''Generate the bom file.'''
         if len(self.bom) > 0:
             with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8-sig') as outfile:
                 csv_writer = csv.writer(outfile)
@@ -268,7 +273,7 @@ class ProcessManager:
                         csv_writer.writerow(component.values())
 
     def generate_archive(self, temp_dir, temp_file):
-        '''Generate the files.'''
+        '''Generate the archive file.'''
         temp_file = shutil.make_archive(temp_file, 'zip', temp_dir)
         temp_file = shutil.move(temp_file, temp_dir)
 
