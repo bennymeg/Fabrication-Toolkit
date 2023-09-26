@@ -138,7 +138,7 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def generate_tables(self, temp_dir, ignore_dnp):
+    def generate_tables(self, temp_dir, exclude_dnp):
         '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
@@ -177,8 +177,9 @@ class ProcessManager:
             #     2: 'smt'
             # }.get(footprint.GetAttributes())
 
-            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES or \
-                not (ignore_dnp and footprint.GetValue().upper() == 'DNP'):
+            skip_footprint = exclude_dnp and (footprint.HasProperty('dnp') or footprint.GetValue().upper() == 'DNP')
+
+            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES) and not skip_footprint:
                 # append unique ID if duplicate footprint designator
                 unique_id = ""
                 if footprint_designators[footprint.GetReference()] > 1:
@@ -213,8 +214,7 @@ class ProcessManager:
                     'Layer': layer,
                 })
 
-            if not footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM or \
-                not (ignore_dnp and footprint.GetValue().upper() == 'DNP'):
+            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM) and not skip_footprint:
                 # append unique ID if we are dealing with duplicate bom designator
                 unique_id = ""
                 if bom_designators[footprint.GetReference()] > 1:

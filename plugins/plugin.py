@@ -4,7 +4,7 @@ import pcbnew  # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import IGNORE_DNP_OPT
+from .options import EXCLUDE_DNP_OPT
 
 
 # WX GUI form that show the plugin progress
@@ -28,8 +28,8 @@ class KiCadToJLCForm(wx.Frame):
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
-        self.mIgnoreDnpCheckbox = wx.CheckBox(self, label='Ignore DNP components')
-        self.mIgnoreDnpCheckbox.SetValue(False)
+        self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
+        self.mExcludeDnpCheckbox.SetValue(False)
 
         self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(600, 60))
 
@@ -44,7 +44,7 @@ class KiCadToJLCForm(wx.Frame):
 
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
-        boxSizer.Add(self.mIgnoreDnpCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
 
@@ -57,9 +57,9 @@ class KiCadToJLCForm(wx.Frame):
 
     def onGenerateButtonClick(self, event):
         options = dict()
-        options[IGNORE_DNP_OPT] = self.mIgnoreDnpCheckbox.GetValue()
+        options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
 
-        self.mIgnoreDnpCheckbox.Hide()
+        self.mExcludeDnpCheckbox.Hide()
         self.mOptionsLabel.Hide()
         self.mGenerateButton.Hide()
         self.mGaugeStatus.Show()
