@@ -53,17 +53,25 @@ class ProcessManager:
     def _get_rotation_from_db(self, footprint: str) -> float:
         '''Get the rotation to be added from the database file.'''
         # Look for regular expression math of the footprint name and not its root library.
-        fpshort = footprint.split(':')[-1]
 
-        for expression, delta in self.db.items():
-            fp = fpshort
-
+        for expression, delta in self.__rotation_db.items():
+            # If the expression in the DB contains a :, search for it literally.
             if (re.search(':', expression)):
-                fp = footprint
-                
-            if(re.search(expression, fp)):
-                return delta
+                if (re.search(expression, footprint)):
+                    return delta
+            # There is no : in the expression, so only search the right side of the :
+            else:
+                fpshort = footprint.split(':')
+                # Only one means there was no :, just check the short.
+                if (len(fpshort) == 1):
+                    check = fpshort[0];
+                # More means there was a :, check the right side.
+                else:
+                    check = fpshort[1];
+                if (re.search(expression, check)):
+                    return delta
 
+        # Not found, no rotation.
         return 0.0
 
     def update_zone_fills(self):
@@ -192,7 +200,9 @@ class ProcessManager:
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
                 # Get the rotation offset to be added to the actual rotation prioritizing the explicated by the
                 # designer at the standards symbol fields. If not specified use the internal database.
-                rotation_offset = self._get_rotation_offset_from_footprint(footprint) #or self._get_rotation_from_db(footprint)
+                rotation_offset = self._get_rotation_from_db(footprint_name)
+                rotation = (rotation + rotation_offset) % 360.0
+                rotation_offset = self._get_rotation_offset_from_footprint(footprint_name)
                 rotation = (rotation + rotation_offset) % 360.0
 
                 # position offset needs to take rotation into account
