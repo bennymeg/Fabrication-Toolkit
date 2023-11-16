@@ -109,6 +109,25 @@ _The fields will be queried in the order denoted above._
 
 _The fields will be queried in the order denoted above._
 
+### ⑤ Override Component Layer
+Some footprints may have their components defined on the opposite layer to there actual footprints. In these instances you can override mount side by using this field.
+
+Values can be `top`, `bottom`, `t` or `b`.
+
+#### Primary Fields*:
+        | 'JLCPCB Layer Override' |
+        | --- |
+
+_The fields will be queried in the order denoted above._
+
+#### Fallback Fields*:
+        | 'JlcLayerOverride' | 'JLCLayerOverride' |
+        | --- | --- |
+
+_The fields will be queried in the order denoted above._
+
+
+
 ## Author
 
 Benny Megidish
