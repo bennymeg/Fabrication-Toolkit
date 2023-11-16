@@ -168,11 +168,11 @@ class ProcessManager:
 
             layer = self._get_top_or_bottom_side_override_from_footprint(footprint)
 
-            #mount_type = {
-            #    0: 'smt',
-            #    1: 'tht',
-            #    2: 'smt'
-            #}.get(footprint.GetAttributes())
+            # mount_type = {
+            #     0: 'smt',
+            #     1: 'tht',
+            #     2: 'smt'
+            # }.get(footprint.GetAttributes())
 
             skip_footprint = exclude_dnp and (footprint.HasProperty('dnp') or footprint.GetValue().upper() == 'DNP')
 
