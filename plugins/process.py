@@ -166,16 +166,13 @@ class ProcessManager:
             except AttributeError:
                 footprint_name = str(footprint.GetFPID().GetLibItemName())
 
-            layer = {
-                pcbnew.F_Cu: 'top',
-                pcbnew.B_Cu: 'bottom',
-            }.get(footprint.GetLayer())
+            layer = self._get_top_or_bottom_side_override_from_footprint(footprint)
 
-            # mount_type = {
-            #     0: 'smt',
-            #     1: 'tht',
-            #     2: 'smt'
-            # }.get(footprint.GetAttributes())
+            #mount_type = {
+            #    0: 'smt',
+            #    1: 'tht',
+            #    2: 'smt'
+            #}.get(footprint.GetAttributes())
 
             skip_footprint = exclude_dnp and (footprint.HasProperty('dnp') or footprint.GetValue().upper() == 'DNP')
 
@@ -295,6 +292,28 @@ class ProcessManager:
         for key in keys + fallback_keys:
             if footprint.HasProperty(key):
                 return footprint.GetProperty(key)
+
+    def _get_top_or_bottom_side_override_from_footprint(self, footprint):
+        keys = ['JLCPCB Layer Override']
+        fallback_keys = ['JlcLayerOverride', 'JLCLayerOverride']
+
+        layer = {
+            pcbnew.F_Cu: 'top',
+            pcbnew.B_Cu: 'bottom',
+        }.get(footprint.GetLayer())
+
+        for key in keys + fallback_keys:
+            if footprint.HasProperty(key):
+                temp_layer = footprint.GetProperty(key)
+                if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
+                    layer = "bottom"
+                elif (temp_layer[0] == 't' or temp_layer[0] == 'T'):
+                    layer = "top"
+                else:
+                    continue
+                break
+
+        return layer
 
     def _get_rotation_offset_from_footprint(self, footprint) -> float:
         '''Get the rotation from standard symbol fields.'''
