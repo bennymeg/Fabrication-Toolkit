@@ -202,7 +202,7 @@ class ProcessManager:
                 # designer at the standards symbol fields. If not specified use the internal database.
                 rotation_offset = self._get_rotation_from_db(footprint_name)
                 rotation = (rotation + rotation_offset) % 360.0
-                rotation_offset = self._get_rotation_offset_from_footprint(footprint_name)
+                rotation_offset = self._get_rotation_offset_from_footprint(footprint)
                 rotation = (rotation + rotation_offset) % 360.0
 
                 # position offset needs to take rotation into account
@@ -237,13 +237,12 @@ class ProcessManager:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
                     same_value = component['Value'].upper() == footprint.GetValue().upper()
                     same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
-                    under_limit = component['Quantity'] < bomRowLimit
 
-                    if same_footprint and same_value and same_lcsc and under_limit:
+                    if same_footprint and same_value and same_lcsc:
                         component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
-                        break
+                        # break ?
 
                 # add component to BOM
                 if insert:
@@ -312,38 +311,38 @@ class ProcessManager:
         keys = ['JLCPCB Rotation Offset']
         fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
 
-        offset = None
+        offset = ""
 
         for key in keys + fallback_keys:
             if footprint.HasProperty(key):
                 offset = footprint.GetProperty(key)
                 break
 
-        if offset is None or offset == "":
+        if offset == "":
             return 0
         else:
             try:
                 return float(offset)
-            except ValueError:
+            except Exception as e:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
     def _get_position_offset_from_footprint(self, footprint):
         keys = ['JLCPCB Position Offset']
         fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
 
-        offset = None
+        offset = ""
 
         for key in keys + fallback_keys:
             if footprint.HasProperty(key):
                 offset = footprint.GetProperty(key)
                 break
 
-        if offset is None or offset == "":
+        if offset == "":
             return (0, 0)
         else:
             try:
                 return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )
-            except ValueError:
+            except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
 
     def _normalize_footprint_name(self, footprint):
