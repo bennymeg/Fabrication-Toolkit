@@ -8,6 +8,7 @@ import math
 import shutil
 from collections import defaultdict
 import re
+import wx
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
@@ -28,25 +29,74 @@ class ProcessManager:
         return re.sub(r'[^\w\s\.\-]', '', filename)
 
     @staticmethod
-    def __read_rotation_db(filename: str = os.path.join(os.path.dirname(__file__), 'rotations.cf')) -> dict[str, float]:
+    def __read_rotation_db(filename: str = os.path.join(os.path.dirname(__file__), 'transformations.csv')) -> dict[str, float]:
         '''Read the rotations.cf config file so we know what rotations
         to apply later.
         '''
         db = {}
 
-        with open(filename, 'r') as fh:
-            for line in fh:
-                line = line.rstrip()
-                line = re.sub('#.*$', '', line)         # remove anything after a comment
-                line = re.sub('\s*$', '', line)         # remove all trailing space
+        with open(filename, newline='') as csvfile:
+            csvDialect = csv.Sniffer().sniff(csvfile.read(1024))
+            csvfile.seek(0)
+            csvData = csv.DictReader(csvfile, fieldnames=["footprint","rotation","x","y"],
+                                     restkey="extra", restval="0", dialect=csvDialect)
 
-                if (line == ""):
-                    continue
+            rowNum = 0
+            for row in csvData:
+                    rowNum = rowNum + 1
+                    # First row is header row, skip.
+                    if rowNum == 1:
+                        skipFirst = False
+                        continue
 
-                match = re.match('^([^\s]+)\s+(\d+)$', line)
+                    # If there was too many fields, throw an exception.
+                    if len(row) > 4:
+                        popup = wx.MessageDialog(None, "{}: Too many fields in row {}".format(filename, rowNum), "JLC-Plugin-for-KiCad", wx.OK | wx.ICON_ERROR)
+                        popup.ShowModal()
+                        popup.Destroy()
+                        raise RuntimeError("{}: Too many fields: {}".format(filename, row))
 
-                if match:
-                    db.update({ match.group(1): int(match.group(2)) })
+                    # See if the values we expect to be floating point numbers
+                    # can be converted to floating point, if not throw an exception.
+                    if row['rotation'] == "":
+                        rotation = 0.0
+                    else:
+                        try:
+                            rotation = float(row['rotation'])
+                        except ValueError:
+                            popup = wx.MessageDialog(None, "{}: Rotation is not numeric in row {}".format(filename, rowNum), "JLC-Plugin-for-KiCad", wx.OK | wx.ICON_ERROR)
+                            popup.ShowModal()
+                            popup.Destroy()
+                            raise RuntimeError("{}: Non-numeric value found in row {}".format(filename,row))
+
+                    if row['x'] == "":
+                        delta_x = 0.0
+                    else:
+                        try:
+                            delta_x  = float(row['x'])
+                        except ValueError:
+                            popup = wx.MessageDialog(None, "{}: X offset is not numeric in row {}".format(filename, rowNum), "JLC-Plugin-for-KiCad", wx.OK | wx.ICON_ERROR)
+                            popup.ShowModal()
+                            popup.Destroy()
+                            raise RuntimeError("{}: Non-numeric value found in row {}".format(filename, row))
+
+                    if row['y'] == "":
+                        delta_y = 0.0
+                    else:
+                        try:
+                            delta_y  = float(row['y'])
+                        except ValueError:
+                            popup = wx.MessageDialog(None, "{}: Y offset is not numeric in row {}".format(filename, rowNum), "JLC-Plugin-for-KiCad", wx.OK | wx.ICON_ERROR)
+                            popup.ShowModal()
+                            popup.Destroy()
+                            raise RuntimeError("{}: Non-numeric value found in row {}".format(filename, row))
+
+                    # Add the entry to the database in the format we expect.
+                    db[rowNum] = {}
+                    db[rowNum]['name'] = row['footprint']
+                    db[rowNum]['rotation'] = rotation
+                    db[rowNum]['x'] = delta_x
+                    db[rowNum]['y'] = delta_y 
 
         return db
 
@@ -54,11 +104,11 @@ class ProcessManager:
         '''Get the rotation to be added from the database file.'''
         # Look for regular expression math of the footprint name and not its root library.
 
-        for expression, delta in self.__rotation_db.items():
+        for entry in self.__rotation_db.items():
             # If the expression in the DB contains a :, search for it literally.
-            if (re.search(':', expression)):
-                if (re.search(expression, footprint)):
-                    return delta
+            if (re.search(':', entry[1]['name'])):
+                if (re.search(entry[1]['name'], footprint)):
+                    return float(entry[1]['rotation'])
             # There is no : in the expression, so only search the right side of the :
             else:
                 fpshort = footprint.split(':')
@@ -68,11 +118,35 @@ class ProcessManager:
                 # More means there was a :, check the right side.
                 else:
                     check = fpshort[1];
-                if (re.search(expression, check)):
-                    return delta
+                if (re.search(entry[1]['name'], check)):
+                    return float(entry[1]['rotation'])
 
         # Not found, no rotation.
         return 0.0
+
+    def _get_position_offset_from_db(self, footprint: str) -> (float, float):
+        '''Get the rotation to be added from the database file.'''
+        # Look for regular expression math of the footprint name and not its root library.
+
+        for entry in self.__rotation_db.items():
+            # If the expression in the DB contains a :, search for it literally.
+            if (re.search(':', entry[1]['name'])):
+                if (re.search(entry[1]['name'], footprint)):
+                    return ( float(entry[1]['x']), float(entry[1]['y']) )
+            # There is no : in the expression, so only search the right side of the :
+            else:
+                fpshort = footprint.split(':')
+                # Only one means there was no :, just check the short.
+                if (len(fpshort) == 1):
+                    check = fpshort[0];
+                # More means there was a :, check the right side.
+                else:
+                    check = fpshort[1];
+                if (re.search(entry[1]['name'], check)):
+                    return ( float(entry[1]['x']), float(entry[1]['y']) )
+
+        # Not found, no delta.
+        return (0.0,0.0)
 
     def update_zone_fills(self):
         '''Verify all zones have up-to-date fills.'''
@@ -108,7 +182,7 @@ class ProcessManager:
         plot_options.SetUseAuxOrigin(True)
         plot_options.SetSubtractMaskFromSilk(True)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
-        
+
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
             plot_options.SetExcludeEdgeLayer(True)
 
@@ -116,7 +190,7 @@ class ProcessManager:
             if self.board.IsLayerEnabled(layer_info[1]):
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
-                
+
                 if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'plotLayers'):
                     # includes User_1 layer with Edge_Cuts layer to allow V Cuts to be defined as User_1 layer
                     # available for KiCad 7.0.1+
@@ -206,6 +280,13 @@ class ProcessManager:
                 rotation = (rotation + rotation_offset) % 360.0
 
                 # position offset needs to take rotation into account
+                pos_offset = self._get_position_offset_from_db(footprint_name)
+                rsin = math.sin(rotation / 180 * math.pi)
+                rcos = math.cos(rotation / 180 * math.pi)
+                pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
+                mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), pos_offset)))
+
+                # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
@@ -215,7 +296,7 @@ class ProcessManager:
                 # JLC expect 'Rotation' to be 'as viewed from above component', so bottom needs inverting, and ends up 180 degrees out as well
                 if layer == 'bottom':
                     rotation = (540.0 - rotation) % 360.0
-                                
+   
                 self.components.append({
                     'Designator': designator,
                     'Mid X': mid_x,
@@ -319,14 +400,14 @@ class ProcessManager:
                 break
 
         if offset == "":
-            return 0
+            return 0.0
         else:
             try:
                 return float(offset)
             except Exception as e:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
-    def _get_position_offset_from_footprint(self, footprint):
+    def _get_position_offset_from_footprint(self, footprint) -> (float, float):
         keys = ['JLCPCB Position Offset']
         fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
 
@@ -334,11 +415,12 @@ class ProcessManager:
 
         for key in keys + fallback_keys:
             if footprint.HasProperty(key):
-                offset = footprint.GetProperty(key)
-                break
+                if len(footprint.GetProperty(key)) > 0:
+                    offset = footprint.GetProperty(key)
+                    break
 
         if offset == "":
-            return (0, 0)
+            return (0.0, 0.0)
         else:
             try:
                 return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )

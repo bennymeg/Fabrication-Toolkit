@@ -8,7 +8,6 @@ placementFileName = 'positions.csv'
 bomFileName = 'bom.csv'
 gerberArchiveName = 'gerbers.zip'
 outputFolder = 'production'
-bomRowLimit = 30
 
 plotPlan = [
     ("F.Cu", pcbnew.F_Cu, "Top Layer"),
