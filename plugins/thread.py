@@ -102,20 +102,22 @@ class ProcessThread(Thread):
 
         # make output dir
         filename = os.path.splitext(os.path.basename(self.process_manager.board.GetFileName()))[0]
-        name = ProcessManager.normalize_filename("_".join(("{} {} {}".format(title or filename, revision or '', timestamp).strip()).split()))
-        output_path = os.path.join(project_directory, outputFolder, name)
-        os.makedirs(output_path)
-
+        output_path = os.path.join(project_directory, outputFolder)
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        
         # rename gerber archive
         gerberArchiveName = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + '.zip').split()))
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
 
+
+        backup_name = ProcessManager.normalize_filename("_".join(("{} {} {}".format(title or filename, revision or '', timestamp).strip()).split()))
+        shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
+
+
         # copy to & open output dir
         try:
-            if os.path.exists(output_path):
-                shutil.rmtree(output_path)
-
-            shutil.copytree(temp_dir, output_path)
+            shutil.copytree(temp_dir, output_path, dirs_exist_ok=True)
             webbrowser.open("file://%s" % (output_path))
             shutil.rmtree(temp_dir)
         except Exception as e: 
