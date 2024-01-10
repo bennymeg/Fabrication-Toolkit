@@ -25,11 +25,9 @@ class ProcessThread(Thread):
         # initializing
         self.progress(0)
 
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-
-        temp_dir = tempfile.mkdtemp() + timestamp
-        os.makedirs(temp_dir)
-        os.makedirs(temp_dir + "_g")
+        temp_dir = tempfile.mkdtemp()
+        temp_dir_gerber = temp_dir + "_g"
+        os.makedirs(temp_dir_gerber)
 
         _, temp_file = tempfile.mkstemp()
         project_directory = os.path.dirname(self.process_manager.board.GetFileName())
@@ -41,11 +39,11 @@ class ProcessThread(Thread):
 
             # generate gerber
             self.progress(20)
-            self.process_manager.generate_gerber(temp_dir + "_g")
+            self.process_manager.generate_gerber(temp_dir_gerber)
 
             # generate drill file
             self.progress(30)
-            self.process_manager.generate_drills(temp_dir + "_g")
+            self.process_manager.generate_drills(temp_dir_gerber)
 
             # generate netlist
             self.progress(40)
@@ -65,9 +63,9 @@ class ProcessThread(Thread):
 
             # generate production archive
             self.progress(85)
-            temp_file = self.process_manager.generate_archive(temp_dir + "_g", temp_file)
+            temp_file = self.process_manager.generate_archive(temp_dir_gerber, temp_file)
             shutil.move(temp_file, temp_dir)
-            shutil.rmtree(temp_dir + "_g")
+            shutil.rmtree(temp_dir_gerber)
             temp_file = os.path.join(temp_dir, os.path.basename(temp_file))
         except Exception as e:
             wx.MessageBox(str(e), "Error", wx.OK | wx.ICON_ERROR)
@@ -110,7 +108,7 @@ class ProcessThread(Thread):
         gerberArchiveName = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + '.zip').split()))
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
 
-
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
         backup_name = ProcessManager.normalize_filename("_".join(("{} {} {}".format(title or filename, revision or '', timestamp).strip()).split()))
         shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
 
