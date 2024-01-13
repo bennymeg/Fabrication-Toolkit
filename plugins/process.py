@@ -11,6 +11,7 @@ import re
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
+from .utils import footprint_has_field, footprint_get_field
 
 # Application definitions.
 from .config import *
@@ -174,7 +175,7 @@ class ProcessManager:
             #     2: 'smt'
             # }.get(footprint.GetAttributes())
 
-            skip_footprint = exclude_dnp and (footprint.HasProperty('dnp') or footprint.GetValue().upper() == 'DNP')
+            skip_footprint = exclude_dnp and (footprint_has_field(footprint, 'dnp') or footprint.GetValue().upper() == 'DNP')
 
             if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES) and not skip_footprint:
                 # append unique ID if duplicate footprint designator
@@ -287,12 +288,12 @@ class ProcessManager:
         keys = ['LCSC Part #', 'JLCPCB Part #']
         fallback_keys = ['LCSC Part', 'JLC Part', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
-        if footprint.HasProperty('dnp'):
+        if footprint_has_field(footprint, 'dnp'):
             return 'DNP'
 
         for key in keys + fallback_keys:
-            if footprint.HasProperty(key):
-                return footprint.GetProperty(key)
+            if footprint_has_field(footprint, key):
+                return footprint_get_field(footprint, key)
 
     def _get_top_or_bottom_side_override_from_footprint(self, footprint):
         keys = ['JLCPCB Layer Override']
@@ -304,8 +305,8 @@ class ProcessManager:
         }.get(footprint.GetLayer())
 
         for key in keys + fallback_keys:
-            if footprint.HasProperty(key):
-                temp_layer = footprint.GetProperty(key)
+            if footprint_has_field(footprint, key):
+                temp_layer = footprint_get_field(footprint, key)
                 if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
                     layer = "bottom"
                     break
@@ -323,8 +324,8 @@ class ProcessManager:
         offset = None
 
         for key in keys + fallback_keys:
-            if footprint.HasProperty(key):
-                offset = footprint.GetProperty(key)
+            if footprint_has_field(footprint, key):
+                offset = footprint_get_field(footprint, key)
                 break
 
         if offset is None or offset == "":
@@ -342,8 +343,8 @@ class ProcessManager:
         offset = None
 
         for key in keys + fallback_keys:
-            if footprint.HasProperty(key):
-                offset = footprint.GetProperty(key)
+            if footprint_has_field(footprint, key):
+                offset = footprint_get_field(footprint, key)
                 break
 
         if offset is None or offset == "":
