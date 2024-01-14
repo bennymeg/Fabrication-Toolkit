@@ -190,19 +190,22 @@ class ProcessManager:
                 # Get the rotation offset to be added to the actual rotation prioritizing the explicated by the
                 # designer at the standards symbol fields. If not specified use the internal database.
                 rotation_offset = self._get_rotation_offset_from_footprint(footprint) #or self._get_rotation_from_db(footprint)
-                rotation = (rotation + rotation_offset) % 360.0
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
-                pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
+                if layer == 'bottom':
+                    pos_offset = ( pos_offset[0] * rcos + pos_offset[1] * rsin, pos_offset[0] * rsin - pos_offset[1] * rcos )
+                else:
+                    pos_offset = ( pos_offset[0] * rcos - pos_offset[1] * rsin, pos_offset[0] * rsin + pos_offset[1] * rcos )
                 mid_x, mid_y = tuple(map(sum,zip((mid_x, mid_y), pos_offset)))
 
                 # JLC expect 'Rotation' to be 'as viewed from above component', so bottom needs inverting, and ends up 180 degrees out as well
                 if layer == 'bottom':
-                    rotation = (540.0 - rotation) % 360.0
-                                
+                    rotation = (180.0 - rotation)
+                rotation = (rotation + rotation_offset) % 360.0
+
                 self.components.append({
                     'Designator': designator,
                     'Mid X': mid_x,

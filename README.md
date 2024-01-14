@@ -66,7 +66,7 @@ Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fa
 ---
 
 ### ③ Offset Component Rotation
-The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'JLCPCB Rotation Offset' field with an counter-clockwise orientation offset in degrees to correct this.
+The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'JLCPCB Rotation Offset' field - with positive values indicating counter-clockwise orientation offset in degrees.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation-jlc.png?raw=true" height=164>
 
@@ -91,7 +91,20 @@ _The fields will be queried in the order denoted above._
 ---
 
 ### ④ Offset Component Position
-The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma seperated x,y position offset to correct it.
+The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma separated x,y position offset to correct it. 
+
+Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in Kicad PCB Editor status bar:
+|Kicad footprint deg | x | y|
+|----|----|----|
+|0deg, Front | right arrow | up arrow |
+|0deg, Back | left arrow | down arrow |
+|180deg, Front | left arrow | down arrow |
+|180deg, Back | right arrow | up arrow |
+|90deg, Front or Back | up arrow | left arrow |
+|-90deg, Front or Back | down arrow | right arrow |
+
+For custom angles it's best to place also a temporary straight symbol to perform alignment.
+Single arrow press in JLC is about 0.07mm shift (8 clicks is about 0.5mm).
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
 
