@@ -218,11 +218,14 @@ class ProcessManager:
                     unique_id = str(bom_designators[footprint.GetReference()])
                     bom_designators[footprint.GetReference()] -= 1
 
+                # use Manufacturer_Part_Number if exist
+                part_number = footprint.GetProperties().get("Manufacturer_Part_Number", footprint.GetValue())
+
                 # merge similar parts into single entry
                 insert = True
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
-                    same_value = component['Value'].upper() == footprint.GetValue().upper()
+                    same_value = component['Value'].upper() == part_number.upper()
                     same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
                     under_limit = component['Quantity'] < bomRowLimit
 
@@ -238,7 +241,7 @@ class ProcessManager:
                         'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
                         'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
-                        'Value': footprint.GetValue(),
+                        'Value': part_number,
                         # 'Mount': mount_type,
                         'LCSC Part #': self._get_mpn_from_footprint(footprint),
                     })
