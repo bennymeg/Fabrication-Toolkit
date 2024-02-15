@@ -139,6 +139,19 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
+    def _get_footprint_position(self, footprint):
+        """Calculate position based on center of bounding box."""
+        if footprint.GetAttributes() & pcbnew.FP_SMD:
+            return footprint.GetPosition()
+        if footprint.GetAttributes() & pcbnew.FP_THROUGH_HOLE:
+            return footprint.GetBoundingBox(False, False).GetCenter()
+        pads = footprint.Pads()
+        #get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
+        bbox = pads[0].GetBoundingBox()
+        for pad in pads:
+            bbox.Merge(pad.GetBoundingBox())
+        return bbox.GetCenter()
+
     def generate_tables(self, temp_dir, exclude_dnp):
         '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
@@ -172,7 +185,7 @@ class ProcessManager:
             # mount_type = {
             #     0: 'smt',
             #     1: 'tht',
-            #     2: 'smt'
+            #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
             skip_footprint = exclude_dnp and (footprint_has_field(footprint, 'dnp') or footprint.GetValue().upper() == 'DNP')
@@ -185,8 +198,8 @@ class ProcessManager:
                     footprint_designators[footprint.GetReference()] -= 1
 
                 designator = "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
-                mid_x = (footprint.GetPosition()[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
-                mid_y = (footprint.GetPosition()[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
+                mid_x = (self._get_footprint_position(footprint)[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
+                mid_y = (self._get_footprint_position(footprint)[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
                 # Get the rotation offset to be added to the actual rotation prioritizing the explicated by the
                 # designer at the standards symbol fields. If not specified use the internal database.
