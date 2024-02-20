@@ -29,9 +29,9 @@ Download the [latest release](https://github.com/bennymeg/JLC-Plugin-for-KiCad/r
 ## Usage
 Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="magin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
 
-⊛ Ensure your board is syncronized before invoking this feature.
+**⊛** Ensure your board is syncronized before invoking this addon [**F8**].
 
-⊛ The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else. <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
+**⊛** The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else. <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
 
 ## Options
 
