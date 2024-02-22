@@ -110,7 +110,7 @@ class ProcessManager:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
                 
-                if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'plotLayers'):
+                if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'PlotLayers'):
                     # includes User_1 layer with Edge_Cuts layer to allow V Cuts to be defined as User_1 layer
                     # available for KiCad 7.0.1+
                     seq = pcbnew.LSEQ()
