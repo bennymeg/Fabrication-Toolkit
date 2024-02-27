@@ -163,7 +163,7 @@ class ProcessManager:
                 mid_x = (self._get_footprint_position(footprint)[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (self._get_footprint_position(footprint)[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
-                rotation_offset_db = self._get_rotation_from_db(footprint) # internal database offset
+                rotation_offset_db = self._get_rotation_from_db(footprint_name) # internal database offset
                 rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint) # explicated offset by the designer
 
                 # position offset needs to take rotation into account
