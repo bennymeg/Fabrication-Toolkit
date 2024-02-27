@@ -1,10 +1,11 @@
 import os
 import wx
-import pcbnew  # type: ignore
+import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import EXCLUDE_DNP_OPT
+from .options import EXCLUDE_DNP_OPT, EXTRA_LAYERS
+from .config import layers
 
 
 # WX GUI form that show the plugin progress
@@ -31,6 +32,11 @@ class KiCadToJLCForm(wx.Frame):
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
         self.mExcludeDnpCheckbox.SetValue(False)
 
+        self.mAdditionalLayersControl = wx.TextCtrl(self, size=wx.Size(600, 50))
+        self.mAdditionalLayersControl.Hint = "Additional layers"
+        self.mAdditionalLayersControl.AutoComplete(layers)
+        self.mAdditionalLayersControl.Enable()
+
         self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(600, 60))
 
         self.mGaugeStatus = wx.Gauge(
@@ -44,6 +50,7 @@ class KiCadToJLCForm(wx.Frame):
 
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
+        boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
@@ -58,7 +65,9 @@ class KiCadToJLCForm(wx.Frame):
     def onGenerateButtonClick(self, event):
         options = dict()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
+        options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
 
+        self.mAdditionalLayersControl.Hide()
         self.mExcludeDnpCheckbox.Hide()
         self.mOptionsLabel.Hide()
         self.mGenerateButton.Hide()

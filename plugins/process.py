@@ -42,7 +42,7 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir):
+    def generate_gerber(self, temp_dir, extra_layers):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
@@ -67,8 +67,13 @@ class ProcessManager:
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
             plot_options.SetExcludeEdgeLayer(True)
 
+        if extra_layers is not None:
+            extra_layers = [element.strip() for element in extra_layers.strip().split(',') if element.strip()]
+        else:
+            extra_layers = []
+
         for layer_info in plotPlan:
-            if self.board.IsLayerEnabled(layer_info[1]):
+            if self.board.IsLayerEnabled(layer_info[1]) or layer_info[1] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
                 

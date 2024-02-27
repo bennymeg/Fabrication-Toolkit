@@ -52,3 +52,5 @@ plotPlan = [
     ("Edge.Cuts", pcbnew.Edge_Cuts, "Board Outline"),
     ("User.Comments", pcbnew.Cmts_User, "User Comments")
 ]
+
+layers = [layer[0] for layer in plotPlan]

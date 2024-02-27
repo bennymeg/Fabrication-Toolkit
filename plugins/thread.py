@@ -39,7 +39,7 @@ class ProcessThread(Thread):
 
             # generate gerber
             self.progress(20)
-            self.process_manager.generate_gerber(temp_dir_gerber)
+            self.process_manager.generate_gerber(temp_dir_gerber, self.options[EXTRA_LAYERS])
 
             # generate drill file
             self.progress(30)
