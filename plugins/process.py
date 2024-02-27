@@ -3,11 +3,12 @@ from __future__ import annotations
 
 # System base libraries
 import os
+import re
 import csv
 import math
 import shutil
 from collections import defaultdict
-import re
+from typing import Tuple
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
@@ -27,45 +28,6 @@ class ProcessManager:
     @staticmethod
     def normalize_filename(filename):
         return re.sub(r'[^\w\s\.\-]', '', filename)
-
-    @staticmethod
-    def __read_rotation_db(filename: str = os.path.join(os.path.dirname(__file__), 'rotations.cf')) -> dict[str, float]:
-        '''Read the rotations.cf config file so we know what rotations
-        to apply later.
-        '''
-        db = {}
-
-        with open(filename, 'r') as fh:
-            for line in fh:
-                line = line.rstrip()
-                line = re.sub('#.*$', '', line)         # remove anything after a comment
-                line = re.sub('\s*$', '', line)         # remove all trailing space
-
-                if (line == ""):
-                    continue
-
-                match = re.match('^([^\s]+)\s+(\d+)$', line)
-
-                if match:
-                    db.update({ match.group(1): int(match.group(2)) })
-
-        return db
-
-    def _get_rotation_from_db(self, footprint: str) -> float:
-        '''Get the rotation to be added from the database file.'''
-        # Look for regular expression math of the footprint name and not its root library.
-        fpshort = footprint.split(':')[-1]
-
-        for expression, delta in self.db.items():
-            fp = fpshort
-
-            if (re.search(':', expression)):
-                fp = footprint
-                
-            if(re.search(expression, fp)):
-                return delta
-
-        return 0.0
 
     def update_zone_fills(self):
         '''Verify all zones have up-to-date fills.'''
@@ -201,14 +163,14 @@ class ProcessManager:
                 mid_x = (self._get_footprint_position(footprint)[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (self._get_footprint_position(footprint)[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
-                # Get the rotation offset to be added to the actual rotation prioritizing the explicated by the
-                # designer at the standards symbol fields. If not specified use the internal database.
-                rotation_offset = self._get_rotation_offset_from_footprint(footprint) #or self._get_rotation_from_db(footprint)
+                rotation_offset_db = self._get_rotation_from_db(footprint) # internal database offset
+                rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint) # explicated offset by the designer
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
+
                 if layer == 'bottom':
                     pos_offset = ( pos_offset[0] * rcos + pos_offset[1] * rsin, pos_offset[0] * rsin - pos_offset[1] * rcos )
                 else:
@@ -218,7 +180,7 @@ class ProcessManager:
                 # JLC expect 'Rotation' to be 'as viewed from above component', so bottom needs inverting, and ends up 180 degrees out as well
                 if layer == 'bottom':
                     rotation = (180.0 - rotation)
-                rotation = (rotation + rotation_offset) % 360.0
+                rotation = (rotation + rotation_offset_db + rotation_offset_manual) % 360.0
 
                 self.components.append({
                     'Designator': designator,
@@ -298,8 +260,117 @@ class ProcessManager:
                 os.remove(os.path.join(temp_dir, item))
 
         return temp_file
+    
+    """ Private """
 
-    def _get_mpn_from_footprint(self, footprint):
+    def __read_rotation_db(self, filename: str = os.path.join(os.path.dirname(__file__), 'transformations.csv')) -> dict[str, float]:
+        '''Read the rotations.cf config file so we know what rotations
+        to apply later.
+        '''
+        db = {}
+
+        with open(filename, newline='') as csvfile:
+            csvDialect = csv.Sniffer().sniff(csvfile.read(1024))
+            csvfile.seek(0)
+            csvData = csv.DictReader(csvfile, fieldnames=["footprint", "rotation", "x", "y"],
+                                     restkey="extra", restval="0", dialect=csvDialect)
+
+            rowNum = 0
+            for row in csvData:
+                    rowNum = rowNum + 1
+                    # First row is header row, skip.
+                    if rowNum == 1:
+                        skipFirst = False
+                        continue
+
+                    # If there was too many fields, throw an exception.
+                    if len(row) > 4:
+                        raise RuntimeError("{}: Too many fields found in row {}: {}".format(filename, rowNum, row))
+
+                    # See if the values we expect to be floating point numbers
+                    # can be converted to floating point, if not throw an exception.
+                    if row['rotation'] == "":
+                        rotation = 0.0
+                    else:
+                        try:
+                            rotation = float(row['rotation'])
+                        except ValueError:
+                            raise RuntimeError("{}: Non-numeric rotation value found in row {}".format(filename, rowNum))
+
+                    if row['x'] == "":
+                        delta_x = 0.0
+                    else:
+                        try:
+                            delta_x  = float(row['x'])
+                        except ValueError:
+                            raise RuntimeError("{}: Non-numeric translation value found in row {}".format(filename, rowNum))
+
+                    if row['y'] == "":
+                        delta_y = 0.0
+                    else:
+                        try:
+                            delta_y  = float(row['y'])
+                        except ValueError:
+                            raise RuntimeError("{}: Non-numeric translation value found in row {}".format(filename, rowNum))
+
+                    # Add the entry to the database in the format we expect.
+                    db[rowNum] = {}
+                    db[rowNum]['name'] = row['footprint']
+                    db[rowNum]['rotation'] = rotation
+                    db[rowNum]['x'] = delta_x
+                    db[rowNum]['y'] = delta_y 
+
+        return db
+
+    def _get_rotation_from_db(self, footprint: str) -> float:
+        '''Get the rotation to be added from the database file.'''
+        # Look for regular expression math of the footprint name and not its root library.
+
+        for entry in self.__rotation_db.items():
+            # If the expression in the DB contains a :, search for it literally.
+            if (re.search(':', entry[1]['name'])):
+                if (re.search(entry[1]['name'], footprint)):
+                    return float(entry[1]['rotation'])
+            # There is no : in the expression, so only search the right side of the :
+            else:
+                footprint_segments = footprint.split(':')
+                # Only one means there was no :, just check the short.
+                if (len(footprint_segments) == 1):
+                    check = footprint_segments[0]
+                # More means there was a :, check the right side.
+                else:
+                    check = footprint_segments[1]
+                if (re.search(entry[1]['name'], check)):
+                    return float(entry[1]['rotation'])
+
+        # Not found, no rotation.
+        return 0.0
+
+    def _get_position_offset_from_db(self, footprint: str) -> Tuple[float, float]:
+        '''Get the rotation to be added from the database file.'''
+        # Look for regular expression math of the footprint name and not its root library.
+
+        for entry in self.__rotation_db.items():
+            # If the expression in the DB contains a :, search for it literally.
+            if (re.search(':', entry[1]['name'])):
+                if (re.search(entry[1]['name'], footprint)):
+                    return ( float(entry[1]['x']), float(entry[1]['y']) )
+            # There is no : in the expression, so only search the right side of the :
+            else:
+                footprint_segments = footprint.split(':')
+                # Only one means there was no :, just check the short.
+                if (len(footprint_segments) == 1):
+                    check = footprint_segments[0]
+                # More means there was a :, check the right side.
+                else:
+                    check = footprint_segments[1]
+                if (re.search(entry[1]['name'], check)):
+                    return ( float(entry[1]['x']), float(entry[1]['y']) )
+
+        # Not found, no delta.
+        return (0.0, 0.0)
+
+    def _get_mpn_from_footprint(self, footprint) -> str:
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         keys = ['LCSC Part #', 'JLCPCB Part #']
         fallback_keys = ['LCSC Part', 'JLC Part', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
@@ -311,7 +382,7 @@ class ProcessManager:
             if footprint_has_field(footprint, key):
                 return footprint_get_field(footprint, key)
 
-    def _get_top_or_bottom_side_override_from_footprint(self, footprint):
+    def _get_top_or_bottom_side_override_from_footprint(self, footprint) -> str:
         keys = ['JLCPCB Layer Override']
         fallback_keys = ['JlcLayerOverride', 'JLCLayerOverride']
 
@@ -337,7 +408,7 @@ class ProcessManager:
         keys = ['JLCPCB Rotation Offset']
         fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
 
-        offset = None
+        offset = ""
 
         for key in keys + fallback_keys:
             if footprint_has_field(footprint, key):
@@ -345,33 +416,34 @@ class ProcessManager:
                 break
 
         if offset is None or offset == "":
-            return 0
+            return 0.0
         else:
             try:
                 return float(offset)
             except ValueError:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
-    def _get_position_offset_from_footprint(self, footprint):
+    def _get_position_offset_from_footprint(self, footprint) -> Tuple[float, float]:
         keys = ['JLCPCB Position Offset']
         fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
 
-        offset = None
+        offset = ""
 
         for key in keys + fallback_keys:
             if footprint_has_field(footprint, key):
                 offset = footprint_get_field(footprint, key)
                 break
 
-        if offset is None or offset == "":
-            return (0, 0)
+        if offset == "":
+            return (0.0, 0.0)
         else:
             try:
-                return ( float(offset.split(",")[0]), float(offset.split(",")[1]) )
-            except ValueError:
+                offset = offset.split(",")
+                return (float(offset[0]), float(offset[1]))
+            except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
 
-    def _normalize_footprint_name(self, footprint):
+    def _normalize_footprint_name(self, footprint) -> str:
         # replace footprint names of resistors, capacitors, inductors, diodes, LEDs, fuses etc, with the footprint size only
         pattern = re.compile(r'^(\w*_SMD:)?\w{1,4}_(\d+)_\d+Metric.*$')
 
