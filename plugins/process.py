@@ -150,7 +150,9 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            skip_footprint = exclude_dnp and (footprint_has_field(footprint, 'dnp') or footprint.GetValue().upper() == 'DNP')
+            skip_footprint = exclude_dnp and (footprint_has_field(footprint, 'dnp')
+                                              or footprint.GetValue().upper() == 'DNP'
+                                              or getattr(footprint, 'IsDNP', bool)())
 
             if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES) and not skip_footprint:
                 # append unique ID if duplicate footprint designator
