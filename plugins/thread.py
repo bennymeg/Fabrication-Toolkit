@@ -68,7 +68,7 @@ class ProcessThread(Thread):
             shutil.rmtree(temp_dir_gerber)
             temp_file = os.path.join(temp_dir, os.path.basename(temp_file))
         except Exception as e:
-            wx.MessageBox(str(e), "Error", wx.OK | wx.ICON_ERROR)
+            wx.MessageBox(str(e), "Fabrication Toolkit - Error", wx.OK | wx.ICON_ERROR)
             self.progress(-1)
             return
 
