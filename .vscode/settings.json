@@ -1,13 +1,21 @@
 {
     "cSpell.words": [
+        "Colour",
+        "csvfile",
         "Drilland",
         "EXCELLON",
         "FPID",
+        "JLCPCB",
         "LCSC",
+        "LSEQ",
         "netlist",
         "pcbnew",
         "Plotfile",
         "Protel",
+        "rcos",
+        "restkey",
+        "restval",
+        "rsin",
         "Soldermask"
     ]
 }
