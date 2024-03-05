@@ -6,6 +6,7 @@ from .thread import ProcessThread
 from .events import StatusEvent
 from .options import EXCLUDE_DNP_OPT, EXTRA_LAYERS
 from .config import layers
+from .utils import load_user_options, save_user_options
 
 
 # WX GUI form that show the plugin progress
@@ -27,15 +28,21 @@ class KiCadToJLCForm(wx.Frame):
 
         self.SetSizeHints(wx.Size(600, 100), wx.DefaultSize)
 
+        userOptions = load_user_options({
+            EXCLUDE_DNP_OPT: False,
+            EXTRA_LAYERS: ""
+        })
+
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
-        self.mExcludeDnpCheckbox.SetValue(False)
+        self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
 
         self.mAdditionalLayersControl = wx.TextCtrl(self, size=wx.Size(600, 50))
         self.mAdditionalLayersControl.Hint = "Additional layers"
         self.mAdditionalLayersControl.AutoComplete(layers)
         self.mAdditionalLayersControl.Enable()
+        self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
 
         self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(600, 60))
 
@@ -66,6 +73,8 @@ class KiCadToJLCForm(wx.Frame):
         options = dict()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
+
+        save_user_options(options)
 
         self.mAdditionalLayersControl.Hide()
         self.mExcludeDnpCheckbox.Hide()
