@@ -1,6 +1,7 @@
 import pcbnew  # type: ignore
 import os
 import json
+from .config import optionsFileName
 
 def get_version():
     return float('.'.join(pcbnew.GetBuildVersion().split(".")[0:2]))  # e.g GetBuildVersion(): e.g. '7.99.0-3969-gc5ac2337e4'
@@ -35,7 +36,7 @@ def footprint_get_field(footprint, field_name):
 
 def get_user_options_file_path():
     boardFilePath = pcbnew.GetBoard().GetFileName()
-    return os.path.join(os.path.dirname(boardFilePath), 'jlc-plugin-options.json')
+    return os.path.join(os.path.dirname(boardFilePath), optionsFileName)
 
 def load_user_options(default_options):
     try:
