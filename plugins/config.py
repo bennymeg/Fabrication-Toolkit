@@ -10,7 +10,7 @@ gerberArchiveName = 'gerbers.zip'
 outputFolder = 'production'
 bomRowLimit = 200
 
-optionsFileName = 'jlc-plugin-options.json'
+optionsFileName = 'fabrication-toolkit-options.json'
 
 plotPlan = [
     ("F.Cu", pcbnew.F_Cu, "Top Layer"),
