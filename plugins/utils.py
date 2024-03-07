@@ -2,6 +2,7 @@ import pcbnew  # type: ignore
 import os
 import json
 from .config import optionsFileName
+import wx
 
 def get_version():
     return float('.'.join(pcbnew.GetBuildVersion().split(".")[0:2]))  # e.g GetBuildVersion(): e.g. '7.99.0-3969-gc5ac2337e4'
@@ -51,5 +52,8 @@ def load_user_options(default_options):
     return options
 
 def save_user_options(options):
-    with open(get_user_options_file_path(), 'w') as f:
-        json.dump(options, f)
+    try:
+        with open(get_user_options_file_path(), 'w') as f:
+            json.dump(options, f)
+    except:
+        wx.MessageBox("Error saving user options", "Error", wx.OK | wx.ICON_ERROR)
