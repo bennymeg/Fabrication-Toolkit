@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import EXCLUDE_DNP_OPT, EXTRA_LAYERS
+from .options import EXCLUDE_DNP_OPT, AUTO_TRANSLATE_OPT, EXTRA_LAYERS
 from .config import layers
 
 
@@ -29,6 +29,8 @@ class KiCadToJLCForm(wx.Frame):
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
+        self.mAutomaticTranslation = wx.CheckBox(self, label='Apply automatic translations')
+        self.mAutomaticTranslation.SetValue(True)
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
         self.mExcludeDnpCheckbox.SetValue(False)
 
@@ -51,6 +53,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
         boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
+        boxSizer.Add(self.mAutomaticTranslation, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
@@ -64,10 +67,12 @@ class KiCadToJLCForm(wx.Frame):
 
     def onGenerateButtonClick(self, event):
         options = dict()
+        options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslation.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
 
         self.mAdditionalLayersControl.Hide()
+        self.mAutomaticTranslation.Hide()
         self.mExcludeDnpCheckbox.Hide()
         self.mOptionsLabel.Hide()
         self.mGenerateButton.Hide()

@@ -119,7 +119,7 @@ class ProcessManager:
             bbox.Merge(pad.GetBoundingBox())
         return bbox.GetCenter()
 
-    def generate_tables(self, temp_dir, exclude_dnp):
+    def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
         '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
@@ -187,7 +187,11 @@ class ProcessManager:
                 # JLC expect 'Rotation' to be 'as viewed from above component', so bottom needs inverting, and ends up 180 degrees out as well
                 if layer == 'bottom':
                     rotation = (180.0 - rotation)
-                rotation = (rotation + rotation_offset_db + rotation_offset_manual) % 360.0
+
+                if auto_translate:
+                    rotation += rotation_offset_db
+
+                rotation = (rotation + rotation_offset_manual) % 360.0
 
                 self.components.append({
                     'Designator': designator,
