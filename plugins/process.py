@@ -112,11 +112,13 @@ class ProcessManager:
             return footprint.GetPosition()
         if footprint.GetAttributes() & pcbnew.FP_THROUGH_HOLE:
             return footprint.GetBoundingBox(False, False).GetCenter()
+
+        # handle Unspecified footprint type
         pads = footprint.Pads()
-        #get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
-        bbox = pads[0].GetBoundingBox()
+        # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
+        bbox = pads[0].GetBoundingBox() # start with small bounding box
         for pad in pads:
-            bbox.Merge(pad.GetBoundingBox())
+            bbox.Merge(pad.GetBoundingBox()) # expand bounding box
         return bbox.GetCenter()
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
