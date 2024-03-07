@@ -30,13 +30,14 @@ class KiCadToJLCForm(wx.Frame):
 
         userOptions = load_user_options({
             EXCLUDE_DNP_OPT: False,
-            EXTRA_LAYERS: ""
+            EXTRA_LAYERS: "",
+            AUTO_TRANSLATE_OPT: True
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
         self.mAutomaticTranslation = wx.CheckBox(self, label='Apply automatic translations')
-        self.mAutomaticTranslation.SetValue(True)
+        self.mAutomaticTranslation.SetValue(userOptions[AUTO_TRANSLATE_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
 
