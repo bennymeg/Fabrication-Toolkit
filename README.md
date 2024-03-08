@@ -35,6 +35,8 @@ Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugi
 
 ## Options
 
+Options can be set in the dialog that appears when the plugin is invoked. They are saved in a file called `fabrication-toolkit-options.json` in the project directory so that they are remembered between invocations of the plugin.
+
 ### ① Include Component Part Number in Production Files
 Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's fields property.
 
