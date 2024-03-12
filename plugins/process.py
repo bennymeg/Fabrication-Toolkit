@@ -112,11 +112,13 @@ class ProcessManager:
             return footprint.GetPosition()
         if footprint.GetAttributes() & pcbnew.FP_THROUGH_HOLE:
             return footprint.GetBoundingBox(False, False).GetCenter()
+
+        # handle Unspecified footprint type
         pads = footprint.Pads()
-        #get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
-        bbox = pads[0].GetBoundingBox()
+        # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
+        bbox = pads[0].GetBoundingBox() # start with small bounding box
         for pad in pads:
-            bbox.Merge(pad.GetBoundingBox())
+            bbox.Merge(pad.GetBoundingBox()) # expand bounding box
         return bbox.GetCenter()
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
@@ -155,11 +157,15 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            skip_footprint = exclude_dnp and (footprint_has_field(footprint, 'dnp')
-                                              or footprint.GetValue().upper() == 'DNP'
-                                              or getattr(footprint, 'IsDNP', bool)())
+            skip_footprint = ((footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES)
+                                or footprint.GetPadCount() == 0
+                                or exclude_dnp
+                                    and (footprint_has_field(footprint, 'dnp')
+                                        or (footprint.GetValue().upper() == 'DNP')
+                                        or getattr(footprint, 'IsDNP', bool))
+            )
 
-            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES) and not skip_footprint:
+            if not skip_footprint:
                 # append unique ID if duplicate footprint designator
                 unique_id = ""
                 if footprint_designators[footprint.GetReference()] > 1:
