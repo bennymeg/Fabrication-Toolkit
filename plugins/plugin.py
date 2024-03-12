@@ -6,6 +6,7 @@ from .thread import ProcessThread
 from .events import StatusEvent
 from .options import EXCLUDE_DNP_OPT, AUTO_TRANSLATE_OPT, EXTRA_LAYERS
 from .config import layers
+from .utils import load_user_options, save_user_options
 
 
 # WX GUI form that show the plugin progress
@@ -27,17 +28,24 @@ class KiCadToJLCForm(wx.Frame):
 
         self.SetSizeHints(wx.Size(600, 100), wx.DefaultSize)
 
+        userOptions = load_user_options({
+            EXCLUDE_DNP_OPT: False,
+            EXTRA_LAYERS: "",
+            AUTO_TRANSLATE_OPT: True
+        })
+
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
         self.mAutomaticTranslation = wx.CheckBox(self, label='Apply automatic translations')
-        self.mAutomaticTranslation.SetValue(True)
+        self.mAutomaticTranslation.SetValue(userOptions[AUTO_TRANSLATE_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
-        self.mExcludeDnpCheckbox.SetValue(False)
+        self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
 
         self.mAdditionalLayersControl = wx.TextCtrl(self, size=wx.Size(600, 50))
         self.mAdditionalLayersControl.Hint = "Additional layers"
         self.mAdditionalLayersControl.AutoComplete(layers)
         self.mAdditionalLayersControl.Enable()
+        self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
 
         self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(600, 60))
 
@@ -70,6 +78,8 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslation.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
+
+        save_user_options(options)
 
         self.mAdditionalLayersControl.Hide()
         self.mAutomaticTranslation.Hide()

@@ -10,6 +10,8 @@ gerberArchiveName = 'gerbers.zip'
 outputFolder = 'production'
 bomRowLimit = 200
 
+optionsFileName = 'fabrication-toolkit-options.json'
+
 plotPlan = [
     ("F.Cu", pcbnew.F_Cu, "Top Layer"),
     ("B.Cu", pcbnew.B_Cu, "Bottom Layer"),
