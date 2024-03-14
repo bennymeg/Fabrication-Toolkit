@@ -59,9 +59,10 @@ class ProcessManager:
         plot_options.SetScale(1)
         plot_options.SetMirror(False)
         plot_options.SetUseGerberAttributes(True)
-        plot_options.SetUseGerberProtelExtensions(False)
+        plot_options.SetUseGerberProtelExtensions(True)
         plot_options.SetUseAuxOrigin(True)
         plot_options.SetSubtractMaskFromSilk(True)
+        plot_options.SetUseGerberX2format(False)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
         
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
@@ -95,11 +96,12 @@ class ProcessManager:
 
         drill_writer.SetOptions(
             False,
-            True,
+            False,
             self.board.GetDesignSettings().GetAuxOrigin(),
             False)
-        drill_writer.SetFormat(False)
-        drill_writer.CreateDrillandMapFilesSet(temp_dir, True, False)
+        drill_writer.SetFormat(True)
+        drill_writer.SetMapFileFormat(pcbnew.PLOT_FORMAT_GERBER)
+        drill_writer.CreateDrillandMapFilesSet(temp_dir, True, True)
 
     def generate_netlist(self, temp_dir):
         '''Generate the connection netlist.'''
