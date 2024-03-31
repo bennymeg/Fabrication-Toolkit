@@ -12,7 +12,7 @@ from typing import Tuple
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
-from .utils import footprint_has_field, footprint_get_field
+from .utils import footprint_has_field, footprint_get_field, get_plot_plan
 
 # Application definitions.
 from .config import *
@@ -73,7 +73,7 @@ class ProcessManager:
         else:
             extra_layers = []
 
-        for layer_info in plotPlan:
+        for layer_info in get_plot_plan(self.board):
             if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
