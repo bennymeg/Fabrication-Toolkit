@@ -59,6 +59,7 @@ def save_user_options(options):
         wx.MessageBox("Error saving user options", "Error", wx.OK | wx.ICON_ERROR)
 
 def get_plot_plan(board):
+    """Returns `(KiCad standard name, layer id, custom user name)` of all active layers of the given board."""
     layers = []
     i = pcbnew.PCBNEW_LAYER_ID_START
     while i < pcbnew.PCBNEW_LAYER_ID_START + pcbnew.PCB_LAYER_ID_COUNT:
@@ -69,5 +70,6 @@ def get_plot_plan(board):
         i += 1
     return layers
 def get_layer_names(board):
+    """Returns a list of active layer names of the current board"""
     plotPlan = get_plot_plan(board)
     return [layer_info[0] for layer_info in plotPlan]
