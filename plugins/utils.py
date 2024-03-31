@@ -70,4 +70,4 @@ def get_plot_plan(board):
     return layers
 def get_layer_names(board):
     plotPlan = get_plot_plan(board)
-    return [layer_info[2] for layer_info in plotPlan]
+    return [layer_info[0] for layer_info in plotPlan]
