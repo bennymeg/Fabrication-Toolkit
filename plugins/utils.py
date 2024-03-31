@@ -57,3 +57,17 @@ def save_user_options(options):
             json.dump(options, f)
     except:
         wx.MessageBox("Error saving user options", "Error", wx.OK | wx.ICON_ERROR)
+
+def get_plot_plan(board):
+    layers = []
+    i = pcbnew.PCBNEW_LAYER_ID_START
+    while i < pcbnew.PCBNEW_LAYER_ID_START + pcbnew.PCB_LAYER_ID_COUNT:
+        layer_std_name = pcbnew.BOARD.GetStandardLayerName(i)
+        layer_name = pcbnew.BOARD.GetLayerName(board, i)
+
+        layers.append((layer_std_name, i, layer_name))
+        i += 1
+    return layers
+def get_layer_names(board):
+    plotPlan = get_plot_plan(board)
+    return [layer_info[2] for layer_info in plotPlan]
