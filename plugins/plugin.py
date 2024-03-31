@@ -42,7 +42,7 @@ class KiCadToJLCForm(wx.Frame):
 
         layers = get_layer_names(pcbnew.GetBoard())
         self.mAdditionalLayersControl = wx.TextCtrl(self, size=wx.Size(600, 50))
-        self.mAdditionalLayersControl.Hint = "Additional layers"
+        self.mAdditionalLayersControl.Hint = "Additional layers (comma-separated)"
         self.mAdditionalLayersControl.AutoComplete(layers)
         self.mAdditionalLayersControl.Enable()
         self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
