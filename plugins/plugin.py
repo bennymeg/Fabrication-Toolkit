@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import EXCLUDE_DNP_OPT, AUTO_TRANSLATE_OPT, EXTRA_LAYERS
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTRA_LAYERS
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -30,13 +30,16 @@ class KiCadToJLCForm(wx.Frame):
         userOptions = load_user_options({
             EXCLUDE_DNP_OPT: False,
             EXTRA_LAYERS: "",
-            AUTO_TRANSLATE_OPT: True
+            AUTO_TRANSLATE_OPT: True,
+            AUTO_FILL_OPT: True
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
         self.mAutomaticTranslation = wx.CheckBox(self, label='Apply automatic translations')
         self.mAutomaticTranslation.SetValue(userOptions[AUTO_TRANSLATE_OPT])
+        self.mAutomaticFill = wx.CheckBox(self, label='Apply automatic fill for all zones')
+        self.mAutomaticFill.SetValue(userOptions[AUTO_FILL_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
 
@@ -61,6 +64,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
         boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
+        boxSizer.Add(self.mAutomaticFill, 0, wx.ALL, 5)
         boxSizer.Add(self.mAutomaticTranslation, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
@@ -75,6 +79,7 @@ class KiCadToJLCForm(wx.Frame):
 
     def onGenerateButtonClick(self, event):
         options = dict()
+        options[AUTO_FILL_OPT] = self.mAutomaticFill.GetValue()
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslation.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
@@ -82,6 +87,7 @@ class KiCadToJLCForm(wx.Frame):
         save_user_options(options)
 
         self.mAdditionalLayersControl.Hide()
+        self.mAutomaticFill.Hide()
         self.mAutomaticTranslation.Hide()
         self.mExcludeDnpCheckbox.Hide()
         self.mOptionsLabel.Hide()

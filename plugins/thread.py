@@ -35,7 +35,8 @@ class ProcessThread(Thread):
         try:
             # Verify all zones are up-to-date
             self.progress(10)
-            self.process_manager.update_zone_fills()
+            if (self.options[AUTO_FILL_OPT]):
+                self.process_manager.update_zone_fills()
 
             # generate gerber
             self.progress(20)
