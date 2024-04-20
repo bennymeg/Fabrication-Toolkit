@@ -36,10 +36,10 @@ class KiCadToJLCForm(wx.Frame):
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
         # self.mOptionsSeparator = wx.StaticLine(self)
-        self.mAutomaticTranslation = wx.CheckBox(self, label='Apply automatic translations')
-        self.mAutomaticTranslation.SetValue(userOptions[AUTO_TRANSLATE_OPT])
-        self.mAutomaticFill = wx.CheckBox(self, label='Apply automatic fill for all zones')
-        self.mAutomaticFill.SetValue(userOptions[AUTO_FILL_OPT])
+        self.mAutomaticTranslationCheckbox = wx.CheckBox(self, label='Apply automatic translations')
+        self.mAutomaticTranslationCheckbox.SetValue(userOptions[AUTO_TRANSLATE_OPT])
+        self.mAutomaticFillCheckbox = wx.CheckBox(self, label='Apply automatic fill for all zones')
+        self.mAutomaticFillCheckbox.SetValue(userOptions[AUTO_FILL_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components from BOM')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
 
@@ -64,8 +64,8 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
         boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
-        boxSizer.Add(self.mAutomaticFill, 0, wx.ALL, 5)
-        boxSizer.Add(self.mAutomaticTranslation, 0, wx.ALL, 5)
+        boxSizer.Add(self.mAutomaticFillCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mAutomaticTranslationCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
@@ -79,16 +79,16 @@ class KiCadToJLCForm(wx.Frame):
 
     def onGenerateButtonClick(self, event):
         options = dict()
-        options[AUTO_FILL_OPT] = self.mAutomaticFill.GetValue()
-        options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslation.GetValue()
+        options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
+        options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslationCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
 
         save_user_options(options)
 
         self.mAdditionalLayersControl.Hide()
-        self.mAutomaticFill.Hide()
-        self.mAutomaticTranslation.Hide()
+        self.mAutomaticFillCheckbox.Hide()
+        self.mAutomaticTranslationCheckbox.Hide()
         self.mExcludeDnpCheckbox.Hide()
         self.mOptionsLabel.Hide()
         self.mGenerateButton.Hide()
