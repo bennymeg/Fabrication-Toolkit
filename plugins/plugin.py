@@ -40,7 +40,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticTranslation.SetValue(userOptions[AUTO_TRANSLATE_OPT])
         self.mAutomaticFill = wx.CheckBox(self, label='Apply automatic fill for all zones')
         self.mAutomaticFill.SetValue(userOptions[AUTO_FILL_OPT])
-        self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components')
+        self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components from BOM')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
 
         layers = get_layer_names(pcbnew.GetBoard())

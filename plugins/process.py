@@ -159,15 +159,13 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            skip_footprint = ((footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES)
-                                or footprint.GetPadCount() == 0
-                                or exclude_dnp
-                                    and (footprint_has_field(footprint, 'dnp')
-                                        or (footprint.GetValue().upper() == 'DNP')
-                                        or getattr(footprint, 'IsDNP', bool))
-            )
+            is_dnp = (footprint_has_field(footprint, 'dnp') 
+                      or (footprint.GetValue().upper() == 'DNP') 
+                      or getattr(footprint, 'IsDNP', bool))
+            skip_dnp = exclude_dnp and is_dnp
+            skip_footprint = footprint.GetPadCount() == 0
 
-            if not skip_footprint:
+            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES) and not skip_footprint and not is_dnp:
                 # append unique ID if duplicate footprint designator
                 unique_id = ""
                 if footprint_designators[footprint.GetReference()] > 1:
@@ -209,7 +207,7 @@ class ProcessManager:
                     'Layer': layer,
                 })
 
-            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM) and not skip_footprint:
+            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM) and not skip_footprint and not skip_dnp:
                 # append unique ID if we are dealing with duplicate bom designator
                 unique_id = ""
                 if bom_designators[footprint.GetReference()] > 1:
