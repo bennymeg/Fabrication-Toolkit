@@ -8,18 +8,18 @@
     "author": {
         "name": "Benny Megidish",
         "contact": {
-            "web": "https://github.com/bennymeg/JLC-Plugin-for-KiCad"
+            "web": "https://github.com/bennymeg/Fabrication-Toolkit"
         }
     },
     "maintainer": {
         "name": "Benny Megidish",
         "contact": {
-            "web": "https://github.com/bennymeg/JLC-Plugin-for-KiCad"
+            "web": "https://github.com/bennymeg/Fabrication-Toolkit"
         }
     },
     "license": "Apache-2.0",
     "resources": {
-        "homepage": "https://github.com/bennymeg/JLC-Plugin-for-KiCad"
+        "homepage": "https://github.com/bennymeg/Fabrication-Toolkit"
     },
     "tags": [
         "jlc",
@@ -29,7 +29,7 @@
     ],
     "versions": [
         {
-            "version": "4.3.0",
+            "version": "4.4.0",
             "status": "stable",
             "kicad_version": "6.00"
         }
