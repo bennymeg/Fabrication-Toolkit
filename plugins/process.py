@@ -161,7 +161,7 @@ class ProcessManager:
 
             is_dnp = (footprint_has_field(footprint, 'dnp') 
                       or (footprint.GetValue().upper() == 'DNP') 
-                      or getattr(footprint, 'IsDNP', bool))
+                      or getattr(footprint, 'IsDNP', bool)())
             skip_dnp = exclude_dnp and is_dnp
             skip_footprint = footprint.GetPadCount() == 0
 
