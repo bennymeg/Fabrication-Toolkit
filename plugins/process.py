@@ -110,18 +110,24 @@ class ProcessManager:
 
     def _get_footprint_position(self, footprint):
         """Calculate position based on center of bounding box."""
-        if footprint.GetAttributes() & pcbnew.FP_SMD:
-            return footprint.GetPosition()
-        if footprint.GetAttributes() & pcbnew.FP_THROUGH_HOLE:
-            return footprint.GetBoundingBox(False, False).GetCenter()
+        position = footprint.GetPosition()
+        attributes = footprint.GetAttributes()
 
-        # handle Unspecified footprint type
-        pads = footprint.Pads()
-        # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
-        bbox = pads[0].GetBoundingBox() # start with small bounding box
-        for pad in pads:
-            bbox.Merge(pad.GetBoundingBox()) # expand bounding box
-        return bbox.GetCenter()
+        if attributes & pcbnew.FP_SMD:
+            position = footprint.GetPosition()
+        elif attributes & pcbnew.FP_THROUGH_HOLE:
+            position = footprint.GetBoundingBox(False, False).GetCenter()
+        else:                                           # handle Unspecified footprint type
+            pads = footprint.Pads()
+            if len(pads) > 0:
+                # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
+                bbox = pads[0].GetBoundingBox()         # start with small bounding box
+                for pad in pads:
+                    bbox.Merge(pad.GetBoundingBox())    # expand bounding box
+
+                position = bbox.GetCenter()
+
+        return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
         '''Generate the data tables.'''
@@ -173,8 +179,9 @@ class ProcessManager:
                     footprint_designators[footprint.GetReference()] -= 1
 
                 designator = "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
-                mid_x = (self._get_footprint_position(footprint)[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
-                mid_y = (self._get_footprint_position(footprint)[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
+                position = self._get_footprint_position(footprint)
+                mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
+                mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
                 rotation_offset_db = self._get_rotation_from_db(footprint_name) # internal database offset
                 rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint) # explicated offset by the designer
