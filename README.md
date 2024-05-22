@@ -106,7 +106,7 @@ Use following table to quickly find out to which coordinate enter the correction
 |-90deg, Front or Back | down arrow | right arrow |
 
 For custom angles it's best to place also a temporary straight symbol to perform alignment.
-Single arrow press in JLC is about 0.07mm shift (8 clicks is about 0.5mm).
+Single arrow press in JLC is 0.0635mm (= 1/400in) shift.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
 
