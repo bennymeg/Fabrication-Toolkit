@@ -39,11 +39,11 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/options.png?raw=true" height=275>
 
-☑ 'Additional layers': Comma-separated list of additional layers to include in the gerber archive.</br>
-☑ 'Set User.1 as V-Cut layer': Merge User.1 layer with the Edge-Cut layer in production.</br>
-☑ 'Apply automatic translations': Apply known translation fixes for common components.</br>
-☑ 'Apply automatic fill for all zones': Refill all zones before generation production files.</br>
-☑ 'Exclude DNP components from BOM': Exclude components the had been set a DNP from th BOM.</br>
+☑ __Additional layers__: Comma-separated list of additional layers to include in the gerber archive.</br>
+☑ __Set User.1 as V-Cut layer__: Merge User.1 layer with the Edge-Cut layer in production.</br>
+☑ __Apply automatic translations__: Apply known translation fixes for common components.</br>
+☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
+☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
 
 ### ① Include Component Part Number in Production Files
 Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's fields property.
