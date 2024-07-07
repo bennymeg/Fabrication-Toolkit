@@ -31,11 +31,19 @@ Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugi
 
 **⊛** Ensure your board is syncronized before invoking this addon [**F8**].
 
-**⊛** The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else. <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
+**⊛** The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else (unless disabled). <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
 
 ## Options
 
 Options can be set in the dialog that appears when the plugin is invoked. They are saved in a file called `fabrication-toolkit-options.json` in the project directory so that they are remembered between invocations of the plugin.
+
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/options.png?raw=true" height=275>
+
+☑ 'Additional layers': Comma-separated list of additional layers to include in the gerber archive.</br>
+☑ 'Set User.1 as V-Cut layer': Merge User.1 layer with the Edge-Cut layer in production.</br>
+☑ 'Apply automatic translations': Apply known translation fixes for common components.</br>
+☑ 'Apply automatic fill for all zones': Refill all zones before generation production files.</br>
+☑ 'Exclude DNP components from BOM': Exclude components the had been set a DNP from th BOM.</br>
 
 ### ① Include Component Part Number in Production Files
 Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's fields property.
