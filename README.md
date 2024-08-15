@@ -139,14 +139,14 @@ Some footprints may have their components defined on the opposite layer to there
 Values can be `top`, `bottom`, `t` or `b`.
 
 #### Primary Fields*:
-        | 'JLCPCB Layer Override' |
-        | --- |
+| 'JLCPCB Layer Override' |
+| --- |
 
 _The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
-        | 'JlcLayerOverride' | 'JLCLayerOverride' |
-        | --- | --- |
+| 'JlcLayerOverride' | 'JLCLayerOverride' |
+| --- | --- |
 
 _The fields will be queried in the order denoted above._
 
