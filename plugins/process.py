@@ -137,13 +137,13 @@ class ProcessManager:
             footprints = list(self.board.GetFootprints())
 
         # sort footprint after designator
-        footprints.sort(key=lambda x: x.GetReference())
+        footprints.sort(key=lambda x: x.GetReference().upper())
 
         # unique designator dictionary
         footprint_designators = defaultdict(int)
         for i, footprint in enumerate(footprints):
             # count unique designators
-            footprint_designators[footprint.GetReference()] += 1
+            footprint_designators[footprint.GetReference().upper()] += 1
         bom_designators = footprint_designators.copy()
 
         if len(footprint_designators.items()) > 0:
@@ -173,11 +173,11 @@ class ProcessManager:
             if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES)  and not is_dnp:
                 # append unique ID if duplicate footprint designator
                 unique_id = ""
-                if footprint_designators[footprint.GetReference()] > 1:
-                    unique_id = str(footprint_designators[footprint.GetReference()])
-                    footprint_designators[footprint.GetReference()] -= 1
+                if footprint_designators[footprint.GetReference().upper()] > 1:
+                    unique_id = str(footprint_designators[footprint.GetReference().upper()])
+                    footprint_designators[footprint.GetReference().upper()] -= 1
 
-                designator = "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
+                designator = "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id)
                 position = self._get_footprint_position(footprint)
                 mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
@@ -216,9 +216,9 @@ class ProcessManager:
             if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM) and not skip_dnp:
                 # append unique ID if we are dealing with duplicate bom designator
                 unique_id = ""
-                if bom_designators[footprint.GetReference()] > 1:
-                    unique_id = str(bom_designators[footprint.GetReference()])
-                    bom_designators[footprint.GetReference()] -= 1
+                if bom_designators[footprint.GetReference().upper()] > 1:
+                    unique_id = str(bom_designators[footprint.GetReference().upper()])
+                    bom_designators[footprint.GetReference().upper()] -= 1
 
                 # merge similar parts into single entry
                 insert = True
@@ -229,7 +229,7 @@ class ProcessManager:
                     under_limit = component['Quantity'] < bomRowLimit
 
                     if same_footprint and same_value and same_lcsc and under_limit:
-                        component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id)
+                        component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
                         break
@@ -237,7 +237,7 @@ class ProcessManager:
                 # add component to BOM
                 if insert:
                     self.bom.append({
-                        'Designator': "{}{}{}".format(footprint.GetReference(), "" if unique_id == "" else "_", unique_id),
+                        'Designator': "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id),
                         'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
                         'Value': footprint.GetValue(),
