@@ -41,6 +41,7 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 
 ☑ __Additional layers__: Comma-separated list of additional layers to include in the gerber archive.</br>
 ☑ __Set User.1 as V-Cut layer__: Merge User.1 layer with the Edge-Cut layer in production.</br>
+☑ __Use User.2 for an alternative Edge-Cut layer__: Use the User.2 instead of the Edge-Cut layer for the board outline in production. This is useful if you need process edges or panelization during production but still want to keep the individual outline for prototyping, 3D model exports, or similar purposes.</br>
 ☑ __Apply automatic translations__: Apply known translation fixes for common components.</br>
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
@@ -138,14 +139,14 @@ Some footprints may have their components defined on the opposite layer to there
 Values can be `top`, `bottom`, `t` or `b`.
 
 #### Primary Fields*:
-        | 'JLCPCB Layer Override' |
-        | --- |
+| 'JLCPCB Layer Override' |
+| --- |
 
 _The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
-        | 'JlcLayerOverride' | 'JLCLayerOverride' |
-        | --- | --- |
+| 'JlcLayerOverride' | 'JLCLayerOverride' |
+| --- | --- |
 
 _The fields will be queried in the order denoted above._
 

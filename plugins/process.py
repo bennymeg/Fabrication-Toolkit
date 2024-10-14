@@ -42,7 +42,7 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts):
+    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
@@ -77,13 +77,19 @@ class ProcessManager:
             if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
-                
-                if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'PlotLayers') and extend_edge_cuts:
+
+                if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'PlotLayers') and (extend_edge_cuts or alternative_edge_cuts):
+                    seq = pcbnew.LSEQ()
+                    # uses User_2 layer for alternative Edge_Cuts layer
+                    if alternative_edge_cuts:
+                        seq.push_back(pcbnew.User_2)
+                    else:
+                        seq.push_back(layer_info[1])
                     # includes User_1 layer with Edge_Cuts layer to allow V Cuts to be defined as User_1 layer
                     # available for KiCad 7.0.1+
-                    seq = pcbnew.LSEQ()
-                    seq.push_back(layer_info[1])
-                    seq.push_back(pcbnew.User_1)
+                    if extend_edge_cuts:
+                        seq.push_back(layer_info[1])
+                        seq.push_back(pcbnew.User_1)
                     plot_controller.PlotLayers(seq)
                 else:
                     plot_controller.PlotLayer()

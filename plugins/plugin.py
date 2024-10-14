@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, EXTRA_LAYERS
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -30,6 +30,7 @@ class KiCadToJLCForm(wx.Frame):
         userOptions = load_user_options({
             EXTRA_LAYERS: "",
             EXTEND_EDGE_CUT_OPT: False,
+            ALTERNATIVE_EDGE_CUT_OPT: False,
             AUTO_TRANSLATE_OPT: True,
             AUTO_FILL_OPT: True,
             EXCLUDE_DNP_OPT: False
@@ -47,6 +48,8 @@ class KiCadToJLCForm(wx.Frame):
 
         self.mExtendEdgeCutsCheckbox = wx.CheckBox(self, label='Set User.1 as V-Cut layer')
         self.mExtendEdgeCutsCheckbox.SetValue(userOptions[EXTEND_EDGE_CUT_OPT])
+        self.mAlternativeEdgeCutsCheckbox = wx.CheckBox(self, label='Use User.2 for alternative Edge-Cut layer')
+        self.mAlternativeEdgeCutsCheckbox.SetValue(userOptions[ALTERNATIVE_EDGE_CUT_OPT])
         self.mAutomaticTranslationCheckbox = wx.CheckBox(self, label='Apply automatic translations')
         self.mAutomaticTranslationCheckbox.SetValue(userOptions[AUTO_TRANSLATE_OPT])
         self.mAutomaticFillCheckbox = wx.CheckBox(self, label='Apply automatic fill for all zones')
@@ -68,6 +71,7 @@ class KiCadToJLCForm(wx.Frame):
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
         boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
         boxSizer.Add(self.mExtendEdgeCutsCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mAlternativeEdgeCutsCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mAutomaticTranslationCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mAutomaticFillCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
@@ -85,6 +89,7 @@ class KiCadToJLCForm(wx.Frame):
         options = dict()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
         options[EXTEND_EDGE_CUT_OPT] = self.mExtendEdgeCutsCheckbox.GetValue()
+        options[ALTERNATIVE_EDGE_CUT_OPT] = self.mAlternativeEdgeCutsCheckbox.GetValue()
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslationCheckbox.GetValue()
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
@@ -94,6 +99,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mOptionsLabel.Hide()
         self.mAdditionalLayersControl.Hide()
         self.mExtendEdgeCutsCheckbox.Hide()
+        self.mAlternativeEdgeCutsCheckbox.Hide()
         self.mAutomaticTranslationCheckbox.Hide()
         self.mAutomaticFillCheckbox.Hide()
         self.mExcludeDnpCheckbox.Hide()
