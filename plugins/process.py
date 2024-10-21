@@ -17,6 +17,19 @@ from .utils import footprint_has_field, footprint_get_field, get_plot_plan
 # Application definitions.
 from .config import *
 
+standard_layers = [ pcbnew.F_Cu, pcbnew.B_Cu,
+                    pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.In5_Cu,
+                    pcbnew.In6_Cu, pcbnew.In7_Cu, pcbnew.In8_Cu, pcbnew.In9_Cu, pcbnew.In10_Cu,
+                    pcbnew.In11_Cu, pcbnew.In12_Cu, pcbnew.In13_Cu, pcbnew.In14_Cu, pcbnew.In15_Cu,
+                    pcbnew.In16_Cu, pcbnew.In17_Cu, pcbnew.In18_Cu, pcbnew.In19_Cu, pcbnew.In20_Cu,
+                    pcbnew.In21_Cu, pcbnew.In22_Cu, pcbnew.In23_Cu, pcbnew.In24_Cu, pcbnew.In25_Cu,
+                    pcbnew.In26_Cu, pcbnew.In27_Cu, pcbnew.In28_Cu, pcbnew.In29_Cu, pcbnew.In30_Cu,
+                    pcbnew.F_SilkS, pcbnew.B_SilkS,
+                    pcbnew.F_Mask, pcbnew.B_Mask,
+                    pcbnew.F_Paste, pcbnew.B_Paste,
+                    pcbnew.Edge_Cuts
+                    ]
+
 
 class ProcessManager:
     def __init__(self):
@@ -42,7 +55,7 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts):
+    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
@@ -74,7 +87,7 @@ class ProcessManager:
             extra_layers = []
 
         for layer_info in get_plot_plan(self.board):
-            if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
+            if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standard_layers)) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
