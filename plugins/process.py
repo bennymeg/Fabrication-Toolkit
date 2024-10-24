@@ -193,6 +193,10 @@ class ProcessManager:
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
+                if auto_translate:
+                    pos_offset_db = self._get_position_offset_from_db(footprint_name)
+                    pos_offset = (pos_offset[0] + pos_offset_db[0], pos_offset[1] + pos_offset_db[1])
+
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
 
