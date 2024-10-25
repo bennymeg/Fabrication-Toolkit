@@ -59,7 +59,7 @@ class ProcessManager:
         plot_options.SetScale(1)
         plot_options.SetMirror(False)
         plot_options.SetUseGerberAttributes(True)
-        plot_options.SetUseGerberProtelExtensions(True)
+        plot_options.SetUseGerberProtelExtensions(False)
         plot_options.SetUseAuxOrigin(True)
         plot_options.SetSubtractMaskFromSilk(True)
         plot_options.SetUseGerberX2format(False)
@@ -76,7 +76,7 @@ class ProcessManager:
         for layer_info in get_plot_plan(self.board):
             if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
-                plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
+                plot_controller.OpenPlotfile(layer_info[2], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
                 if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'PlotLayers') and (extend_edge_cuts or alternative_edge_cuts):
                     seq = pcbnew.LSEQ()
