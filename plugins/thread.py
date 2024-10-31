@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import webbrowser
 import datetime
+import logging
 from threading import Thread
 from .events import StatusEvent
 from .process import ProcessManager
@@ -13,12 +14,28 @@ from .options import *
 
 
 class ProcessThread(Thread):
-    def __init__(self, wx, options):
+    def __init__(self, wx, options, cli = None, openBrowser = True):
         Thread.__init__(self)
 
-        self.process_manager = ProcessManager()
+        # prevent use of cli and grapgical mode at the same time
+        if (wx is None and cli is None) or (wx is not None and cli is not None):
+            logging.error("Specify either graphical or cli use!")
+            return
+        
+        if cli is not None:
+            try:
+                self.board = pcbnew.LoadBoard(cli)
+            except Exception as e:
+                logging.error("Fabrication Toolkit - Error" + str(e))
+                return
+        else:
+            self.board = None
+            
+        self.process_manager = ProcessManager(self.board)
         self.wx = wx
+        self.cli = cli
         self.options = options
+        self.openBrowser = openBrowser
         self.start()
 
     def run(self):
@@ -69,7 +86,10 @@ class ProcessThread(Thread):
             shutil.rmtree(temp_dir_gerber)
             temp_file = os.path.join(temp_dir, os.path.basename(temp_file))
         except Exception as e:
-            wx.MessageBox(str(e), "Fabrication Toolkit - Error", wx.OK | wx.ICON_ERROR)
+            if self.wx is None:
+                logging.error("Fabrication Toolkit - Error" + str(e))
+            else:
+                wx.MessageBox(str(e), "Fabrication Toolkit - Error", wx.OK | wx.ICON_ERROR)
             self.progress(-1)
             return
 
@@ -117,12 +137,43 @@ class ProcessThread(Thread):
         # copy to & open output dir
         try:
             shutil.copytree(temp_dir, output_path, dirs_exist_ok=True)
-            webbrowser.open("file://%s" % (output_path))
+            if self.openBrowser:
+                webbrowser.open("file://%s" % (output_path))
             shutil.rmtree(temp_dir)
-        except Exception as e: 
-            webbrowser.open("file://%s" % (temp_dir))
+        except Exception as e:
+            if self.openBrowser:
+                webbrowser.open("file://%s" % (temp_dir))
 
-        self.progress(-1)
+        if self.wx is None: 
+            self.progress(100)
+        else:
+            self.progress(-1)
 
     def progress(self, percent):
-        wx.PostEvent(self.wx, StatusEvent(percent))
+        def cliBar(percent, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+            """
+            Call in a loop to create terminal progress bar
+            @params:
+                percent     - Required  : current percentage (Int)
+                prefix      - Optional  : prefix string (Str)
+                suffix      - Optional  : suffix string (Str)
+                decimals    - Optional  : positive number of decimals in percent complete (Int)
+                length      - Optional  : character length of bar (Int)
+                fill        - Optional  : bar fill character (Str)
+                printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+            """
+            if percent == -1:
+                percent = 0
+            filledLength = int(length * (percent / 100 ))
+            bar = fill * filledLength + '-' * (length - filledLength)
+            percent2dec = "%.2f" % percent
+            print(f'\r{prefix} |{bar}| {percent2dec}% {suffix}', end = printEnd)
+            # Print New Line on Complete
+            if percent == 100: 
+                print()
+        
+
+        if self.wx is None:
+            cliBar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        else:
+            wx.PostEvent(self.wx, StatusEvent(percent))
