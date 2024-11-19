@@ -84,6 +84,16 @@ class KiCadToJLCForm(wx.Frame):
 
         self.Centre(wx.BOTH)
 
+        # Bind the ESC key event to a handler
+        self.Bind(wx.EVT_CHAR_HOOK, self.onKey)
+
+    # Close the dialog when pressing the ESC key
+    def onKey(self, event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.Close(True)
+        else:
+            event.Skip()
+
 
     def onGenerateButtonClick(self, event):
         options = dict()
