@@ -17,7 +17,6 @@ from .utils import footprint_has_field, footprint_get_field, get_plot_plan
 # Application definitions.
 from .config import *
 
-
 class ProcessManager:
     def __init__(self):
         self.board = pcbnew.GetBoard()
@@ -42,7 +41,7 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts):
+    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
@@ -74,7 +73,7 @@ class ProcessManager:
             extra_layers = []
 
         for layer_info in get_plot_plan(self.board):
-            if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
+            if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standardLayers)) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
