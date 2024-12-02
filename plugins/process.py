@@ -121,17 +121,15 @@ class ProcessManager:
         if attributes & pcbnew.FP_SMD:
             position = footprint.GetPosition()
         elif attributes & pcbnew.FP_THROUGH_HOLE:
+             pads = footprint.Pads()
+             if len(pads) > 0:
+                  # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
+                  bbox = pads[0].GetBoundingBox()         # start with small bounding box
+                  for pad in pads:
+                      bbox.Merge(pad.GetBoundingBox())    # expand bounding box
+                  position = bbox.GetCenter()
+        else:    # handle Unspecified footprint type
             position = footprint.GetBoundingBox(False, False).GetCenter()
-        else:                                           # handle Unspecified footprint type
-            pads = footprint.Pads()
-            if len(pads) > 0:
-                # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
-                bbox = pads[0].GetBoundingBox()         # start with small bounding box
-                for pad in pads:
-                    bbox.Merge(pad.GetBoundingBox())    # expand bounding box
-
-                position = bbox.GetCenter()
-
         return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
