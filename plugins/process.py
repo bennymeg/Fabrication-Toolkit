@@ -115,20 +115,7 @@ class ProcessManager:
 
     def _get_footprint_position(self, footprint): 
         """Calculate position based on center of pads / bounding box."""
-
-        attributes = footprint.GetAttributes()
-        # determine origin type by package type
-        if attributes & pcbnew.FP_SMD:
-            origin_type = 'Anchor'
-        else: 
-            origin_type = 'Center'
-       
-        # allow user override
-        key = 'Origin'
-        if footprint_has_field(footprint, key):
-            origin_type_override = str(footprint_get_field(footprint, key)).strip().capitalize()
-            if origin_type_override in ['Anchor', 'Center']:
-                origin_type = origin_type_override
+        origin_type = self._get_origin_from_footprint(footprint)
 
         if origin_type == 'Anchor':
             position = footprint.GetPosition()
@@ -485,6 +472,29 @@ class ProcessManager:
                 return (float(offset[0]), float(offset[1]))
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
+            
+    def _get_origin_from_footprint(self, footprint) -> float:
+        '''Get the rotation from standard symbol fields.'''
+        keys = ['FT Origin']
+        fallback_keys = ['Origin']
+
+        attributes = footprint.GetAttributes()
+
+        # determine origin type by package type
+        if attributes & pcbnew.FP_SMD:
+            origin_type = 'Anchor'
+        else: 
+            origin_type = 'Center'
+
+        for key in keys + fallback_keys:
+            if footprint_has_field(footprint, key):
+                origin_type_override = str(footprint_get_field(footprint, key)).strip().capitalize()
+
+                if origin_type_override in ['Anchor', 'Center']:
+                    origin_type = origin_type_override
+                break
+
+        return origin_type
 
     def _normalize_footprint_name(self, footprint) -> str:
         # replace footprint names of resistors, capacitors, inductors, diodes, LEDs, fuses etc, with the footprint size only
