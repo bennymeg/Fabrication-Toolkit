@@ -75,7 +75,7 @@ class ProcessManager:
         for layer_info in get_plot_plan(self.board):
             if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standardLayers)) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
-                plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
+                plot_controller.OpenPlotfile(layer_info[2], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
                 if layer_info[1] == pcbnew.Edge_Cuts and hasattr(plot_controller, 'PlotLayers') and (extend_edge_cuts or alternative_edge_cuts):
                     seq = pcbnew.LSEQ()
