@@ -17,7 +17,6 @@ from .utils import footprint_has_field, footprint_get_field, get_plot_plan
 # Application definitions.
 from .config import *
 
-
 class ProcessManager:
     def __init__(self):
         self.board = pcbnew.GetBoard()
@@ -42,7 +41,7 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts):
+    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
@@ -74,7 +73,7 @@ class ProcessManager:
             extra_layers = []
 
         for layer_info in get_plot_plan(self.board):
-            if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
+            if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standardLayers)) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
@@ -114,25 +113,34 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def _get_footprint_position(self, footprint):
-        """Calculate position based on center of bounding box."""
-        position = footprint.GetPosition()
+    def _get_footprint_position(self, footprint):       
         attributes = footprint.GetAttributes()
-
+        #determin origin type by packge type
         if attributes & pcbnew.FP_SMD:
+            origin_type='Anchor'
+        else: 
+            origin_type='Center'
+       
+        #allow user override
+        key='Origin'
+        if footprint_has_field(footprint, key):
+            origin_type_override = str(footprint_get_field(footprint, key)).capitalize()
+            if origin_type_override in ['Anchor','Center']:
+                origin_type=origin_type_override
+
+        if origin_type=='Anchor':
             position = footprint.GetPosition()
-        elif attributes & pcbnew.FP_THROUGH_HOLE:
-            position = footprint.GetBoundingBox(False, False).GetCenter()
-        else:                                           # handle Unspecified footprint type
+        else: #if type_origin=='center' or anything ele
             pads = footprint.Pads()
             if len(pads) > 0:
                 # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
                 bbox = pads[0].GetBoundingBox()         # start with small bounding box
                 for pad in pads:
                     bbox.Merge(pad.GetBoundingBox())    # expand bounding box
-
                 position = bbox.GetCenter()
-
+            else:
+                position = footprint.GetPosition() #if we have no pads we fallback to anchor
+    
         return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
@@ -193,6 +201,10 @@ class ProcessManager:
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
+                if auto_translate:
+                    pos_offset_db = self._get_position_offset_from_db(footprint_name)
+                    pos_offset = (pos_offset[0] + pos_offset_db[0], pos_offset[1] + pos_offset_db[1])
+
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
 

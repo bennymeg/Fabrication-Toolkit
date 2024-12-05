@@ -133,7 +133,15 @@ _The fields will be queried in the order denoted above._
 
 _The fields will be queried in the order denoted above._
 
-### ⑤ Override Component Layer
+### ⑤ Override Component Origin
+The Fabrication Toolkit reports the position of each component based on an automatically selected point of reference. This default behavior can be overridden by adding an **Origin** field to the component. 
+
+The **Origin** field supports the following values:
+
+- `Anchor` - Uses the footprint's anchor point, which can be modified in KiCad's footprint editor.
+- `Center` - Uses the center of the bounding box formed by the footprint's pads.
+
+### ⑥ Override Component Layer
 Some footprints may have their components defined on the opposite layer to there actual footprints. In these instances you can override mount side by using this field.
 
 Values can be `top`, `bottom`, `t` or `b`.
