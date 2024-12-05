@@ -72,6 +72,7 @@ def get_plot_plan(board, active_only=True):
 
         layers.append((layer_std_name, i, layer_name))
     return layers
+
 def get_layer_names(board, active_only=True):
     """Returns a list of (active) layer names of the current board"""
     plotPlan = get_plot_plan(board, active_only)
