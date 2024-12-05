@@ -171,6 +171,35 @@ _The fields will be queried in the order denoted above._
 _The fields will be queried in the order denoted above._
 
 
+## CLI-Usage
+The plugin can also be used via the linux commandline. This can be particularly useful if you need to embed the plugin into an automation pipeline or environment.
+The plugin can be called with the command below:
+```
+python3 -m plugins.cli -p /myProject/myBoard.kicad_pcb
+```
+
+The all options from the GUI are also available via the cli interface:
+```
+python3 -m plugins.cli -h
+
+usage: Fabrication Toolkit [-h] --path PATH [--additionalLayers ADDITIONALLAYERS] [--user1VCut] [--user2AltVCut] [--autoTranslate] [--autoFill]
+                           [--excludeDNP] [--allActiveLayers] [--openBrowser]
+
+Generates JLCPCB production files from a KiCAD board file
+
+options:
+  -h, --help                show this help message and exit
+  --path PATH, -p PATH      Path to KiCAD board file
+  --additionalLayers ADDITIONALLAYERS, -aL ADDITIONALLAYERS Additional layers(comma-separated)
+  --user1VCut, -u1          Set User.1 as V-Cut layer
+  --user2AltVCut, -u2       Use User.2 for alternative Edge-Cut layer
+  --autoTranslate, -t       Apply automatic position/rotation translations
+  --autoFill, -f            Apply automatic fill for all zones
+  --excludeDNP, -e          Exclude DNP components from BOM
+  --allActiveLayers, -aaL   Export all active layers instead of only commonly used ones
+  --openBrowser, -b         Open webbrowser with directory file overview after generation
+```
+
 
 ## Author
 

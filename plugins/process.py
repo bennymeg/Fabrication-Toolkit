@@ -18,8 +18,12 @@ from .utils import footprint_has_field, footprint_get_field, get_plot_plan
 from .config import *
 
 class ProcessManager:
-    def __init__(self):
-        self.board = pcbnew.GetBoard()
+    def __init__(self, board = None):
+        # if no board is already loaded by cli mode getBoard from kicad environment
+        if board is None:
+            self.board = pcbnew.GetBoard()
+        else:
+            self.board = board
         self.bom = []
         self.components = []
         self.__rotation_db = self.__read_rotation_db()
