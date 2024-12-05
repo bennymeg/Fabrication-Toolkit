@@ -17,7 +17,6 @@ from .utils import footprint_has_field, footprint_get_field, get_plot_plan
 # Application definitions.
 from .config import *
 
-
 class ProcessManager:
     def __init__(self, board = None):
         # if no board is already loaded by cli mode getBoard from kicad environment
@@ -46,7 +45,7 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts):
+    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
         '''Generate the Gerber files.'''
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
@@ -78,7 +77,7 @@ class ProcessManager:
             extra_layers = []
 
         for layer_info in get_plot_plan(self.board):
-            if self.board.IsLayerEnabled(layer_info[1]) or layer_info[0] in extra_layers:
+            if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standardLayers)) or layer_info[0] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[0], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
@@ -118,25 +117,23 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def _get_footprint_position(self, footprint):
-        """Calculate position based on center of bounding box."""
-        position = footprint.GetPosition()
-        attributes = footprint.GetAttributes()
+    def _get_footprint_position(self, footprint): 
+        """Calculate position based on center of pads / bounding box."""
+        origin_type = self._get_origin_from_footprint(footprint)
 
-        if attributes & pcbnew.FP_SMD:
+        if origin_type == 'Anchor':
             position = footprint.GetPosition()
-        elif attributes & pcbnew.FP_THROUGH_HOLE:
-            position = footprint.GetBoundingBox(False, False).GetCenter()
-        else:                                           # handle Unspecified footprint type
+        else: # if type_origin == 'Center' or anything else
             pads = footprint.Pads()
             if len(pads) > 0:
                 # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
                 bbox = pads[0].GetBoundingBox()         # start with small bounding box
                 for pad in pads:
                     bbox.Merge(pad.GetBoundingBox())    # expand bounding box
-
                 position = bbox.GetCenter()
-
+            else:
+                position = footprint.GetPosition()      # if we have no pads we fallback to anchor
+    
         return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
@@ -167,7 +164,7 @@ class ProcessManager:
             except AttributeError:
                 footprint_name = str(footprint.GetFPID().GetLibItemName())
 
-            layer = self._get_top_or_bottom_side_override_from_footprint(footprint)
+            layer = self._get_layer_override_from_footprint(footprint)
 
             # mount_type = {
             #     0: 'smt',
@@ -197,6 +194,10 @@ class ProcessManager:
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
+                if auto_translate:
+                    pos_offset_db = self._get_position_offset_from_db(footprint_name)
+                    pos_offset = (pos_offset[0] + pos_offset_db[0], pos_offset[1] + pos_offset_db[1])
+
                 rsin = math.sin(rotation / 180 * math.pi)
                 rcos = math.cos(rotation / 180 * math.pi)
 
@@ -406,7 +407,7 @@ class ProcessManager:
     def _get_mpn_from_footprint(self, footprint) -> str:
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         keys = ['LCSC Part #', 'JLCPCB Part #']
-        fallback_keys = ['LCSC Part', 'JLC Part', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
+        fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
         if footprint_has_field(footprint, 'dnp'):
             return 'DNP'
@@ -415,9 +416,10 @@ class ProcessManager:
             if footprint_has_field(footprint, key):
                 return footprint_get_field(footprint, key)
 
-    def _get_top_or_bottom_side_override_from_footprint(self, footprint) -> str:
-        keys = ['JLCPCB Layer Override']
-        fallback_keys = ['JlcLayerOverride', 'JLCLayerOverride']
+    def _get_layer_override_from_footprint(self, footprint) -> str:
+        '''Get the layer override from standard symbol fields.'''
+        keys = ['FT Layer Override']
+        fallback_keys = ['Layer Override', 'LayerOverride']
 
         layer = {
             pcbnew.F_Cu: 'top',
@@ -427,19 +429,20 @@ class ProcessManager:
         for key in keys + fallback_keys:
             if footprint_has_field(footprint, key):
                 temp_layer = footprint_get_field(footprint, key)
-                if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
-                    layer = "bottom"
-                    break
-                elif (temp_layer[0] == 't' or temp_layer[0] == 'T'):
-                    layer = "top"
-                    break
+                if len(temp_layer) > 0:
+                    if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
+                        layer = "bottom"
+                        break
+                    elif (temp_layer[0] == 't' or temp_layer[0] == 'T'):
+                        layer = "top"
+                        break
 
         return layer
 
     def _get_rotation_offset_from_footprint(self, footprint) -> float:
-        '''Get the rotation from standard symbol fields.'''
-        keys = ['JLCPCB Rotation Offset']
-        fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
+        '''Get the rotation offset from standard symbol fields.'''
+        keys = ['FT Rotation Offset']
+        fallback_keys = ['Rotation Offset', 'RotOffset']
 
         offset = ""
 
@@ -457,8 +460,9 @@ class ProcessManager:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
     def _get_position_offset_from_footprint(self, footprint) -> Tuple[float, float]:
-        keys = ['JLCPCB Position Offset']
-        fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
+        '''Get the position offset from standard symbol fields.'''
+        keys = ['FT Position Offset']
+        fallback_keys = ['Position Offset', 'PosOffset']
 
         offset = ""
 
@@ -475,6 +479,29 @@ class ProcessManager:
                 return (float(offset[0]), float(offset[1]))
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
+            
+    def _get_origin_from_footprint(self, footprint) -> float:
+        '''Get the origin from standard symbol fields.'''
+        keys = ['FT Origin']
+        fallback_keys = ['Origin']
+
+        attributes = footprint.GetAttributes()
+
+        # determine origin type by package type
+        if attributes & pcbnew.FP_SMD:
+            origin_type = 'Anchor'
+        else: 
+            origin_type = 'Center'
+
+        for key in keys + fallback_keys:
+            if footprint_has_field(footprint, key):
+                origin_type_override = str(footprint_get_field(footprint, key)).strip().capitalize()
+
+                if origin_type_override in ['Anchor', 'Center']:
+                    origin_type = origin_type_override
+                break
+
+        return origin_type
 
     def _normalize_footprint_name(self, footprint) -> str:
         # replace footprint names of resistors, capacitors, inductors, diodes, LEDs, fuses etc, with the footprint size only

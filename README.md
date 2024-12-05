@@ -27,9 +27,9 @@ Fabrication Toolkit is distributed with the official releases of KiCad 6+. Open 
 Download the [latest release](https://github.com/bennymeg/JLC-Plugin-for-KiCad/releases) ZIP file. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
 
 ## Usage
-Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="magin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
+Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="margin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
 
-**⊛** Ensure your board is syncronized before invoking this addon [**F8**].
+**⊛** Ensure your board is synchronized before invoking this addon [**F8**].
 
 **⊛** The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else (unless disabled). <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
 
@@ -58,8 +58,8 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 _The fields will be query in the order denoted above._
 
 #### Fallback Fields*:
-| 'JLC Part' | 'LCSC Part' | 'LCSC' | 'JLC' | 'MPN' | 'Mpn' | 'mpn' |
-| --- | --- | --- | --- | --- | --- | --- |
+| 'LCSC' | 'JLC' | 'MPN' | 'Mpn' | 'mpn' |
+| --- | --- | --- | --- | --- |
 
 _The fields will be query in the order denoted above._
 
@@ -77,7 +77,7 @@ Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fa
 ---
 
 ### ③ Offset Component Rotation
-The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'JLCPCB Rotation Offset' field - with positive values indicating counter-clockwise orientation offset in degrees.
+The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'FT Rotation Offset'* field - with positive values indicating counter-clockwise orientation offset in degrees.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation-jlc.png?raw=true" height=164>
 
@@ -88,13 +88,13 @@ If the JLC preview shows a footprint like this, enter a rotation offset of -90 t
 As the rotation offset is entered in the Schematic Editor, make sure to update your PCB with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
 
 #### Primary Fields*:
-| 'JLCPCB Rotation Offset' |
+| 'FT Rotation Offset' |
 | --- |
 
 _The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
-| 'JlcRotOffset' | 'JLCRotOffset' |
+| 'Rotation Offset' | 'RotOffset' |
 | --- | --- |
 
 _The fields will be queried in the order denoted above._
@@ -102,17 +102,17 @@ _The fields will be queried in the order denoted above._
 ---
 
 ### ④ Offset Component Position
-The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma separated x,y position offset to correct it. 
+The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it. 
 
-Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in Kicad PCB Editor status bar:
-|Kicad footprint deg | x | y|
+Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
+|KiCad footprint deg | x | y|
 |----|----|----|
-|0deg, Front | right arrow | up arrow |
-|0deg, Back | left arrow | down arrow |
-|180deg, Front | left arrow | down arrow |
-|180deg, Back | right arrow | up arrow |
-|90deg, Front or Back | up arrow | left arrow |
-|-90deg, Front or Back | down arrow | right arrow |
+|0 deg, Front | right arrow | up arrow |
+|0 deg, Back | left arrow | down arrow |
+|180 deg, Front | left arrow | down arrow |
+|180 deg, Back | right arrow | up arrow |
+|90 deg, Front or Back | up arrow | left arrow |
+|-90 deg, Front or Back | down arrow | right arrow |
 
 For custom angles it's best to place also a temporary straight symbol to perform alignment.
 Single arrow press in JLC is 0.0635mm (= 1/400in) shift.
@@ -122,30 +122,50 @@ Single arrow press in JLC is 0.0635mm (= 1/400in) shift.
 As the position offset is entered in the Schematic Editor, make sure to update your PCB with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
 
 #### Primary Fields*:
-| 'JLCPCB Position Offset' |
+| 'FT Position Offset' |
 | --- |
 
 _The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
-| 'JlcPosOffset' | 'JLCPosOffset' |
+| 'Position Offset' | 'PosOffset' |
 | --- | --- |
 
 _The fields will be queried in the order denoted above._
 
-### ⑤ Override Component Layer
-Some footprints may have their components defined on the opposite layer to there actual footprints. In these instances you can override mount side by using this field.
-
-Values can be `top`, `bottom`, `t` or `b`.
+### ⑤ Override Component Origin
+The Fabrication Toolkit reports the position of each component based on an automatically selected point of reference. This default behavior can be overridden by adding an 'FT Origin'* field to the component. 
 
 #### Primary Fields*:
-| 'JLCPCB Layer Override' |
+| 'FT Origin' |
 | --- |
 
 _The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
-| 'JlcLayerOverride' | 'JLCLayerOverride' |
+| 'Origin' |
+| --- |
+
+The **Origin** field supports the following values:
+
+- `Anchor` - Uses the footprint's anchor point, which can be modified in KiCad's footprint editor.
+- `Center` - Uses the center of the bounding box formed by the footprint's pads.
+
+### ⑥ Override Component Layer
+Some footprints may have their components defined on the opposite layer to there actual footprints. In these instances you can override mount side by adding an 'FT Layer Override'* field to the component.
+
+The **Layer Override** field supports the following values:
+- `top`, `t` - Override footprint layer to the top.
+- `bottom`, `b` - Override footprint layer to the bottom.
+
+#### Primary Fields*:
+| 'FT Layer Override' |
+| --- |
+
+_The fields will be queried in the order denoted above._
+
+#### Fallback Fields*:
+| 'Layer Override' | 'LayerOverride' |
 | --- | --- |
 
 _The fields will be queried in the order denoted above._
