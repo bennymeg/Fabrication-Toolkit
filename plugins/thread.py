@@ -11,6 +11,7 @@ from .events import StatusEvent
 from .process import ProcessManager
 from .config import *
 from .options import *
+from .utils import print_cli_progress_bar
 
 
 class ProcessThread(Thread):
@@ -151,30 +152,7 @@ class ProcessThread(Thread):
             self.progress(-1)
 
     def progress(self, percent):
-        def cliBar(percent, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
-            """
-            Call in a loop to create terminal progress bar
-            @params:
-                percent     - Required  : current percentage (Int)
-                prefix      - Optional  : prefix string (Str)
-                suffix      - Optional  : suffix string (Str)
-                decimals    - Optional  : positive number of decimals in percent complete (Int)
-                length      - Optional  : character length of bar (Int)
-                fill        - Optional  : bar fill character (Str)
-                printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-            """
-            if percent == -1:
-                percent = 0
-            filledLength = int(length * (percent / 100 ))
-            bar = fill * filledLength + '-' * (length - filledLength)
-            percent2dec = "%.2f" % percent
-            print(f'\r{prefix} |{bar}| {percent2dec}% {suffix}', end = printEnd)
-            # Print New Line on Complete
-            if percent == 100: 
-                print()
-        
-
         if self.wx is None:
-            cliBar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
+            print_cli_progress_bar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
         else:
             wx.PostEvent(self.wx, StatusEvent(percent))
