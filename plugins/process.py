@@ -113,25 +113,34 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def _get_footprint_position(self, footprint):
-        """Calculate position based on center of bounding box."""
-        position = footprint.GetPosition()
+    def _get_footprint_position(self, footprint):       
         attributes = footprint.GetAttributes()
-
+        #determin origin type by packge type
         if attributes & pcbnew.FP_SMD:
+            origin_type='Anchor'
+        else: 
+            origin_type='Center'
+       
+        #allow user override
+        key='Origin'
+        if footprint_has_field(footprint, key):
+            origin_type_override = str(footprint_get_field(footprint, key)).capitalize()
+            if origin_type_override in ['Anchor','Center']:
+                origin_type=origin_type_override
+
+        if origin_type=='Anchor':
             position = footprint.GetPosition()
-        elif attributes & pcbnew.FP_THROUGH_HOLE:
-            position = footprint.GetBoundingBox(False, False).GetCenter()
-        else:                                           # handle Unspecified footprint type
+        else: #if type_origin=='center' or anything ele
             pads = footprint.Pads()
             if len(pads) > 0:
                 # get bounding box based on pads only to ignore non-copper layers, e.g. silkscreen
                 bbox = pads[0].GetBoundingBox()         # start with small bounding box
                 for pad in pads:
                     bbox.Merge(pad.GetBoundingBox())    # expand bounding box
-
                 position = bbox.GetCenter()
-
+            else:
+                position = footprint.GetPosition() #if we have no pads we fallback to anchor
+    
         return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
