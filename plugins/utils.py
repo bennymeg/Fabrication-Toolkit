@@ -77,3 +77,25 @@ def get_layer_names(board, active_only=True):
     """Returns a list of (active) layer names of the current board"""
     plotPlan = get_plot_plan(board, active_only)
     return [layer_info[0] for layer_info in plotPlan]
+
+def print_cli_progress_bar(percent, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar string
+    @params:
+        percent     - Required  : current percentage (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    if percent == -1:
+        percent = 0
+    filledLength = int(length * (percent / 100 ))
+    bar = fill * filledLength + '-' * (length - filledLength)
+    percent2dec = "%.2f" % percent
+    print(f'\r{prefix} |{bar}| {percent2dec}% {suffix}', end = printEnd)
+    # Print New Line on Complete
+    if percent == 100: 
+        print()
