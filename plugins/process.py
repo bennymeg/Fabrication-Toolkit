@@ -160,7 +160,7 @@ class ProcessManager:
             except AttributeError:
                 footprint_name = str(footprint.GetFPID().GetLibItemName())
 
-            layer = self._get_top_or_bottom_side_override_from_footprint(footprint)
+            layer = self._get_layer_override_from_footprint(footprint)
 
             # mount_type = {
             #     0: 'smt',
@@ -403,7 +403,7 @@ class ProcessManager:
     def _get_mpn_from_footprint(self, footprint) -> str:
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         keys = ['LCSC Part #', 'JLCPCB Part #']
-        fallback_keys = ['LCSC Part', 'JLC Part', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
+        fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
         if footprint_has_field(footprint, 'dnp'):
             return 'DNP'
@@ -412,9 +412,10 @@ class ProcessManager:
             if footprint_has_field(footprint, key):
                 return footprint_get_field(footprint, key)
 
-    def _get_top_or_bottom_side_override_from_footprint(self, footprint) -> str:
-        keys = ['JLCPCB Layer Override']
-        fallback_keys = ['JlcLayerOverride', 'JLCLayerOverride']
+    def _get_layer_override_from_footprint(self, footprint) -> str:
+        '''Get the layer override from standard symbol fields.'''
+        keys = ['FT Layer Override']
+        fallback_keys = ['Layer Override', 'LayerOverride']
 
         layer = {
             pcbnew.F_Cu: 'top',
@@ -434,9 +435,9 @@ class ProcessManager:
         return layer
 
     def _get_rotation_offset_from_footprint(self, footprint) -> float:
-        '''Get the rotation from standard symbol fields.'''
-        keys = ['JLCPCB Rotation Offset']
-        fallback_keys = ['JlcRotOffset', 'JLCRotOffset']
+        '''Get the rotation offset from standard symbol fields.'''
+        keys = ['FT Rotation Offset']
+        fallback_keys = ['Rotation Offset', 'RotOffset']
 
         offset = ""
 
@@ -454,8 +455,9 @@ class ProcessManager:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
     def _get_position_offset_from_footprint(self, footprint) -> Tuple[float, float]:
-        keys = ['JLCPCB Position Offset']
-        fallback_keys = ['JlcPosOffset', 'JLCPosOffset']
+        '''Get the position offset from standard symbol fields.'''
+        keys = ['FT Position Offset']
+        fallback_keys = ['Position Offset', 'PosOffset']
 
         offset = ""
 
@@ -474,7 +476,7 @@ class ProcessManager:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
             
     def _get_origin_from_footprint(self, footprint) -> float:
-        '''Get the rotation from standard symbol fields.'''
+        '''Get the origin from standard symbol fields.'''
         keys = ['FT Origin']
         fallback_keys = ['Origin']
 
