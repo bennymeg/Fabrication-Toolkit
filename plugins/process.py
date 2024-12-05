@@ -425,12 +425,13 @@ class ProcessManager:
         for key in keys + fallback_keys:
             if footprint_has_field(footprint, key):
                 temp_layer = footprint_get_field(footprint, key)
-                if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
-                    layer = "bottom"
-                    break
-                elif (temp_layer[0] == 't' or temp_layer[0] == 'T'):
-                    layer = "top"
-                    break
+                if len(temp_layer) > 0:
+                    if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
+                        layer = "bottom"
+                        break
+                    elif (temp_layer[0] == 't' or temp_layer[0] == 'T'):
+                        layer = "top"
+                        break
 
         return layer
 
