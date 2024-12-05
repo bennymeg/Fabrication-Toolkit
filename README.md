@@ -27,9 +27,9 @@ Fabrication Toolkit is distributed with the official releases of KiCad 6+. Open 
 Download the [latest release](https://github.com/bennymeg/JLC-Plugin-for-KiCad/releases) ZIP file. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
 
 ## Usage
-Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="magin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
+Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="margin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
 
-**⊛** Ensure your board is syncronized before invoking this addon [**F8**].
+**⊛** Ensure your board is synchronized before invoking this addon [**F8**].
 
 **⊛** The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else (unless disabled). <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
 
@@ -102,10 +102,10 @@ _The fields will be queried in the order denoted above._
 ---
 
 ### ④ Offset Component Position
-The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma separated x,y position offset to correct it. 
+The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'JLCPCB Position Offset' field with an comma separated x,y position offset to correct it. 
 
-Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in Kicad PCB Editor status bar:
-|Kicad footprint deg | x | y|
+Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
+|KiCad footprint deg | x | y|
 |----|----|----|
 |0deg, Front | right arrow | up arrow |
 |0deg, Back | left arrow | down arrow |

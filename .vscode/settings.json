@@ -1,14 +1,22 @@
 {
     "cSpell.words": [
+        "bennymeg",
         "Colour",
         "csvfile",
         "Drilland",
+        "Elec",
         "EXCELLON",
         "FPID",
+        "gerbers",
+        "HTSSOP",
         "JLCPCB",
+        "kicad",
         "LCSC",
+        "LQFP",
         "LSEQ",
+        "MSOP",
         "netlist",
+        "panelization",
         "pcbnew",
         "Plotfile",
         "Protel",
@@ -16,6 +24,18 @@
         "restkey",
         "restval",
         "rsin",
-        "Soldermask"
+        "SOIC",
+        "Soldermask",
+        "SPST",
+        "SSOP",
+        "TDSON",
+        "TQFP",
+        "TSOT",
+        "TSSOP",
+        "UDFN",
+        "USON",
+        "venv",
+        "VSON",
+        "VSSOP"
     ]
 }
