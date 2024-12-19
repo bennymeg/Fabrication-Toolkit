@@ -17,7 +17,15 @@ body:
       What version of Fabrication Toolkit are you using?
 
       Note: Please only report issues for currently supported versions of Fabrication Toolkit.
-    placeholder: 4.0.0
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: KiCad Version
+    description: |
+      What version of KiCad are you using?
+
+      Note: Please only report issues for currently supported versions of KiCad.
   validations:
     required: true
 - type: dropdown
