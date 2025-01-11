@@ -406,7 +406,7 @@ class ProcessManager:
 
     def _get_mpn_from_footprint(self, footprint) -> str:
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
-        keys = ['LCSC Part #', 'JLCPCB Part #']
+        keys = ['LCSC Part #', 'LCSC Part', 'JLCPCB Part #', 'JLCPCB Part']
         fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
         if footprint_has_field(footprint, 'dnp'):
