@@ -53,7 +53,7 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 
 #### Primary Fields*:
 | 'LCSC Part #' | 'LCSC Part' | 'JLCPCB Part #' | 'JLCPCB Part' |
-| --- | --- |
+| --- | --- | --- | --- |
 
 _The fields will be query in the order denoted above._
 
