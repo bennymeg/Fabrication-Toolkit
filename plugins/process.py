@@ -67,7 +67,7 @@ class ProcessManager:
         plot_options.SetSubtractMaskFromSilk(True)
         plot_options.SetUseGerberX2format(False)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
-        
+
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
             plot_options.SetExcludeEdgeLayer(True)
 
@@ -117,7 +117,7 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def _get_footprint_position(self, footprint): 
+    def _get_footprint_position(self, footprint):
         """Calculate position based on center of pads / bounding box."""
         origin_type = self._get_origin_from_footprint(footprint)
 
@@ -133,7 +133,7 @@ class ProcessManager:
                 position = bbox.GetCenter()
             else:
                 position = footprint.GetPosition()      # if we have no pads we fallback to anchor
-    
+
         return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
@@ -172,8 +172,8 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            is_dnp = (footprint_has_field(footprint, 'dnp') 
-                      or (footprint.GetValue().upper() == 'DNP') 
+            is_dnp = (footprint_has_field(footprint, 'dnp')
+                      or (footprint.GetValue().upper() == 'DNP')
                       or getattr(footprint, 'IsDNP', bool)())
             skip_dnp = exclude_dnp and is_dnp
 
@@ -294,7 +294,7 @@ class ProcessManager:
                 os.remove(os.path.join(temp_dir, item))
 
         return temp_file
-    
+
     """ Private """
 
     def __read_rotation_db(self, filename: str = os.path.join(os.path.dirname(__file__), 'transformations.csv')) -> dict[str, float]:
@@ -352,7 +352,7 @@ class ProcessManager:
                     db[rowNum]['name'] = row['footprint']
                     db[rowNum]['rotation'] = rotation
                     db[rowNum]['x'] = delta_x
-                    db[rowNum]['y'] = delta_y 
+                    db[rowNum]['y'] = delta_y
 
         return db
 
@@ -413,7 +413,7 @@ class ProcessManager:
             return 'DNP'
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key):
+            if footprint_has_field(footprint, key) and '' != footprint_get_field(footprint, key):
                 return footprint_get_field(footprint, key)
 
     def _get_layer_override_from_footprint(self, footprint) -> str:
@@ -479,7 +479,7 @@ class ProcessManager:
                 return (float(offset[0]), float(offset[1]))
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
-            
+
     def _get_origin_from_footprint(self, footprint) -> float:
         '''Get the origin from standard symbol fields.'''
         keys = ['FT Origin']
@@ -490,7 +490,7 @@ class ProcessManager:
         # determine origin type by package type
         if attributes & pcbnew.FP_SMD:
             origin_type = 'Anchor'
-        else: 
+        else:
             origin_type = 'Center'
 
         for key in keys + fallback_keys:
