@@ -18,11 +18,11 @@ class ProcessThread(Thread):
     def __init__(self, wx, options, cli = None, openBrowser = True):
         Thread.__init__(self)
 
-        # prevent use of cli and grapgical mode at the same time
+        # prevent use of cli and graphical mode at the same time
         if (wx is None and cli is None) or (wx is not None and cli is not None):
             logging.error("Specify either graphical or cli use!")
             return
-        
+
         if cli is not None:
             try:
                 self.board = pcbnew.LoadBoard(cli)
@@ -31,7 +31,7 @@ class ProcessThread(Thread):
                 return
         else:
             self.board = None
-            
+
         self.process_manager = ProcessManager(self.board)
         self.wx = wx
         self.cli = cli
@@ -71,7 +71,9 @@ class ProcessThread(Thread):
 
             # generate data tables
             self.progress(50)
-            self.process_manager.generate_tables(temp_dir, self.options[AUTO_TRANSLATE_OPT], self.options[EXCLUDE_DNP_OPT])
+            self.process_manager.generate_tables(
+                temp_dir, self.options[AUTO_TRANSLATE_OPT], self.options[EXCLUDE_DNP_OPT],
+                self.options[PN_COLUMN])
 
             # generate pick and place file
             self.progress(60)
@@ -126,7 +128,7 @@ class ProcessThread(Thread):
         output_path = os.path.join(project_directory, outputFolder)
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        
+
         # rename gerber archive
         gerberArchiveName = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + '.zip').split()))
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
@@ -146,7 +148,7 @@ class ProcessThread(Thread):
             if self.openBrowser:
                 webbrowser.open("file://%s" % (temp_dir))
 
-        if self.wx is None: 
+        if self.wx is None:
             self.progress(100)
         else:
             self.progress(-1)

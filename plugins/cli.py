@@ -2,7 +2,7 @@ import argparse as ap
 
 from .thread import ProcessThread
 from .options import *
-   
+
 
 if __name__ == '__main__':
     parser = ap.ArgumentParser(prog="Fabrication Toolkit",
@@ -17,6 +17,7 @@ if __name__ == '__main__':
     parser.add_argument("--excludeDNP",         "-e",  action="store_true", help="Exclude DNP components from BOM")
     parser.add_argument("--allActiveLayers",    "-aaL",action="store_true", help="Export all active layers instead of only commonly used ones")
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
+    parser.add_argument("--pnColumn",           "-c",  type=str, help="bom.csv column name for Manufacturer Part Numbers")
     args = parser.parse_args()
 
     options = dict()
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     options[ALTERNATIVE_EDGE_CUT_OPT] = args.user2AltVCut
     options[ALL_ACTIVE_LAYERS_OPT] = args.allActiveLayers
     options[EXTRA_LAYERS] = args.additionalLayers
+    options[PN_COLUMN] = args.pnColumn
 
     openBrowser = args.openBrowser
 

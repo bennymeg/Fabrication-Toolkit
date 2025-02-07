@@ -1,6 +1,6 @@
-<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/logo.svg?raw=true" 
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/logo.svg?raw=true"
     style="display:block margin-left: auto; margin-right: auto;" alt="JLC PCB Plug-in for KiCad">
-    
+
 <div align="center">
 
 | **JLC PCB Plug-in for KiCad** |
@@ -37,7 +37,7 @@ Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugi
 
 Options can be set in the dialog that appears when the plugin is invoked. They are saved in a file called `fabrication-toolkit-options.json` in the project directory so that they are remembered between invocations of the plugin.
 
-<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/options.png?raw=true" height=275>
+![Option Dialog](assets/options.png)
 
 ☑ __Additional layers__: Comma-separated list of additional layers to include in the gerber archive.</br>
 ☑ __Set User.1 as V-Cut layer__: Merge User.1 layer with the Edge-Cut layer in production.</br>
@@ -45,9 +45,16 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 ☑ __Apply automatic translations__: Apply known translation fixes for common components.</br>
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
+☑ __MPN Column in bom.csv__: Select bom.csv column to use for part numbers.</br>
 
 ### ① Include Component Part Number in Production Files
-Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's fields property.
+Use one of the fields from "Primary Fields" or "Fallback Fields" shown below
+for Manufacturer Part Numbers.
+
+JLCPCB uses the Comment and Footprint columns in the bom.csv to match parts.
+Older version of Fabrication Toolkit generated a 'LCSC Part #' column instead.
+Use the column name that suits your process to contain the Manufacturer Part
+Number or LCSC/JLCPCB component number.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/mpn.png?raw=true" height=420>
 
@@ -55,13 +62,13 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 | 'LCSC Part #' | 'LCSC Part' | 'JLCPCB Part #' | 'JLCPCB Part' |
 | --- | --- | --- | --- |
 
-_The fields will be query in the order denoted above._
+_The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
 | 'LCSC' | 'JLC' | 'MPN' | 'Mpn' | 'mpn' |
 | --- | --- | --- | --- | --- |
 
-_The fields will be query in the order denoted above._
+_The fields will be queried in the order denoted above._
 
 ---
 
@@ -102,7 +109,7 @@ _The fields will be queried in the order denoted above._
 ---
 
 ### ④ Offset Component Position
-The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it. 
+The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it.
 
 Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
 |KiCad footprint deg | x | y|
@@ -134,7 +141,7 @@ _The fields will be queried in the order denoted above._
 _The fields will be queried in the order denoted above._
 
 ### ⑤ Override Component Origin
-The Fabrication Toolkit reports the position of each component based on an automatically selected point of reference. This default behavior can be overridden by adding an 'FT Origin'* field to the component. 
+The Fabrication Toolkit reports the position of each component based on an automatically selected point of reference. This default behavior can be overridden by adding an 'FT Origin'* field to the component.
 
 #### Primary Fields*:
 | 'FT Origin' |
