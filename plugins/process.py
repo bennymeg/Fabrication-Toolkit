@@ -67,7 +67,7 @@ class ProcessManager:
         plot_options.SetSubtractMaskFromSilk(True)
         plot_options.SetUseGerberX2format(False)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
-        
+
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
             plot_options.SetExcludeEdgeLayer(True)
 
@@ -117,7 +117,7 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
-    def _get_footprint_position(self, footprint): 
+    def _get_footprint_position(self, footprint):
         """Calculate position based on center of pads / bounding box."""
         origin_type = self._get_origin_from_footprint(footprint)
 
@@ -133,10 +133,10 @@ class ProcessManager:
                 position = bbox.GetCenter()
             else:
                 position = footprint.GetPosition()      # if we have no pads we fallback to anchor
-    
+
         return position
 
-    def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
+    def generate_tables(self, temp_dir, auto_translate, exclude_dnp, pnColumn):
         '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
@@ -158,6 +158,8 @@ class ProcessManager:
                 for key, value in footprint_designators.items():
                     f.write('%s:%s\n' % (key, value))
 
+        part_column_name = pnColumn
+
         for i, footprint in enumerate(footprints):
             try:
                 footprint_name = str(footprint.GetFPID().GetFootprintName())
@@ -172,8 +174,8 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            is_dnp = (footprint_has_field(footprint, 'dnp') 
-                      or (footprint.GetValue().upper() == 'DNP') 
+            is_dnp = (footprint_has_field(footprint, 'dnp')
+                      or (footprint.GetValue().upper() == 'DNP')
                       or getattr(footprint, 'IsDNP', bool)())
             skip_dnp = exclude_dnp and is_dnp
 
@@ -236,7 +238,7 @@ class ProcessManager:
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
                     same_value = component['Value'].upper() == footprint.GetValue().upper()
-                    same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+                    same_lcsc = component[part_column_name] == self._get_mpn_from_footprint(footprint)
                     under_limit = component['Quantity'] < bomRowLimit
 
                     if same_footprint and same_value and same_lcsc and under_limit:
@@ -247,14 +249,15 @@ class ProcessManager:
 
                 # add component to BOM
                 if insert:
-                    self.bom.append({
+                    fields = {
                         'Designator': "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id),
                         'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
                         'Value': footprint.GetValue(),
                         # 'Mount': mount_type,
-                        'LCSC Part #': self._get_mpn_from_footprint(footprint),
-                    })
+                        part_column_name: self._get_mpn_from_footprint(footprint),
+                    }
+                    self.bom.append(fields)
 
     def generate_positions(self, temp_dir):
         '''Generate the position file.'''
@@ -294,7 +297,7 @@ class ProcessManager:
                 os.remove(os.path.join(temp_dir, item))
 
         return temp_file
-    
+
     """ Private """
 
     def __read_rotation_db(self, filename: str = os.path.join(os.path.dirname(__file__), 'transformations.csv')) -> dict[str, float]:
@@ -352,7 +355,7 @@ class ProcessManager:
                     db[rowNum]['name'] = row['footprint']
                     db[rowNum]['rotation'] = rotation
                     db[rowNum]['x'] = delta_x
-                    db[rowNum]['y'] = delta_y 
+                    db[rowNum]['y'] = delta_y
 
         return db
 
@@ -405,7 +408,7 @@ class ProcessManager:
         return (0.0, 0.0)
 
     def _get_mpn_from_footprint(self, footprint) -> str:
-        ''''Get the MPN/LCSC stock code from standard symbol fields.'''
+        '''Get the MPN/LCSC stock code from standard symbol fields.'''
         keys = ['LCSC Part #', 'LCSC Part', 'JLCPCB Part #', 'JLCPCB Part']
         fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
@@ -479,7 +482,7 @@ class ProcessManager:
                 return (float(offset[0]), float(offset[1]))
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
-            
+
     def _get_origin_from_footprint(self, footprint) -> float:
         '''Get the origin from standard symbol fields.'''
         keys = ['FT Origin']
@@ -490,7 +493,7 @@ class ProcessManager:
         # determine origin type by package type
         if attributes & pcbnew.FP_SMD:
             origin_type = 'Anchor'
-        else: 
+        else:
             origin_type = 'Center'
 
         for key in keys + fallback_keys:
