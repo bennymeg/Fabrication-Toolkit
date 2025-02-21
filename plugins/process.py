@@ -117,9 +117,20 @@ class ProcessManager:
         netlist_writer = pcbnew.IPC356D_WRITER(self.board)
         netlist_writer.Write(os.path.join(temp_dir, netlistFileName))
 
+    def _get_footprint_rotation(self, footprint):
+        return footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
+
     def _get_footprint_position(self, footprint): 
         """Calculate position based on center of pads / bounding box."""
         origin_type = self._get_origin_from_footprint(footprint)
+
+        footprint_rotation = self._get_footprint_rotation(footprint)
+        footprint_rotated = footprint_rotation % 90 != 0
+
+        # if the footprint is not rotated by a multiple of 90 degrees, the bounding boxes will be off, so we create a temporary copy that is rotated to 0
+        if footprint_rotated:
+            footprint = footprint.Duplicate()
+            footprint.SetOrientationDegrees(0)
 
         if origin_type == 'Anchor':
             position = footprint.GetPosition()
@@ -133,6 +144,19 @@ class ProcessManager:
                 position = bbox.GetCenter()
             else:
                 position = footprint.GetPosition()      # if we have no pads we fallback to anchor
+    
+        if footprint_rotated:
+            # now we determine the offset of the "true" position relative to the "KiCAD" position & apply the footprints rotation
+
+            raw_pos = footprint.GetPosition()
+            relative_position = (position[0] - raw_pos[0], position[1] - raw_pos[1])
+
+            rsin = math.sin(footprint_rotation / 180 * math.pi)
+            rcos = math.cos(footprint_rotation / 180 * math.pi)
+            
+            relative_position = ( relative_position[0] * rcos + relative_position[1] * rsin, -relative_position[0] * rsin + relative_position[1] * rcos )
+                
+            position = (raw_pos[0] + relative_position[0], raw_pos[1] + relative_position[1])
     
         return position
 
@@ -188,7 +212,7 @@ class ProcessManager:
                 position = self._get_footprint_position(footprint)
                 mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
-                rotation = footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
+                rotation = self._get_footprint_rotation(footprint)
                 rotation_offset_db = self._get_rotation_from_db(footprint_name) # internal database offset
                 rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint) # explicated offset by the designer
 
