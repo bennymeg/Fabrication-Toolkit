@@ -39,6 +39,36 @@ class ProcessThread(Thread):
         self.openBrowser = openBrowser
         self.start()
 
+    def expandTextVariables(self, string):
+        titleBlock = pcbnew.GetBoard().GetTitleBlock()
+        
+        titleBlockVars =        {
+            "ISSUE_DATE": titleBlock.GetDate(),
+            "CURRENT_DATE": datetime.datetime.now().strftime('%Y-%m-%d'),
+            "REVISION": titleBlock.GetRevision(),
+            "TITLE": titleBlock.GetTitle(),
+            "COMPANY": titleBlock.GetCompany(),
+            "COMMENT1": titleBlock.GetComment(0),
+            "COMMENT2": titleBlock.GetComment(1),
+            "COMMENT3": titleBlock.GetComment(2),
+            "COMMENT4": titleBlock.GetComment(3),
+            "COMMENT5": titleBlock.GetComment(4),
+            "COMMENT6": titleBlock.GetComment(5),
+            "COMMENT7": titleBlock.GetComment(6),
+            "COMMENT8": titleBlock.GetComment(7),
+            "COMMENT9": titleBlock.GetComment(8),
+        }
+
+        for var, val in titleBlockVars.items():
+            string = string.replace(f"${{{var}}}", val)
+
+        if (hasattr(self.process_manager.board, "GetProject") and hasattr(pcbnew, "ExpandTextVars")):
+            project = self.process_manager.board.GetProject()
+            string = pcbnew.ExpandTextVars(string, project)
+
+        return string
+
+
     def run(self):
         # initializing
         self.progress(0)
@@ -128,11 +158,16 @@ class ProcessThread(Thread):
             os.makedirs(output_path)
         
         # rename gerber archive
-        gerberArchiveName = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + '.zip').split()))
+        if self.options[ARCHIVE_NAME]:
+            baseName = self.expandTextVariables(self.options[ARCHIVE_NAME])
+        else:
+            baseName = "{} {}".format(title or filename, revision or '')
+
+        gerberArchiveName = ProcessManager.normalize_filename("_".join((baseName.strip() + '.zip').split()))
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
 
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-        backup_name = ProcessManager.normalize_filename("_".join(("{} {} {}".format(title or filename, revision or '', timestamp).strip()).split()))
+        backup_name = ProcessManager.normalize_filename("_".join(("{} {}".format(baseName, timestamp).strip()).split()))
         shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
 
 

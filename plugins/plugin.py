@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -30,6 +30,7 @@ class KiCadToJLCForm(wx.Frame):
         userOptions = load_user_options({
             EXTRA_LAYERS: "",
             ALL_ACTIVE_LAYERS_OPT: False,
+            ARCHIVE_NAME: "",
             EXTEND_EDGE_CUT_OPT: False,
             ALTERNATIVE_EDGE_CUT_OPT: False,
             AUTO_TRANSLATE_OPT: True,
@@ -46,6 +47,11 @@ class KiCadToJLCForm(wx.Frame):
         self.mAdditionalLayersControl.AutoComplete(layers)
         self.mAdditionalLayersControl.Enable()
         self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
+        self.mArchiveNameControl = wx.TextCtrl(self, size=wx.Size(600, 50))
+        self.mArchiveNameControl.Hint = "Archive name (e.g. ${TITLE}_${REVISION})"
+        self.mArchiveNameControl.AutoComplete(layers)
+        self.mArchiveNameControl.Enable()
+        self.mArchiveNameControl.SetValue(userOptions[ARCHIVE_NAME])
         self.mAllActiveLayersCheckbox = wx.CheckBox(self, label='Plot all active layers')
         self.mAllActiveLayersCheckbox.SetValue(userOptions[ALL_ACTIVE_LAYERS_OPT])
         self.mExtendEdgeCutsCheckbox = wx.CheckBox(self, label='Set User.1 as V-Cut layer')
@@ -71,6 +77,7 @@ class KiCadToJLCForm(wx.Frame):
 
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
+        boxSizer.Add(self.mArchiveNameControl, 0, wx.ALL, 5)
         boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
         boxSizer.Add(self.mAllActiveLayersCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExtendEdgeCutsCheckbox, 0, wx.ALL, 5)
@@ -100,6 +107,7 @@ class KiCadToJLCForm(wx.Frame):
 
     def onGenerateButtonClick(self, event):
         options = dict()
+        options[ARCHIVE_NAME] = self.mArchiveNameControl.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
         options[ALL_ACTIVE_LAYERS_OPT] = self.mAllActiveLayersCheckbox.GetValue()
         options[EXTEND_EDGE_CUT_OPT] = self.mExtendEdgeCutsCheckbox.GetValue()
@@ -111,6 +119,7 @@ class KiCadToJLCForm(wx.Frame):
         save_user_options(options)
 
         self.mOptionsLabel.Hide()
+        self.mArchiveNameControl.Hide()
         self.mAdditionalLayersControl.Hide()
         self.mAllActiveLayersCheckbox.Hide()
         self.mExtendEdgeCutsCheckbox.Hide()
