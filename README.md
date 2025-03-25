@@ -204,7 +204,7 @@ options:
                         Export all active layers instead of only commonly used ones
   --archiveName NAME, -aN NAME
                         Name of the generated archives
-  --openBrowser, -b     Open webbrowser with directory file overview after generation
+  --openBrowser, -b     Open web browser with directory file overview after generation
 ```
 
 

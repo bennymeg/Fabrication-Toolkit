@@ -42,22 +42,16 @@ class ProcessThread(Thread):
     def expandTextVariables(self, string):
         titleBlock = pcbnew.GetBoard().GetTitleBlock()
         
-        titleBlockVars =        {
+        titleBlockVars = {
             "ISSUE_DATE": titleBlock.GetDate(),
             "CURRENT_DATE": datetime.datetime.now().strftime('%Y-%m-%d'),
             "REVISION": titleBlock.GetRevision(),
             "TITLE": titleBlock.GetTitle(),
             "COMPANY": titleBlock.GetCompany(),
-            "COMMENT1": titleBlock.GetComment(0),
-            "COMMENT2": titleBlock.GetComment(1),
-            "COMMENT3": titleBlock.GetComment(2),
-            "COMMENT4": titleBlock.GetComment(3),
-            "COMMENT5": titleBlock.GetComment(4),
-            "COMMENT6": titleBlock.GetComment(5),
-            "COMMENT7": titleBlock.GetComment(6),
-            "COMMENT8": titleBlock.GetComment(7),
-            "COMMENT9": titleBlock.GetComment(8),
         }
+
+        for comment_index in range(9):
+            titleBlockVars[f"COMMENT{comment_index + 1}"] = titleBlock.GetComment(comment_index)
 
         for var, val in titleBlockVars.items():
             string = string.replace(f"${{{var}}}", val)

@@ -16,7 +16,7 @@ if __name__ == '__main__':
     parser.add_argument("--autoFill",           "-f",  action="store_true", help="Apply automatic fill for all zones")
     parser.add_argument("--excludeDNP",         "-e",  action="store_true", help="Exclude DNP components from BOM")
     parser.add_argument("--allActiveLayers",    "-aaL",action="store_true", help="Export all active layers instead of only commonly used ones")
-    parser.add_argument("--archiveName",           "-aN", type=str, help="Name of the generated archives", metavar="NAME")
+    parser.add_argument("--archiveName",        "-aN", type=str, help="Name of the generated archives", metavar="NAME")
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
     args = parser.parse_args()
 

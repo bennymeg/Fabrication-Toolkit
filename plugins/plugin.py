@@ -43,12 +43,12 @@ class KiCadToJLCForm(wx.Frame):
 
         layers = get_layer_names(pcbnew.GetBoard())
         self.mAdditionalLayersControl = wx.TextCtrl(self, size=wx.Size(600, 50))
-        self.mAdditionalLayersControl.Hint = "Additional layers (comma-separated)"
+        self.mAdditionalLayersControl.Hint = "Additional layers (comma-separated) [optional]"
         self.mAdditionalLayersControl.AutoComplete(layers)
         self.mAdditionalLayersControl.Enable()
         self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
         self.mArchiveNameControl = wx.TextCtrl(self, size=wx.Size(600, 50))
-        self.mArchiveNameControl.Hint = "Archive name (e.g. ${TITLE}_${REVISION})"
+        self.mArchiveNameControl.Hint = "Archive name (e.g. ${TITLE}_${REVISION}) [optional]"
         self.mArchiveNameControl.Enable()
         self.mArchiveNameControl.SetValue(userOptions[ARCHIVE_NAME])
         self.mAllActiveLayersCheckbox = wx.CheckBox(self, label='Plot all active layers')
