@@ -49,7 +49,6 @@ class KiCadToJLCForm(wx.Frame):
         self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
         self.mArchiveNameControl = wx.TextCtrl(self, size=wx.Size(600, 50))
         self.mArchiveNameControl.Hint = "Archive name (e.g. ${TITLE}_${REVISION})"
-        self.mArchiveNameControl.AutoComplete(layers)
         self.mArchiveNameControl.Enable()
         self.mArchiveNameControl.SetValue(userOptions[ARCHIVE_NAME])
         self.mAllActiveLayersCheckbox = wx.CheckBox(self, label='Plot all active layers')
