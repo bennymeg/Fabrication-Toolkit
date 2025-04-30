@@ -67,7 +67,7 @@ class ProcessManager:
         plot_options.SetSubtractMaskFromSilk(True)
         plot_options.SetUseGerberX2format(False)
         plot_options.SetDrillMarksType(0)  # NO_DRILL_SHAPE
-        
+
         if hasattr(plot_options, "SetExcludeEdgeLayer"):
             plot_options.SetExcludeEdgeLayer(True)
 
@@ -120,7 +120,7 @@ class ProcessManager:
     def _get_footprint_rotation(self, footprint):
         return footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
 
-    def _get_footprint_position(self, footprint): 
+    def _get_footprint_position(self, footprint):
         """Calculate position based on center of pads / bounding box."""
         origin_type = self._get_origin_from_footprint(footprint)
 
@@ -144,7 +144,7 @@ class ProcessManager:
                 position = bbox.GetCenter()
             else:
                 position = footprint.GetPosition()      # if we have no pads we fallback to anchor
-    
+
         if footprint_rotated:
             # now we determine the offset of the "true" position relative to the "KiCAD" position & apply the footprints rotation
 
@@ -153,11 +153,11 @@ class ProcessManager:
 
             rsin = math.sin(footprint_rotation / 180 * math.pi)
             rcos = math.cos(footprint_rotation / 180 * math.pi)
-            
+
             relative_position = ( relative_position[0] * rcos + relative_position[1] * rsin, -relative_position[0] * rsin + relative_position[1] * rcos )
-                
+
             position = (raw_pos[0] + relative_position[0], raw_pos[1] + relative_position[1])
-    
+
         return position
 
     def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
@@ -188,6 +188,13 @@ class ProcessManager:
             except AttributeError:
                 footprint_name = str(footprint.GetFPID().GetLibItemName())
 
+            # Get the library nickname when available
+            lib_nickname = None
+            try:
+                lib_nickname = str(footprint.GetFPID().GetLibNickname())
+            except AttributeError:
+                pass
+
             layer = self._get_layer_override_from_footprint(footprint)
 
             # mount_type = {
@@ -196,8 +203,8 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            is_dnp = (footprint_has_field(footprint, 'dnp') 
-                      or (footprint.GetValue().upper() == 'DNP') 
+            is_dnp = (footprint_has_field(footprint, 'dnp')
+                      or (footprint.GetValue().upper() == 'DNP')
                       or getattr(footprint, 'IsDNP', bool)())
             skip_dnp = exclude_dnp and is_dnp
 
@@ -213,13 +220,13 @@ class ProcessManager:
                 mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = self._get_footprint_rotation(footprint)
-                rotation_offset_db = self._get_rotation_from_db(footprint_name) # internal database offset
-                rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint) # explicated offset by the designer
+                rotation_offset_db = self._get_rotation_from_db(footprint_name, lib_nickname) # Try with lib_nickname if available
+                rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint)
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
                 if auto_translate:
-                    pos_offset_db = self._get_position_offset_from_db(footprint_name)
+                    pos_offset_db = self._get_position_offset_from_db(footprint_name, lib_nickname) # Try with lib_nickname if available
                     pos_offset = (pos_offset[0] + pos_offset_db[0], pos_offset[1] + pos_offset_db[1])
 
                 rsin = math.sin(rotation / 180 * math.pi)
@@ -318,7 +325,7 @@ class ProcessManager:
                 os.remove(os.path.join(temp_dir, item))
 
         return temp_file
-    
+
     """ Private """
 
     def __read_rotation_db(self, filename: str = os.path.join(os.path.dirname(__file__), 'transformations.csv')) -> dict[str, float]:
@@ -376,14 +383,18 @@ class ProcessManager:
                     db[rowNum]['name'] = row['footprint']
                     db[rowNum]['rotation'] = rotation
                     db[rowNum]['x'] = delta_x
-                    db[rowNum]['y'] = delta_y 
+                    db[rowNum]['y'] = delta_y
 
         return db
 
-    def _get_rotation_from_db(self, footprint: str) -> float:
-        '''Get the rotation to be added from the database file.'''
-        # Look for regular expression math of the footprint name and not its root library.
+    def _get_rotation_from_db(self, footprint: str, lib_nickname: str = None) -> float:
+        '''Get the rotation to be added from the database file.
 
+        Args:
+            footprint: The footprint name
+            lib_nickname: The library nickname, if available
+        '''
+        # First try with the standard approach for backward compatibility
         for entry in self.__rotation_db.items():
             # If the expression in the DB contains a :, search for it literally.
             if (re.search(':', entry[1]['name'])):
@@ -399,15 +410,25 @@ class ProcessManager:
                 else:
                     check = footprint_segments[1]
                 if (re.search(entry[1]['name'], check)):
+                    return float(entry[1]['rotation'])
+
+        # If no match found and we have a library nickname, try matching against that
+        if lib_nickname:
+            for entry in self.__rotation_db.items():
+                if (re.search(entry[1]['name'], lib_nickname)):
                     return float(entry[1]['rotation'])
 
         # Not found, no rotation.
         return 0.0
 
-    def _get_position_offset_from_db(self, footprint: str) -> Tuple[float, float]:
-        '''Get the rotation to be added from the database file.'''
-        # Look for regular expression math of the footprint name and not its root library.
+    def _get_position_offset_from_db(self, footprint: str, lib_nickname: str = None) -> Tuple[float, float]:
+        '''Get the position offset to be added from the database file.
 
+        Args:
+            footprint: The footprint name
+            lib_nickname: The library nickname, if available
+        '''
+        # First try with the standard approach for backward compatibility
         for entry in self.__rotation_db.items():
             # If the expression in the DB contains a :, search for it literally.
             if (re.search(':', entry[1]['name'])):
@@ -423,7 +444,13 @@ class ProcessManager:
                 else:
                     check = footprint_segments[1]
                 if (re.search(entry[1]['name'], check)):
-                    return ( float(entry[1]['x']), float(entry[1]['y']) )
+                    return (float(entry[1]['x']), float(entry[1]['y']))
+
+        # If no match found and we have a library nickname, try matching against that
+        if lib_nickname:
+            for entry in self.__rotation_db.items():
+                if (re.search(entry[1]['name'], lib_nickname)):
+                    return (float(entry[1]['x']), float(entry[1]['y']))
 
         # Not found, no delta.
         return (0.0, 0.0)
@@ -505,7 +532,7 @@ class ProcessManager:
                 return (float(offset[0]), float(offset[1]))
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
-            
+
     def _get_origin_from_footprint(self, footprint) -> float:
         '''Get the origin from standard symbol fields.'''
         keys = ['FT Origin']
@@ -516,7 +543,7 @@ class ProcessManager:
         # determine origin type by package type
         if attributes & pcbnew.FP_SMD:
             origin_type = 'Anchor'
-        else: 
+        else:
             origin_type = 'Center'
 
         for key in keys + fallback_keys:
