@@ -15,7 +15,7 @@ from .utils import print_cli_progress_bar
 
 
 class ProcessThread(Thread):
-    def __init__(self, wx, options, cli = None, openBrowser = True):
+    def __init__(self, wx, options, cli = None, openBrowser = True, nonInteractive = False):
         Thread.__init__(self)
 
         # prevent use of cli and grapgical mode at the same time
@@ -37,6 +37,7 @@ class ProcessThread(Thread):
         self.cli = cli
         self.options = options
         self.openBrowser = openBrowser
+        self.nonInteractive = nonInteractive
         self.start()
 
     def expandTextVariables(self, string):
@@ -182,6 +183,7 @@ class ProcessThread(Thread):
 
     def progress(self, percent):
         if self.wx is None:
-            print_cli_progress_bar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
+            if not self.nonInteractive:
+                print_cli_progress_bar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
         else:
             wx.PostEvent(self.wx, StatusEvent(percent))

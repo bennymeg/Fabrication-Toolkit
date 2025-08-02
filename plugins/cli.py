@@ -2,7 +2,7 @@ import argparse as ap
 
 from .thread import ProcessThread
 from .options import *
-   
+
 
 if __name__ == '__main__':
     parser = ap.ArgumentParser(prog="Fabrication Toolkit",
@@ -18,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument("--allActiveLayers",    "-aaL",action="store_true", help="Export all active layers instead of only commonly used ones")
     parser.add_argument("--archiveName",        "-aN", type=str, help="Name of the generated archives", metavar="NAME")
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
+    parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Usefull in CI/CD enviroment.")
     args = parser.parse_args()
 
     options = dict()
@@ -31,8 +32,9 @@ if __name__ == '__main__':
     options[EXTRA_LAYERS] = args.additionalLayers
 
     openBrowser = args.openBrowser
+    nonInteractive = args.nonInteractive
 
 
     path = args.path
 
-    ProcessThread(wx=None, cli=path, options=options, openBrowser=openBrowser)
+    ProcessThread(wx=None, cli=path, options=options, openBrowser=openBrowser, nonInteractive=nonInteractive)
