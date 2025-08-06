@@ -54,8 +54,8 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/mpn.png?raw=true" height=420>
 
 #### Primary Fields*:
-| 'LCSC Part #' | 'LCSC Part' | 'LCSC PN' | 'LCSC P/N' | 'LCSC Part No.' | 'JLCPCB Part #' | 'JLCPCB Part' | 'JLCPCB PN' | 'JLCPCB P/N' | 'JLCPCB Part No.' |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 'LCSC Part #' | 'LCSC Part' | 'LCSC PN' | 'LCSC P/N' | 'LCSC Part No.' | 'LCSC Part Number' | 'JLCPCB Part #' | 'JLCPCB Part' | 'JLCPCB PN' | 'JLCPCB P/N' | 'JLCPCB Part No.' | 'JLCPCB Part Number' |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 _The fields will be query in the order denoted above._
 
