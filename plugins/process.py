@@ -458,7 +458,7 @@ class ProcessManager:
     def _get_mpn_from_footprint(self, footprint) -> str:
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         supplier_names = ['LCSC', 'JLCPCB']
-        pn_abbrevs = ['Part #', 'Part', 'PN', 'P/N', 'Part No.']
+        pn_abbrevs = ['Part #', 'Part', 'PN', 'P/N', 'Part No.', 'Part Number']
         keys = [(sn + " " + abr) for sn in supplier_names for abr in pn_abbrevs]
         fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
