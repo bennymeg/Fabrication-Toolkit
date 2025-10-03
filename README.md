@@ -1,6 +1,6 @@
-<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/logo.svg?raw=true" 
+<img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/logo.svg?raw=true"
     style="display:block margin-left: auto; margin-right: auto;" alt="JLC PCB Plug-in for KiCad">
-    
+
 <div align="center">
 
 | **JLC PCB Plug-in for KiCad** |
@@ -58,13 +58,16 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 | 'LCSC Part #' | 'LCSC Part' | 'LCSC PN' | 'LCSC P/N' | 'LCSC Part No.' | 'LCSC Part Number' | 'JLCPCB Part #' | 'JLCPCB Part' | 'JLCPCB PN' | 'JLCPCB P/N' | 'JLCPCB Part No.' | 'JLCPCB Part Number' |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
-_The fields will be query in the order denoted above._
+_The fields will be queried in the order denoted above._
 
 #### Fallback Fields*:
 | 'LCSC' | 'JLC' | 'MPN' | 'Mpn' | 'mpn' |
 | --- | --- | --- | --- | --- |
 
-_The fields will be query in the order denoted above._
+_The fields will be queried in the order denoted above._
+
+Empty fields are skipped so, for example, a 'MPN' field with a value will be used if
+all earlier fields are missing or empty.
 
 ---
 
@@ -105,7 +108,7 @@ _The fields will be queried in the order denoted above._
 ---
 
 ### ④ Offset Component Position
-The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it. 
+The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it.
 
 Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
 |KiCad footprint deg | x | y|
@@ -137,7 +140,7 @@ _The fields will be queried in the order denoted above._
 _The fields will be queried in the order denoted above._
 
 ### ⑤ Override Component Origin
-The Fabrication Toolkit reports the position of each component based on an automatically selected point of reference. This default behavior can be overridden by adding an 'FT Origin'* field to the component. 
+The Fabrication Toolkit reports the position of each component based on an automatically selected point of reference. This default behavior can be overridden by adding an 'FT Origin'* field to the component.
 
 #### Primary Fields*:
 | 'FT Origin' |

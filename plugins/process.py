@@ -466,7 +466,7 @@ class ProcessManager:
             return 'DNP'
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key):
+            if footprint_has_field(footprint, key) and '' != footprint_get_field(footprint, key):
                 return footprint_get_field(footprint, key)
 
     def _get_layer_override_from_footprint(self, footprint) -> str:
