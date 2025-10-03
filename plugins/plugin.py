@@ -4,7 +4,7 @@ import pcbnew # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -30,11 +30,13 @@ class KiCadToJLCForm(wx.Frame):
         userOptions = load_user_options({
             EXTRA_LAYERS: "",
             ALL_ACTIVE_LAYERS_OPT: False,
+            ARCHIVE_NAME: "",
             EXTEND_EDGE_CUT_OPT: False,
             ALTERNATIVE_EDGE_CUT_OPT: False,
             AUTO_TRANSLATE_OPT: True,
             AUTO_FILL_OPT: True,
-            EXCLUDE_DNP_OPT: False
+            EXCLUDE_DNP_OPT: False,
+            OPEN_BROWSER_OPT: True
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
@@ -42,10 +44,14 @@ class KiCadToJLCForm(wx.Frame):
 
         layers = get_layer_names(pcbnew.GetBoard())
         self.mAdditionalLayersControl = wx.TextCtrl(self, size=wx.Size(600, 50))
-        self.mAdditionalLayersControl.Hint = "Additional layers (comma-separated)"
+        self.mAdditionalLayersControl.Hint = "Additional layers (comma-separated) [optional]"
         self.mAdditionalLayersControl.AutoComplete(layers)
         self.mAdditionalLayersControl.Enable()
         self.mAdditionalLayersControl.SetValue(userOptions[EXTRA_LAYERS])
+        self.mArchiveNameControl = wx.TextCtrl(self, size=wx.Size(600, 50))
+        self.mArchiveNameControl.Hint = "Archive name (e.g. ${TITLE}_${REVISION}) [optional]"
+        self.mArchiveNameControl.Enable()
+        self.mArchiveNameControl.SetValue(userOptions[ARCHIVE_NAME])
         self.mAllActiveLayersCheckbox = wx.CheckBox(self, label='Plot all active layers')
         self.mAllActiveLayersCheckbox.SetValue(userOptions[ALL_ACTIVE_LAYERS_OPT])
         self.mExtendEdgeCutsCheckbox = wx.CheckBox(self, label='Set User.1 as V-Cut layer')
@@ -58,6 +64,8 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticFillCheckbox.SetValue(userOptions[AUTO_FILL_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components from BOM')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
+        self.mOpenBrowserCheckbox = wx.CheckBox(self, label='Open browser after generation')
+        self.mOpenBrowserCheckbox.SetValue(userOptions[OPEN_BROWSER_OPT])
 
         self.mGaugeStatus = wx.Gauge(
             self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(600, 20), wx.GA_HORIZONTAL)
@@ -71,6 +79,7 @@ class KiCadToJLCForm(wx.Frame):
 
         boxSizer.Add(self.mOptionsLabel, 0, wx.ALL, 5)
         # boxSizer.Add(self.mOptionsSeparator, 0, wx.ALL, 5)
+        boxSizer.Add(self.mArchiveNameControl, 0, wx.ALL, 5)
         boxSizer.Add(self.mAdditionalLayersControl, 0, wx.ALL, 5)
         boxSizer.Add(self.mAllActiveLayersCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExtendEdgeCutsCheckbox, 0, wx.ALL, 5)
@@ -78,6 +87,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mAutomaticTranslationCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mAutomaticFillCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mOpenBrowserCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
 
@@ -100,6 +110,7 @@ class KiCadToJLCForm(wx.Frame):
 
     def onGenerateButtonClick(self, event):
         options = dict()
+        options[ARCHIVE_NAME] = self.mArchiveNameControl.GetValue()
         options[EXTRA_LAYERS] = self.mAdditionalLayersControl.GetValue()
         options[ALL_ACTIVE_LAYERS_OPT] = self.mAllActiveLayersCheckbox.GetValue()
         options[EXTEND_EDGE_CUT_OPT] = self.mExtendEdgeCutsCheckbox.GetValue()
@@ -107,10 +118,12 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslationCheckbox.GetValue()
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
+        options[OPEN_BROWSER_OPT] = self.mOpenBrowserCheckbox.GetValue()
 
         save_user_options(options)
 
         self.mOptionsLabel.Hide()
+        self.mArchiveNameControl.Hide()
         self.mAdditionalLayersControl.Hide()
         self.mAllActiveLayersCheckbox.Hide()
         self.mExtendEdgeCutsCheckbox.Hide()
@@ -125,7 +138,7 @@ class KiCadToJLCForm(wx.Frame):
         self.SetTitle('Fabrication Toolkit (Processing...)')
 
         StatusEvent.invoke(self, self.updateDisplay)
-        ProcessThread(self, options)
+        ProcessThread(self, options, openBrowser=options[OPEN_BROWSER_OPT])
 
     def updateDisplay(self, status):
         if status.data == -1:

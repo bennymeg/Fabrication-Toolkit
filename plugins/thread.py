@@ -15,7 +15,7 @@ from .utils import print_cli_progress_bar
 
 
 class ProcessThread(Thread):
-    def __init__(self, wx, options, cli = None, openBrowser = True):
+    def __init__(self, wx, options, cli = None, openBrowser = True, nonInteractive = False):
         Thread.__init__(self)
 
         # prevent use of cli and grapgical mode at the same time
@@ -37,7 +37,32 @@ class ProcessThread(Thread):
         self.cli = cli
         self.options = options
         self.openBrowser = openBrowser
+        self.nonInteractive = nonInteractive
         self.start()
+
+    def expandTextVariables(self, string):
+        titleBlock = pcbnew.GetBoard().GetTitleBlock()
+        
+        titleBlockVars = {
+            "ISSUE_DATE": titleBlock.GetDate(),
+            "CURRENT_DATE": datetime.datetime.now().strftime('%Y-%m-%d'),
+            "REVISION": titleBlock.GetRevision(),
+            "TITLE": titleBlock.GetTitle(),
+            "COMPANY": titleBlock.GetCompany(),
+        }
+
+        for comment_index in range(9):
+            titleBlockVars[f"COMMENT{comment_index + 1}"] = titleBlock.GetComment(comment_index)
+
+        for var, val in titleBlockVars.items():
+            string = string.replace(f"${{{var}}}", val)
+
+        if (hasattr(self.process_manager.board, "GetProject") and hasattr(pcbnew, "ExpandTextVars")):
+            project = self.process_manager.board.GetProject()
+            string = pcbnew.ExpandTextVars(string, project)
+
+        return string
+
 
     def run(self):
         # initializing
@@ -128,11 +153,21 @@ class ProcessThread(Thread):
             os.makedirs(output_path)
         
         # rename gerber archive
-        gerberArchiveName = ProcessManager.normalize_filename("_".join(("{} {}".format(title or filename, revision or '').strip() + '.zip').split()))
+        if self.options[ARCHIVE_NAME]:
+            baseName = self.expandTextVariables(self.options[ARCHIVE_NAME])
+        else:
+            baseName = "{} {}".format(title or filename, revision or '')
+
+        gerberArchiveName = ProcessManager.normalize_filename("_".join((baseName.strip() + '.zip').split()))
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
 
+        if self.options[ARCHIVE_NAME]:
+            os.rename(os.path.join(temp_dir, designatorsFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_designators.csv').split()))))
+            os.rename(os.path.join(temp_dir, placementFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_positions.csv').split()))))
+            os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
+
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-        backup_name = ProcessManager.normalize_filename("_".join(("{} {} {}".format(title or filename, revision or '', timestamp).strip()).split()))
+        backup_name = ProcessManager.normalize_filename("_".join(("{} {}".format(baseName, timestamp).strip()).split()))
         shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
 
 
@@ -153,6 +188,7 @@ class ProcessThread(Thread):
 
     def progress(self, percent):
         if self.wx is None:
-            print_cli_progress_bar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
+            if not self.nonInteractive:
+                print_cli_progress_bar(percent, prefix = 'Progress:', suffix = 'Complete', length = 50)
         else:
             wx.PostEvent(self.wx, StatusEvent(percent))

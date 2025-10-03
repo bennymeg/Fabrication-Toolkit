@@ -7,6 +7,7 @@
 |:-----:|
 
 [![Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/bennymeg)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bennymeg/fabrication-toolkit/total)
 
 </div>
 
@@ -39,7 +40,9 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/options.png?raw=true" height=275>
 
+☑ __Archive name__: Name of the archive file to be generated. Can include text variables, such as e.g. `${TITLE}_${REVISION}`</br>
 ☑ __Additional layers__: Comma-separated list of additional layers to include in the gerber archive.</br>
+☑ __Plot all active layers__: Whether to include all layers, instead of just the layers required by JLCPCB.</br>
 ☑ __Set User.1 as V-Cut layer__: Merge User.1 layer with the Edge-Cut layer in production.</br>
 ☑ __Use User.2 for an alternative Edge-Cut layer__: Use the User.2 instead of the Edge-Cut layer for the board outline in production. This is useful if you need process edges or panelization during production but still want to keep the individual outline for prototyping, 3D model exports, or similar purposes.</br>
 ☑ __Apply automatic translations__: Apply known translation fixes for common components.</br>
@@ -52,8 +55,8 @@ Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/mpn.png?raw=true" height=420>
 
 #### Primary Fields*:
-| 'LCSC Part #' | 'LCSC Part' | 'JLCPCB Part #' | 'JLCPCB Part' |
-| --- | --- | --- | --- |
+| 'LCSC Part #' | 'LCSC Part' | 'LCSC PN' | 'LCSC P/N' | 'LCSC Part No.' | 'LCSC Part Number' | 'JLCPCB Part #' | 'JLCPCB Part' | 'JLCPCB PN' | 'JLCPCB P/N' | 'JLCPCB Part No.' | 'JLCPCB Part Number' |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 _The fields will be queried in the order denoted above._
 
@@ -181,25 +184,31 @@ The plugin can be called with the command below:
 python3 -m plugins.cli -p /myProject/myBoard.kicad_pcb
 ```
 
-The all options from the GUI are also available via the cli interface:
+All the options from the GUI are also available via the cli interface:
 ```
 python3 -m plugins.cli -h
 
-usage: Fabrication Toolkit [-h] --path PATH [--additionalLayers LAYERS] [--user1VCut] [--user2AltVCut] [--autoTranslate] [--autoFill] [--excludeDNP] [--allActiveLayers] [--openBrowser]
+usage: Fabrication Toolkit [-h] --path PATH [--additionalLayers LAYERS] [--user1VCut] [--user2AltVCut]
+                           [--autoTranslate] [--autoFill] [--excludeDNP] [--allActiveLayers] [--archiveName NAME]
+                           [--openBrowser]
 
 Generates JLCPCB production files from a KiCAD board file
 
 options:
-  -h, --help                                show this help message and exit
-  --path PATH, -p PATH                      Path to KiCAD board file
-  --additionalLayers LAYERS, -aL LAYERS     Additional layers(comma-separated)
-  --user1VCut, -u1                          Set User.1 as V-Cut layer
-  --user2AltVCut, -u2                       Use User.2 for alternative Edge-Cut layer
-  --autoTranslate, -t                       Apply automatic position/rotation translations
-  --autoFill, -f                            Apply automatic fill for all zones
-  --excludeDNP, -e                          Exclude DNP components from BOM
-  --allActiveLayers, -aaL                   Export all active layers instead of only commonly used ones
-  --openBrowser, -b                         Open web browser with directory file overview after generation
+  -h, --help            show this help message and exit
+  --path PATH, -p PATH  Path to KiCAD board file
+  --additionalLayers LAYERS, -aL LAYERS
+                        Additional layers(comma-separated)
+  --user1VCut, -u1      Set User.1 as V-Cut layer
+  --user2AltVCut, -u2   Use User.2 for alternative Edge-Cut layer
+  --autoTranslate, -t   Apply automatic position/rotation translations
+  --autoFill, -f        Apply automatic fill for all zones
+  --excludeDNP, -e      Exclude DNP components from BOM
+  --allActiveLayers, -aaL
+                        Export all active layers instead of only commonly used ones
+  --archiveName NAME, -aN NAME
+                        Name of the generated archives
+  --openBrowser, -b     Open web browser with directory file overview after generation
 ```
 
 
