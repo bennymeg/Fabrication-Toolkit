@@ -19,6 +19,7 @@ if __name__ == '__main__':
     parser.add_argument("--archiveName",        "-aN", type=str, help="Name of the generated archives", metavar="NAME")
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
     parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Usefull in CI/CD enviroment.")
+    parser.add_argument("--noBackup",         "-nB", action="store_true", help="Do not create backup files")
     args = parser.parse_args()
 
     options = dict()
@@ -30,7 +31,8 @@ if __name__ == '__main__':
     options[ALL_ACTIVE_LAYERS_OPT] = args.allActiveLayers
     options[ARCHIVE_NAME] = args.archiveName
     options[EXTRA_LAYERS] = args.additionalLayers
-
+    options[NO_BACKUP] = args.no_backup
+    
     openBrowser = args.openBrowser
     nonInteractive = args.nonInteractive
 

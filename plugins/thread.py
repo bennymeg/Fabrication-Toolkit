@@ -166,10 +166,11 @@ class ProcessThread(Thread):
             os.rename(os.path.join(temp_dir, placementFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_positions.csv').split()))))
             os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
 
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-        backup_name = ProcessManager.normalize_filename("_".join(("{} {}".format(baseName, timestamp).strip()).split()))
-        shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
-
+        # Make a backup as long as the NO_BACKUP flag isn't set.
+        if not self.options[NO_BACKUP]:
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+            backup_name = ProcessManager.normalize_filename("_".join(("{} {}".format(baseName, timestamp).strip()).split()))
+            shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
 
         # copy to & open output dir
         try:

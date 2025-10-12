@@ -190,7 +190,7 @@ python3 -m plugins.cli -h
 
 usage: Fabrication Toolkit [-h] --path PATH [--additionalLayers LAYERS] [--user1VCut] [--user2AltVCut]
                            [--autoTranslate] [--autoFill] [--excludeDNP] [--allActiveLayers] [--archiveName NAME]
-                           [--openBrowser]
+                           [--openBrowser] [--noBackup]
 
 Generates JLCPCB production files from a KiCAD board file
 
@@ -209,6 +209,7 @@ options:
   --archiveName NAME, -aN NAME
                         Name of the generated archives
   --openBrowser, -b     Open web browser with directory file overview after generation
+  --noBackup, -nB       Do not create a backup of the project before generation
 ```
 
 
