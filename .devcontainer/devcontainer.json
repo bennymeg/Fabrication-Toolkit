@@ -1,0 +1,17 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Python 3",
+	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+	"features": {
+		"ghcr.io/devcontainers/features/python:1": {},
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},
+		"ghcr.io/neilenns/devcontainer-features/oh-my-zsh": {
+      "disableAutoUpdate": false,
+      "disableUpdatePrompt": false,
+      "stripWorkspacesFromPrompt": true,
+      "theme": "agnoster"
+    }
+	},
+	"postCreateCommand": ".devcontainer/install-kicad.sh"
+}
