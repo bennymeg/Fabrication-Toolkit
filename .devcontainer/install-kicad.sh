@@ -14,3 +14,9 @@ sudo apt install -y --no-install-recommends kicad kicad-symbols kicad-footprints
 echo "Linking KiCad plugin..."
 mkdir -p "$HOME/.local/share/kicad/9.0/3rdparty/plugins"
 ln -s /workspaces/Fabrication-Toolkit/plugins "$HOME/.local/share/kicad/9.0/3rdparty/plugins/com_github_bennymeg_JLC-Plugin-for-KiCad"
+mkdir -p "$HOME/.local/share/kicad/9.0/3rdparty/resources"
+ln -s /workspaces/Fabrication-Toolkit/resources "$HOME/.local/share/kicad/9.0/3rdparty/resources/com_github_bennymeg_JLC-Plugin-for-KiCad"
+
+# Add plugin to PYTHONPATH
+echo "Adding plugin to PYTHONPATH..."
+echo 'export PYTHONPATH="$PYTHONPATH:$HOME/.local/share/kicad/9.0/3rdparty/plugins"' >> "$HOME/.zshrc"
