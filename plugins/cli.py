@@ -11,15 +11,15 @@ if __name__ == '__main__':
     parser.add_argument("--path",               "-p",  type=str, help="Path to KiCAD board file", required=True)
     parser.add_argument("--additionalLayers",   "-aL", type=str, help="Additional layers(comma-separated)", metavar="LAYERS")
     parser.add_argument("--user1VCut",          "-u1", action="store_true", help="Set User.1 as V-Cut layer")
-    parser.add_argument("--user2AltVCut",       "-u2", action="store_true", help="Use User.2 for alternative Edge-Cut layer")
+    parser.add_argument("--user2AltVCut",       "-u2", action="store_true", help="Set User.2 as alternative Edge-Cut layer")
     parser.add_argument("--autoTranslate",      "-t",  action="store_true", help="Apply automatic position/rotation translations")
     parser.add_argument("--autoFill",           "-f",  action="store_true", help="Apply automatic fill for all zones")
     parser.add_argument("--excludeDNP",         "-e",  action="store_true", help="Exclude DNP components from BOM")
     parser.add_argument("--allActiveLayers",    "-aaL",action="store_true", help="Export all active layers instead of only commonly used ones")
     parser.add_argument("--archiveName",        "-aN", type=str, help="Name of the generated archives", metavar="NAME")
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
-    parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Usefull in CI/CD enviroment.")
-    parser.add_argument("--noBackup",         "-nB", action="store_true", help="Do not create backup files")
+    parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Useful in CI/CD environment.")
+    parser.add_argument("--noBackup",           "-nB", action="store_true", help="Do not create backup files")
     args = parser.parse_args()
 
     options = dict()
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     options[ALL_ACTIVE_LAYERS_OPT] = args.allActiveLayers
     options[ARCHIVE_NAME] = args.archiveName
     options[EXTRA_LAYERS] = args.additionalLayers
-    options[NO_BACKUP] = args.no_backup
+    options[NO_BACKUP_OPT] = args.no_backup
     
     openBrowser = args.openBrowser
     nonInteractive = args.nonInteractive

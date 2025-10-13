@@ -18,7 +18,7 @@ class ProcessThread(Thread):
     def __init__(self, wx, options, cli = None, openBrowser = True, nonInteractive = False):
         Thread.__init__(self)
 
-        # prevent use of cli and grapgical mode at the same time
+        # prevent use of cli and graphical mode at the same time
         if (wx is None and cli is None) or (wx is not None and cli is not None):
             logging.error("Specify either graphical or cli use!")
             return
@@ -166,8 +166,8 @@ class ProcessThread(Thread):
             os.rename(os.path.join(temp_dir, placementFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_positions.csv').split()))))
             os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
 
-        # Make a backup as long as the NO_BACKUP flag isn't set.
-        if not self.options[NO_BACKUP]:
+        # Make a backup as long as the NO_BACKUP_OPT flag isn't set.
+        if not self.options[NO_BACKUP_OPT]:
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             backup_name = ProcessManager.normalize_filename("_".join(("{} {}".format(baseName, timestamp).strip()).split()))
             shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)

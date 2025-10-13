@@ -4,7 +4,7 @@ import pcbnew  # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT, NO_BACKUP
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT, NO_BACKUP_OPT
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -37,7 +37,7 @@ class KiCadToJLCForm(wx.Frame):
             AUTO_FILL_OPT: True,
             EXCLUDE_DNP_OPT: False,
             OPEN_BROWSER_OPT: True,
-            NO_BACKUP: False,
+            NO_BACKUP_OPT: False,
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
@@ -57,9 +57,9 @@ class KiCadToJLCForm(wx.Frame):
         self.mAllActiveLayersCheckbox.SetValue(userOptions[ALL_ACTIVE_LAYERS_OPT])
         self.mExtendEdgeCutsCheckbox = wx.CheckBox(self, label='Set User.1 as V-Cut layer')
         self.mExtendEdgeCutsCheckbox.SetValue(userOptions[EXTEND_EDGE_CUT_OPT])
-        self.mAlternativeEdgeCutsCheckbox = wx.CheckBox(self, label='Use User.2 for alternative Edge-Cut layer')
+        self.mAlternativeEdgeCutsCheckbox = wx.CheckBox(self, label='Set User.2 as alternative Edge-Cut layer')
         self.mAlternativeEdgeCutsCheckbox.SetValue(userOptions[ALTERNATIVE_EDGE_CUT_OPT])
-        self.mAutomaticTranslationCheckbox = wx.CheckBox(self, label='Apply automatic translations')
+        self.mAutomaticTranslationCheckbox = wx.CheckBox(self, label='Apply automatic component translations')
         self.mAutomaticTranslationCheckbox.SetValue(userOptions[AUTO_TRANSLATE_OPT])
         self.mAutomaticFillCheckbox = wx.CheckBox(self, label='Apply automatic fill for all zones')
         self.mAutomaticFillCheckbox.SetValue(userOptions[AUTO_FILL_OPT])
@@ -68,7 +68,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mOpenBrowserCheckbox = wx.CheckBox(self, label='Open browser after generation')
         self.mOpenBrowserCheckbox.SetValue(userOptions[OPEN_BROWSER_OPT])
         self.mNoBackupCheckbox = wx.CheckBox(self, label='Do not create backup files')
-        self.mNoBackupCheckbox.SetValue(userOptions[NO_BACKUP])
+        self.mNoBackupCheckbox.SetValue(userOptions[NO_BACKUP_OPT])
 
         self.mGaugeStatus = wx.Gauge(
             self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(600, 20), wx.GA_HORIZONTAL)
@@ -122,7 +122,7 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[OPEN_BROWSER_OPT] = self.mOpenBrowserCheckbox.GetValue()
-        options[NO_BACKUP] = self.mNoBackupCheckbox.GetValue()
+        options[NO_BACKUP_OPT] = self.mNoBackupCheckbox.GetValue()
 
         save_user_options(options)
 
