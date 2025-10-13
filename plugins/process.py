@@ -47,6 +47,7 @@ class ProcessManager:
 
     def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
         '''Generate the Gerber files.'''
+        original_settings = self.board.GetDesignSettings()
         settings = self.board.GetDesignSettings()
         settings.m_SolderMaskMargin = 50000
         settings.m_SolderMaskToCopperClearance = 5000
@@ -98,6 +99,7 @@ class ProcessManager:
                     plot_controller.PlotLayer()
 
         plot_controller.ClosePlot()
+        settings = original_settings
 
     def generate_drills(self, temp_dir):
         '''Generate the drill file.'''
