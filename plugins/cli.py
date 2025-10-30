@@ -31,7 +31,7 @@ if __name__ == '__main__':
     options[ALL_ACTIVE_LAYERS_OPT] = args.allActiveLayers
     options[ARCHIVE_NAME] = args.archiveName
     options[EXTRA_LAYERS] = args.additionalLayers
-    options[NO_BACKUP_OPT] = args.no_backup
+    options[NO_BACKUP_OPT] = args.noBackup
     
     openBrowser = args.openBrowser
     nonInteractive = args.nonInteractive
