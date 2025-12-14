@@ -162,9 +162,12 @@ class ProcessThread(Thread):
         os.rename(temp_file, os.path.join(temp_dir, gerberArchiveName))
 
         if self.options[ARCHIVE_NAME]:
-            os.rename(os.path.join(temp_dir, designatorsFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_designators.csv').split()))))
-            os.rename(os.path.join(temp_dir, placementFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_positions.csv').split()))))
-            os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
+            if os.path.exists(os.path.join(temp_dir, designatorsFileName)):
+                os.rename(os.path.join(temp_dir, designatorsFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_designators.csv').split()))))
+            if os.path.exists(os.path.join(temp_dir, placementFileName)):
+                os.rename(os.path.join(temp_dir, placementFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_positions.csv').split()))))
+            if os.path.exists(os.path.join(temp_dir, bomFileName)):
+                os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
 
         # Make a backup as long as the BACKUP_OPT flag is set.
         if not self.options[BACKUP_OPT]:
