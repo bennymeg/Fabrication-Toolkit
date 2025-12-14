@@ -28,11 +28,10 @@ Fabrication Toolkit is distributed with the official releases of KiCad 6+. Open 
 Download the [latest release](https://github.com/bennymeg/JLC-Plugin-for-KiCad/releases) ZIP file. Open the "Plugin and Content Manager" from the KiCads main window and install the ZIP file via "Install from File".
 
 ## Usage
-Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="margin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew).
+Click on the Fabrication Toolkit <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/resources/icon.png?raw=true" style="margin-bottom: 8px;" alt="Logo" height=24> button on the top tool box inside KiCad pcb editor (pcbnew), choose the required options and click on 'Generate'.
 
-**⊛** Ensure your board is synchronized before invoking this addon [**F8**].
-
-**⊛** The `User_1` layer in internally defined as a **V-Cuts** layer, please avoid using it for anything else (unless disabled). <span style="text-color: light-grey !important;">_(since v3.0.0)_.</span>
+> [!IMPORTANT]  
+> Ensure your board is synchronized before invoking this addon [**F8**].
 
 ## Options
 
@@ -44,10 +43,17 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 ☑ __Additional layers__: Comma-separated list of additional layers to include in the gerber archive.</br>
 ☑ __Plot all active layers__: Whether to include all layers, instead of just the layers required by JLCPCB.</br>
 ☑ __Set User.1 as V-Cut layer__: Merge User.1 layer with the Edge-Cut layer in production.</br>
-☑ __Use User.2 for an alternative Edge-Cut layer__: Use the User.2 instead of the Edge-Cut layer for the board outline in production. This is useful if you need process edges or panelization during production but still want to keep the individual outline for prototyping, 3D model exports, or similar purposes.</br>
+☑ __Use User.2 for an alternative Edge-Cut layer__: Use the User.2 instead of the Edge-Cut layer for the board outline in production. 
+    This is useful if you need process edges or panelization during production but still want to keep the individual outline for prototyping, 3D model exports, or similar purposes.</br>
 ☑ __Apply automatic translations__: Apply known translation fixes for common components.</br>
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
+☑ __Generate Backups__: Generate Backup zip for the production files.</br>
+
+## Attributes
+
+> [!NOTE]  
+> All the attributes are entered in the Schematic Editor, make sure to update your PCB [**F8**] with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
 
 ### ① Include Component Part Number in Production Files
 Add an 'LCSC Part #'* field with the LCSC component part number to the symbol's fields property.
@@ -91,7 +97,18 @@ If the JLC preview shows a footprint like this, enter a rotation offset of -90 t
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation.png?raw=true" height=420>
 
-As the rotation offset is entered in the Schematic Editor, make sure to update your PCB with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
+Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
+|KiCad footprint deg | x | y|
+|----|----|----|
+|0 deg, Front | right arrow | up arrow |
+|0 deg, Back | left arrow | down arrow |
+|180 deg, Front | left arrow | down arrow |
+|180 deg, Back | right arrow | up arrow |
+|90 deg, Front or Back | up arrow | left arrow |
+|-90 deg, Front or Back | down arrow | right arrow |
+
+> [!TIP]  
+> Single arrow press in JLC is 0.0635mm (= 1/400in) shift.
 
 #### Primary Fields*:
 | 'FT Rotation Offset' |
@@ -110,22 +127,10 @@ _The fields will be queried in the order denoted above._
 ### ④ Offset Component Position
 The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it.
 
-Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
-|KiCad footprint deg | x | y|
-|----|----|----|
-|0 deg, Front | right arrow | up arrow |
-|0 deg, Back | left arrow | down arrow |
-|180 deg, Front | left arrow | down arrow |
-|180 deg, Back | right arrow | up arrow |
-|90 deg, Front or Back | up arrow | left arrow |
-|-90 deg, Front or Back | down arrow | right arrow |
-
-For custom angles it's best to place also a temporary straight symbol to perform alignment.
-Single arrow press in JLC is 0.0635mm (= 1/400in) shift.
-
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
 
-As the position offset is entered in the Schematic Editor, make sure to update your PCB with the changes made to the schematic before generating a new set of production files, otherwise your changes won't be reflected.
+> [!TIP]  
+> Single arrow press in JLC equals to 0.0635mm (= 1/400in) shift.
 
 #### Primary Fields*:
 | 'FT Position Offset' |
