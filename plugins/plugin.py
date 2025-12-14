@@ -4,7 +4,7 @@ import pcbnew  # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT, NO_BACKUP_OPT
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT, BACKUP_OPT
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -37,7 +37,7 @@ class KiCadToJLCForm(wx.Frame):
             AUTO_FILL_OPT: True,
             EXCLUDE_DNP_OPT: False,
             OPEN_BROWSER_OPT: True,
-            NO_BACKUP_OPT: False,
+            BACKUP_OPT: True,
         })
 
         self.mOptionsLabel = wx.StaticText(self, label='Options:')
@@ -67,8 +67,8 @@ class KiCadToJLCForm(wx.Frame):
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
         self.mOpenBrowserCheckbox = wx.CheckBox(self, label='Open browser after generation')
         self.mOpenBrowserCheckbox.SetValue(userOptions[OPEN_BROWSER_OPT])
-        self.mNoBackupCheckbox = wx.CheckBox(self, label='Do not create backup files')
-        self.mNoBackupCheckbox.SetValue(userOptions[NO_BACKUP_OPT])
+        self.mBackupCheckbox = wx.CheckBox(self, label='Generate backup files')
+        self.mBackupCheckbox.SetValue(userOptions[BACKUP_OPT])
 
         self.mGaugeStatus = wx.Gauge(
             self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(600, 20), wx.GA_HORIZONTAL)
@@ -91,7 +91,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mAutomaticFillCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mOpenBrowserCheckbox, 0, wx.ALL, 5)
-        boxSizer.Add(self.mNoBackupCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mBackupCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
         boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
 
@@ -122,7 +122,7 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
         options[OPEN_BROWSER_OPT] = self.mOpenBrowserCheckbox.GetValue()
-        options[NO_BACKUP_OPT] = self.mNoBackupCheckbox.GetValue()
+        options[BACKUP_OPT] = self.mBackupCheckbox.GetValue()
 
         save_user_options(options)
 
@@ -136,6 +136,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticFillCheckbox.Hide()
         self.mExcludeDnpCheckbox.Hide()
         self.mOpenBrowserCheckbox.Hide()
+        self.mBackupCheckbox.Hide()
         self.mGenerateButton.Hide()
         self.mGaugeStatus.Show()
 

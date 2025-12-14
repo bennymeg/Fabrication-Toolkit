@@ -166,8 +166,8 @@ class ProcessThread(Thread):
             os.rename(os.path.join(temp_dir, placementFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_positions.csv').split()))))
             os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
 
-        # Make a backup as long as the NO_BACKUP_OPT flag isn't set.
-        if not self.options[NO_BACKUP_OPT]:
+        # Make a backup as long as the BACKUP_OPT flag is set.
+        if not self.options[BACKUP_OPT]:
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
             backup_name = ProcessManager.normalize_filename("_".join(("{} {}".format(baseName, timestamp).strip()).split()))
             shutil.make_archive(os.path.join(output_path, 'backups', backup_name), 'zip', temp_dir)
