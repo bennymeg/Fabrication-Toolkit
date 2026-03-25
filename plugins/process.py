@@ -131,7 +131,12 @@ class ProcessManager:
 
         # if the footprint is not rotated by a multiple of 90 degrees, the bounding boxes will be off, so we create a temporary copy that is rotated to 0
         if footprint_rotated:
-            dup = footprint.Duplicate(False)
+            try:
+                # kicad 10 
+                dup = footprint.Duplicate(False)
+            except TypeError:
+                # fallback for kicad <10 
+                dup = footprint.Duplicate()
             footprint = pcbnew.Cast_to_FOOTPRINT(dup) if hasattr(pcbnew, 'Cast_to_FOOTPRINT') else dup
             if hasattr(footprint, 'SetOrientationDegrees'):
                 footprint.SetOrientationDegrees(0)
