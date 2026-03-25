@@ -131,8 +131,12 @@ class ProcessManager:
 
         # if the footprint is not rotated by a multiple of 90 degrees, the bounding boxes will be off, so we create a temporary copy that is rotated to 0
         if footprint_rotated:
-            footprint = footprint.Duplicate()
-            footprint.SetOrientationDegrees(0)
+            dup = footprint.Duplicate(False)
+            footprint = pcbnew.Cast_to_FOOTPRINT(dup) if hasattr(pcbnew, 'Cast_to_FOOTPRINT') else dup
+            if hasattr(footprint, 'SetOrientationDegrees'):
+                footprint.SetOrientationDegrees(0)
+            else:
+                footprint.SetOrientation(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
 
         if origin_type == 'Anchor':
             position = footprint.GetPosition()
