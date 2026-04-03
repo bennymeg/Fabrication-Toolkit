@@ -12,7 +12,7 @@ from typing import Tuple
 
 # Interaction with KiCad.
 import pcbnew  # type: ignore
-from .utils import footprint_has_field, footprint_get_field, get_plot_plan
+from .utils import duplicate_footprint, footprint_has_field, footprint_get_field, footprint_to_degrees, get_plot_plan
 
 # Application definitions.
 from .config import *
@@ -129,19 +129,11 @@ class ProcessManager:
         footprint_rotation = self._get_footprint_rotation(footprint)
         footprint_rotated = footprint_rotation % 90 != 0
 
-        # if the footprint is not rotated by a multiple of 90 degrees, the bounding boxes will be off, so we create a temporary copy that is rotated to 0
+        # if the footprint is not rotated by a multiple of 90 degrees, 
+        # the bounding boxes will be off, so we create a temporary copy that is rotated to 0
         if footprint_rotated:
-            try:
-                # kicad 10 
-                dup = footprint.Duplicate(False)
-            except TypeError:
-                # fallback for kicad <10 
-                dup = footprint.Duplicate()
-            footprint = pcbnew.Cast_to_FOOTPRINT(dup) if hasattr(pcbnew, 'Cast_to_FOOTPRINT') else dup
-            if hasattr(footprint, 'SetOrientationDegrees'):
-                footprint.SetOrientationDegrees(0)
-            else:
-                footprint.SetOrientation(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
+            footprint = duplicate_footprint(footprint)
+            footprint_to_degrees(footprint)
 
         if origin_type == 'Anchor':
             position = footprint.GetPosition()

@@ -21,6 +21,22 @@ def is_v7(version = get_version()):
 
 def is_v6(version = get_version()):
     return version >= 5.99 and version < 6.99
+
+def duplicate_footprint(footprint):
+    version = get_version()
+
+    if is_v10(version): 
+        duplicate = footprint.Duplicate(False)
+    else:
+        duplicate = footprint.Duplicate()
+    
+    return pcbnew.Cast_to_FOOTPRINT(duplicate) if hasattr(pcbnew, 'Cast_to_FOOTPRINT') else duplicate
+
+def footprint_to_degrees(footprint):
+    if hasattr(footprint, 'SetOrientationDegrees'):
+        footprint.SetOrientationDegrees(0)
+    else:
+        footprint.SetOrientation(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
                  
 def footprint_has_field(footprint, field_name):
     version = get_version()
