@@ -183,7 +183,7 @@ _The fields will be queried in the order denoted above._
 
 
 ## CLI
-The plugin can also be used via the linux command line. This can be particularly useful if you need to embed the plugin into an automation pipeline or environment.
+The plugin can also be used via the linux and windows command line. This can be particularly useful if you need to embed the plugin into an automation pipeline or environment.
 The plugin can be called with the command below:
 ```
 python3 -m plugins.cli -p /myProject/myBoard.kicad_pcb
@@ -217,6 +217,11 @@ options:
   --noBackup, -nB       Do not create a backup of the project before generation
 ```
 
+### Notes
+
+- On windows the commands have to be run inside the `KiCad Command Prompt`. Moreover, instead of `python3` they are run with a simple `python` in front.
+- If the CLI should be used with the installed plugin, `plugins.cli` has to be replaced with the package name. In a jobset it would look like this:
+  `python -m "${KICAD9_3RD_PARTY}plugins/com_github_bennymeg_JLC-Plugin-for-KiCad.cli" -p "${KIPRJMOD}/${PROJECTNAME}.kicad_pcb"`
 
 ## Author
 
