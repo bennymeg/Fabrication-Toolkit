@@ -25,12 +25,19 @@ def is_v6(version = get_version()):
 def duplicate_footprint(footprint):
     version = get_version()
 
-    if is_v10(version): 
+    if is_v10(version):
         duplicate = footprint.Duplicate(False)
     else:
         duplicate = footprint.Duplicate()
-    
-    return pcbnew.Cast_to_FOOTPRINT(duplicate) if hasattr(pcbnew, 'Cast_to_FOOTPRINT') else duplicate
+
+    # KiCad 10 SWIG returns the base BOARD_ITEM and removed the
+    # pcbnew.Cast_to_FOOTPRINT helper; downcast via the object's own
+    # .Cast() method instead. Older KiCads still ship Cast_to_FOOTPRINT.
+    if hasattr(pcbnew, 'Cast_to_FOOTPRINT'):
+        return pcbnew.Cast_to_FOOTPRINT(duplicate)
+    if hasattr(duplicate, 'Cast'):
+        return duplicate.Cast()
+    return duplicate
 
 def footprint_to_degrees(footprint):
     if hasattr(footprint, 'SetOrientationDegrees'):
