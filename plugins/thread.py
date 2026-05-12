@@ -41,8 +41,9 @@ class ProcessThread(Thread):
         self.start()
 
     def expandTextVariables(self, string):
-        titleBlock = pcbnew.GetBoard().GetTitleBlock()
-        
+        board = self.board if self.board is not None else pcbnew.GetBoard()
+        titleBlock = board.GetTitleBlock()
+
         titleBlockVars = {
             "ISSUE_DATE": titleBlock.GetDate(),
             "CURRENT_DATE": datetime.datetime.now().strftime('%Y-%m-%d'),
