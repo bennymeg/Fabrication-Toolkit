@@ -122,9 +122,9 @@ class ProcessManager:
     def _get_footprint_rotation(self, footprint):
         return footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
 
-    def _get_footprint_position(self, footprint):
+    def _get_footprint_position(self, footprint, footprint_variant):
         """Calculate position based on center of pads / bounding box."""
-        origin_type = self._get_origin_from_footprint(footprint)
+        origin_type = self._get_origin_from_footprint(footprint, footprint_variant)
 
         footprint_rotation = self._get_footprint_rotation(footprint)
         footprint_rotated = footprint_rotation % 90 != 0
@@ -185,11 +185,21 @@ class ProcessManager:
                 for key, value in footprint_designators.items():
                     f.write('%s:%s\n' % (key, value))
 
+        variant = getattr(self.board, 'GetCurrentVariant', str)()
+
         for i, footprint in enumerate(footprints):
             try:
                 footprint_name = str(footprint.GetFPID().GetFootprintName())
             except AttributeError:
                 footprint_name = str(footprint.GetFPID().GetLibItemName())
+
+            footprint_value = footprint.GetValue()
+            if hasattr(footprint, 'HasVariant') and footprint.HasVariant(variant):
+                footprint_variant = footprint.GetVariant(variant)
+                if footprint_variant.HasFieldValue('Value'):
+                    footprint_value = footprint_variant.GetFieldValue('Value')
+            else:
+                footprint_variant = footprint
 
             # Get the library nickname when available
             lib_nickname = None
@@ -198,7 +208,7 @@ class ProcessManager:
             except AttributeError:
                 pass
 
-            layer = self._get_layer_override_from_footprint(footprint)
+            layer = self._get_layer_override_from_footprint(footprint, footprint_variant)
 
             # mount_type = {
             #     0: 'smt',
@@ -206,12 +216,12 @@ class ProcessManager:
             #     2: 'unspecified'
             # }.get(footprint.GetAttributes())
 
-            is_dnp = (footprint_has_field(footprint, 'dnp')
-                      or (footprint.GetValue().upper() == 'DNP')
-                      or getattr(footprint, 'IsDNP', bool)())
+            is_dnp = (footprint_has_field(footprint, footprint_variant, 'dnp')
+                      or (footprint_value.upper() == 'DNP')
+                      or getattr(footprint_variant, 'GetDNP', getattr(footprint, 'IsDNP', bool))())
             skip_dnp = exclude_dnp and is_dnp
 
-            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES)  and not is_dnp:
+            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_POS_FILES) and not getattr(footprint_variant, 'GetExcludedFromPosFiles', bool)() and not is_dnp:
                 # append unique ID if duplicate footprint designator
                 unique_id = ""
                 if footprint_designators[footprint.GetReference().upper()] > 1:
@@ -219,15 +229,15 @@ class ProcessManager:
                     footprint_designators[footprint.GetReference().upper()] -= 1
 
                 designator = "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id)
-                position = self._get_footprint_position(footprint)
+                position = self._get_footprint_position(footprint, footprint_variant)
                 mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = self._get_footprint_rotation(footprint)
                 rotation_offset_db = self._get_rotation_from_db(footprint_name, lib_nickname) # Try with lib_nickname if available
-                rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint)
+                rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint, footprint_variant)
 
                 # position offset needs to take rotation into account
-                pos_offset = self._get_position_offset_from_footprint(footprint)
+                pos_offset = self._get_position_offset_from_footprint(footprint, footprint_variant)
                 if auto_translate:
                     pos_offset_db = self._get_position_offset_from_db(footprint_name, lib_nickname) # Try with lib_nickname if available
                     pos_offset = (pos_offset[0] + pos_offset_db[0], pos_offset[1] + pos_offset_db[1])
@@ -258,7 +268,7 @@ class ProcessManager:
                     'Layer': layer,
                 })
 
-            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM) and not skip_dnp:
+            if not (footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM) and not getattr(footprint_variant, 'GetExcludedFromBOM', bool)() and not skip_dnp:
                 # append unique ID if we are dealing with duplicate bom designator
                 unique_id = ""
                 if bom_designators[footprint.GetReference().upper()] > 1:
@@ -269,8 +279,8 @@ class ProcessManager:
                 insert = True
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
-                    same_value = component['Value'].upper() == footprint.GetValue().upper()
-                    same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+                    same_value = component['Value'].upper() == footprint_value.upper()
+                    same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint, footprint_variant)
                     under_limit = component['Quantity'] < bomRowLimit
 
                     if same_footprint and same_value and same_lcsc and under_limit:
@@ -285,9 +295,9 @@ class ProcessManager:
                         'Designator': "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id),
                         'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
-                        'Value': footprint.GetValue(),
+                        'Value': footprint_value,
                         # 'Mount': mount_type,
-                        'LCSC Part #': self._get_mpn_from_footprint(footprint),
+                        'LCSC Part #': self._get_mpn_from_footprint(footprint, footprint_variant),
                     })
 
     def generate_positions(self, temp_dir):
@@ -458,21 +468,21 @@ class ProcessManager:
         # Not found, no delta.
         return (0.0, 0.0)
 
-    def _get_mpn_from_footprint(self, footprint) -> str:
+    def _get_mpn_from_footprint(self, footprint, footprint_variant) -> str:
         ''''Get the MPN/LCSC stock code from standard symbol fields.'''
         supplier_names = ['LCSC', 'JLCPCB']
         pn_abbrevs = ['Part #', 'Part', 'PN', 'P/N', 'Part No.', 'Part Number']
         keys = [(sn + " " + abr) for sn in supplier_names for abr in pn_abbrevs]
         fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
-        if footprint_has_field(footprint, 'dnp'):
+        if footprint_has_field(footprint, footprint_variant, 'dnp'):
             return 'DNP'
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key) and '' != footprint_get_field(footprint, key):
-                return footprint_get_field(footprint, key)
+            if footprint_has_field(footprint, footprint_variant, key) and '' != footprint_get_field(footprint, footprint_variant, key):
+                return footprint_get_field(footprint, footprint_variant, key)
 
-    def _get_layer_override_from_footprint(self, footprint) -> str:
+    def _get_layer_override_from_footprint(self, footprint, footprint_variant) -> str:
         '''Get the layer override from standard symbol fields.'''
         keys = ['FT Layer Override']
         fallback_keys = ['Layer Override', 'LayerOverride']
@@ -483,8 +493,8 @@ class ProcessManager:
         }.get(footprint.GetLayer())
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key):
-                temp_layer = footprint_get_field(footprint, key)
+            if footprint_has_field(footprint, footprint_variant, key):
+                temp_layer = footprint_get_field(footprint, footprint_variant, key)
                 if len(temp_layer) > 0:
                     if (temp_layer[0] == 'b' or temp_layer[0] == 'B'):
                         layer = "bottom"
@@ -495,7 +505,7 @@ class ProcessManager:
 
         return layer
 
-    def _get_rotation_offset_from_footprint(self, footprint) -> float:
+    def _get_rotation_offset_from_footprint(self, footprint, footprint_variant) -> float:
         '''Get the rotation offset from standard symbol fields.'''
         keys = ['FT Rotation Offset']
         fallback_keys = ['Rotation Offset', 'RotOffset']
@@ -503,8 +513,8 @@ class ProcessManager:
         offset = ""
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key):
-                offset = footprint_get_field(footprint, key)
+            if footprint_has_field(footprint, footprint_variant, key):
+                offset = footprint_get_field(footprint, footprint_variant, key)
                 break
 
         if offset is None or offset == "":
@@ -515,7 +525,7 @@ class ProcessManager:
             except ValueError:
                 raise RuntimeError("Rotation offset of {} is not a valid number".format(footprint.GetReference()))
 
-    def _get_position_offset_from_footprint(self, footprint) -> Tuple[float, float]:
+    def _get_position_offset_from_footprint(self, footprint, footprint_variant) -> Tuple[float, float]:
         '''Get the position offset from standard symbol fields.'''
         keys = ['FT Position Offset']
         fallback_keys = ['Position Offset', 'PosOffset']
@@ -523,8 +533,8 @@ class ProcessManager:
         offset = ""
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key):
-                offset = footprint_get_field(footprint, key)
+            if footprint_has_field(footprint, footprint_variant, key):
+                offset = footprint_get_field(footprint, footprint_variant, key)
                 break
 
         if offset == "":
@@ -536,7 +546,7 @@ class ProcessManager:
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
 
-    def _get_origin_from_footprint(self, footprint) -> float:
+    def _get_origin_from_footprint(self, footprint, footprint_variant) -> float:
         '''Get the origin from standard symbol fields.'''
         keys = ['FT Origin']
         fallback_keys = ['Origin']
@@ -550,8 +560,8 @@ class ProcessManager:
             origin_type = 'Center'
 
         for key in keys + fallback_keys:
-            if footprint_has_field(footprint, key):
-                origin_type_override = str(footprint_get_field(footprint, key)).strip().capitalize()
+            if footprint_has_field(footprint, footprint_variant, key):
+                origin_type_override = str(footprint_get_field(footprint, footprint_variant, key)).strip().capitalize()
 
                 if origin_type_override in ['Anchor', 'Center']:
                     origin_type = origin_type_override

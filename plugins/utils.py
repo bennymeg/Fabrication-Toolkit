@@ -45,20 +45,26 @@ def footprint_to_degrees(footprint):
     else:
         footprint.SetOrientation(pcbnew.EDA_ANGLE(0, pcbnew.DEGREES_T))
                  
-def footprint_has_field(footprint, field_name):
+def footprint_has_field(footprint, footprint_variant, field_name):
     version = get_version()
     
     if is_v10(version):
+        if isinstance(footprint_variant, pcbnew.FOOTPRINT_VARIANT):
+            return footprint_variant.HasFieldValue(field_name) or footprint.HasField(field_name)
+
         return footprint.HasField(field_name)
     elif is_v8(version) or is_v9(version):
         return footprint.HasFieldByName(field_name)
     else:
         return footprint.HasProperty(field_name)
 
-def footprint_get_field(footprint, field_name):
+def footprint_get_field(footprint, footprint_variant, field_name):
     version = get_version()
     
     if is_v10(version):
+        if isinstance(footprint_variant, pcbnew.FOOTPRINT_VARIANT) and footprint_variant.HasFieldValue(field_name):
+            return footprint_variant.GetFieldValue(field_name)
+
         return footprint.GetField(field_name).GetText()
     elif is_v8(version) or is_v9(version):
         return footprint.GetFieldByName(field_name).GetText()
