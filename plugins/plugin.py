@@ -75,8 +75,14 @@ class KiCadToJLCForm(wx.Frame):
         self.mGaugeStatus.SetValue(0)
         self.mGaugeStatus.Hide()
 
-        self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(600, 60))
+        self.mCancelButton = wx.Button(self, label='Cancel', size=wx.Size(300, 60))
+        self.mCancelButton.Bind(wx.EVT_BUTTON, self.onCancelButtonClick)
+        self.mGenerateButton = wx.Button(self, label='Generate', size=wx.Size(300, 60))
         self.mGenerateButton.Bind(wx.EVT_BUTTON, self.onGenerateButtonClick)
+
+        buttonsBoxSizer = wx.BoxSizer(wx.HORIZONTAL)
+        buttonsBoxSizer.Add(self.mCancelButton, 0, wx.ALL, 5)
+        buttonsBoxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
 
         boxSizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -93,7 +99,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mOpenBrowserCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mBackupCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
-        boxSizer.Add(self.mGenerateButton, 0, wx.ALL, 5)
+        boxSizer.Add(buttonsBoxSizer, 0, wx.ALL, 0)
 
         self.SetSizer(boxSizer)
         self.Layout()
@@ -110,6 +116,9 @@ class KiCadToJLCForm(wx.Frame):
             self.Close(True)
         else:
             event.Skip()
+
+    def onCancelButtonClick(self, event):
+        self.Close(True)
 
     def onGenerateButtonClick(self, event):
         options = dict()
