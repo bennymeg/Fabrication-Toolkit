@@ -163,7 +163,7 @@ class ProcessManager:
 
         return position
 
-    def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
+    def generate_tables(self, temp_dir, auto_translate, exclude_dnp, minimal_files):
         '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
@@ -180,7 +180,7 @@ class ProcessManager:
             footprint_designators[footprint.GetReference().upper()] += 1
         bom_designators = footprint_designators.copy()
 
-        if len(footprint_designators.items()) > 0:
+        if len(footprint_designators.items()) > 0 and not minimal_files:
             with open((os.path.join(temp_dir, designatorsFileName)), 'w', encoding='utf-8-sig') as f:
                 for key, value in footprint_designators.items():
                     f.write('%s:%s\n' % (key, value))
