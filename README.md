@@ -215,6 +215,8 @@ options:
                         Name of the generated archives
   --openBrowser, -b     Open web browser with directory file overview after generation
   --noBackup, -nB       Do not create a backup of the project before generation
+  --minimalFiles, -mF   Do not create files that are not needed for JLC PCB
+  --outputFolder, -oF   Sets the output folder for the generated files
 ```
 
 ### Notes

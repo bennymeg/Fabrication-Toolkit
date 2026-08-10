@@ -41,9 +41,8 @@ class ProcessThread(Thread):
         self.start()
 
     def expandTextVariables(self, string):
-        board = self.board if self.board is not None else pcbnew.GetBoard()
-        titleBlock = board.GetTitleBlock()
-
+        titleBlock = pcbnew.GetBoard().GetTitleBlock()
+        
         titleBlockVars = {
             "ISSUE_DATE": titleBlock.GetDate(),
             "CURRENT_DATE": datetime.datetime.now().strftime('%Y-%m-%d'),
@@ -93,11 +92,13 @@ class ProcessThread(Thread):
 
             # generate netlist
             self.progress(40)
-            self.process_manager.generate_netlist(temp_dir)
+
+            if not self.options[MINIMAL_FILES]:
+                self.process_manager.generate_netlist(temp_dir)
 
             # generate data tables
             self.progress(50)
-            self.process_manager.generate_tables(temp_dir, self.options[AUTO_TRANSLATE_OPT], self.options[EXCLUDE_DNP_OPT])
+            self.process_manager.generate_tables(temp_dir, self.options[AUTO_TRANSLATE_OPT], self.options[EXCLUDE_DNP_OPT], self.options[MINIMAL_FILES])
 
             # generate pick and place file
             self.progress(60)
@@ -149,7 +150,12 @@ class ProcessThread(Thread):
 
         # make output dir
         filename = os.path.splitext(os.path.basename(self.process_manager.board.GetFileName()))[0]
-        output_path = os.path.join(project_directory, outputFolder)
+
+        if self.options[OUTPUT_FOLDER]:
+            output_path = self.options[OUTPUT_FOLDER]
+        else:
+            output_path = os.path.join(project_directory, outputFolder)
+
         if not os.path.exists(output_path):
             os.makedirs(output_path)
         
