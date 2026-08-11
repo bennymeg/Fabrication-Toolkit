@@ -78,7 +78,7 @@ class ProcessManager:
             extra_layers = []
 
         for layer_info in get_plot_plan(self.board):
-            if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standardLayers)) or layer_info[0] in extra_layers:
+            if (self.board.IsLayerEnabled(layer_info[1]) and (all_active_layers or layer_info[1] in standardLayers)) or layer_info[2] in extra_layers:
                 plot_controller.SetLayer(layer_info[1])
                 plot_controller.OpenPlotfile(layer_info[2], pcbnew.PLOT_FORMAT_GERBER, layer_info[2])
 
