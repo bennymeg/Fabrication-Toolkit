@@ -267,13 +267,15 @@ class ProcessManager:
 
                 # merge similar parts into single entry
                 insert = True
+                alt = self._get_alt_from_footprint(footprint)
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
                     same_value = component['Value'].upper() == footprint.GetValue().upper()
                     same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+                    same_alt = component.get('Alternates', '') == alt
                     under_limit = component['Quantity'] < bomRowLimit
 
-                    if same_footprint and same_value and same_lcsc and under_limit:
+                    if same_footprint and same_value and same_lcsc and same_alt and under_limit:
                         component['Designator'] += ", " + "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id)
                         component['Quantity'] += 1
                         insert = False
@@ -281,14 +283,17 @@ class ProcessManager:
 
                 # add component to BOM
                 if insert:
-                    self.bom.append({
+                    entry = {
                         'Designator': "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id),
                         'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
                         'Value': footprint.GetValue(),
                         # 'Mount': mount_type,
                         'LCSC Part #': self._get_mpn_from_footprint(footprint),
-                    })
+                    }
+                    if alt:
+                        entry['Alternates'] = alt
+                    self.bom.append(entry)
 
     def generate_positions(self, temp_dir):
         '''Generate the position file.'''
@@ -306,16 +311,26 @@ class ProcessManager:
     def generate_bom(self, temp_dir):
         '''Generate the bom file.'''
         if len(self.bom) > 0:
+            has_alternates = any('Alternates' in component for component in self.bom)
+
             with open((os.path.join(temp_dir, bomFileName)), 'w', newline='', encoding='utf-8-sig') as outfile:
                 csv_writer = csv.writer(outfile)
-                # writing headers of CSV file
-                csv_writer.writerow(self.bom[0].keys())
+
+                # Build header from first component, adding Alternates column if needed
+                headers = list(self.bom[0].keys())
+                if has_alternates and 'Alternates' not in headers:
+                    headers.append('Alternates')
+                csv_writer.writerow(headers)
 
                 # Output all of the component information
                 for component in self.bom:
                     # writing data of CSV file
                     if ('**' not in component['Designator']):
-                        csv_writer.writerow(component.values())
+                        if has_alternates:
+                            row = [component.get(h, '') for h in headers]
+                            csv_writer.writerow(row)
+                        else:
+                            csv_writer.writerow(component.values())
 
     def generate_archive(self, temp_dir, temp_file):
         '''Generate the archive file.'''
@@ -471,6 +486,18 @@ class ProcessManager:
         for key in keys + fallback_keys:
             if footprint_has_field(footprint, key) and '' != footprint_get_field(footprint, key):
                 return footprint_get_field(footprint, key)
+
+    def _get_alt_from_footprint(self, footprint) -> str:
+        '''Get the alternate LCSC part numbers from the FT Alt symbol field.'''
+        keys = ['FT Alt']
+
+        for key in keys:
+            if footprint_has_field(footprint, key):
+                value = footprint_get_field(footprint, key)
+                if value:
+                    return value
+
+        return ''
 
     def _get_layer_override_from_footprint(self, footprint) -> str:
         '''Get the layer override from standard symbol fields.'''
