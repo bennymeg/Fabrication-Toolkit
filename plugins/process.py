@@ -122,9 +122,9 @@ class ProcessManager:
     def _get_footprint_rotation(self, footprint):
         return footprint.GetOrientation().AsDegrees() if hasattr(footprint.GetOrientation(), 'AsDegrees') else footprint.GetOrientation() / 10.0
 
-    def _get_footprint_position(self, footprint):
+    def _get_footprint_position(self, footprint, use_tht_anchor=False):
         """Calculate position based on center of pads / bounding box."""
-        origin_type = self._get_origin_from_footprint(footprint)
+        origin_type = self._get_origin_from_footprint(footprint, use_tht_anchor)
 
         footprint_rotation = self._get_footprint_rotation(footprint)
         footprint_rotated = footprint_rotation % 90 != 0
@@ -163,7 +163,7 @@ class ProcessManager:
 
         return position
 
-    def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
+    def generate_tables(self, temp_dir, auto_translate, exclude_dnp, use_tht_anchor=False):
         '''Generate the data tables.'''
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
@@ -219,7 +219,7 @@ class ProcessManager:
                     footprint_designators[footprint.GetReference().upper()] -= 1
 
                 designator = "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id)
-                position = self._get_footprint_position(footprint)
+                position = self._get_footprint_position(footprint, use_tht_anchor)
                 mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = self._get_footprint_rotation(footprint)
@@ -536,7 +536,7 @@ class ProcessManager:
             except Exception as e:
                 raise RuntimeError("Position offset of {} is not a valid pair of numbers".format(footprint.GetReference()))
 
-    def _get_origin_from_footprint(self, footprint) -> float:
+    def _get_origin_from_footprint(self, footprint, use_tht_anchor=False) -> float:
         '''Get the origin from standard symbol fields.'''
         keys = ['FT Origin']
         fallback_keys = ['Origin']
@@ -545,6 +545,8 @@ class ProcessManager:
 
         # determine origin type by package type
         if attributes & pcbnew.FP_SMD:
+            origin_type = 'Anchor'
+        elif attributes & pcbnew.FP_THROUGH_HOLE and use_tht_anchor:
             origin_type = 'Anchor'
         else:
             origin_type = 'Center'

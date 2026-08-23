@@ -4,7 +4,7 @@ import pcbnew  # type: ignore
 
 from .thread import ProcessThread
 from .events import StatusEvent
-from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT, BACKUP_OPT
+from .options import AUTO_FILL_OPT, AUTO_TRANSLATE_OPT, EXCLUDE_DNP_OPT, USE_THT_ANCHOR_OPT, EXTEND_EDGE_CUT_OPT, ALTERNATIVE_EDGE_CUT_OPT, EXTRA_LAYERS, ALL_ACTIVE_LAYERS_OPT, ARCHIVE_NAME, OPEN_BROWSER_OPT, BACKUP_OPT
 from .utils import load_user_options, save_user_options, get_layer_names
 
 
@@ -36,6 +36,7 @@ class KiCadToJLCForm(wx.Frame):
             AUTO_TRANSLATE_OPT: True,
             AUTO_FILL_OPT: True,
             EXCLUDE_DNP_OPT: False,
+            USE_THT_ANCHOR_OPT: False,
             OPEN_BROWSER_OPT: True,
             BACKUP_OPT: True,
         })
@@ -65,6 +66,9 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticFillCheckbox.SetValue(userOptions[AUTO_FILL_OPT])
         self.mExcludeDnpCheckbox = wx.CheckBox(self, label='Exclude DNP components from BOM')
         self.mExcludeDnpCheckbox.SetValue(userOptions[EXCLUDE_DNP_OPT])
+        self.mUseThtAnchorCheckbox = wx.CheckBox(self, label='Use footprint anchors for through-hole component positions')
+        self.mUseThtAnchorCheckbox.SetValue(userOptions[USE_THT_ANCHOR_OPT])
+        self.mUseThtAnchorCheckbox.SetToolTip('Use each through-hole footprint\'s local origin for CPL Mid X/Mid Y; FT Origin fields take precedence')
         self.mOpenBrowserCheckbox = wx.CheckBox(self, label='Open browser after generation')
         self.mOpenBrowserCheckbox.SetValue(userOptions[OPEN_BROWSER_OPT])
         self.mBackupCheckbox = wx.CheckBox(self, label='Generate backup files')
@@ -90,6 +94,7 @@ class KiCadToJLCForm(wx.Frame):
         boxSizer.Add(self.mAutomaticTranslationCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mAutomaticFillCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mExcludeDnpCheckbox, 0, wx.ALL, 5)
+        boxSizer.Add(self.mUseThtAnchorCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mOpenBrowserCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mBackupCheckbox, 0, wx.ALL, 5)
         boxSizer.Add(self.mGaugeStatus, 0, wx.ALL, 5)
@@ -121,6 +126,7 @@ class KiCadToJLCForm(wx.Frame):
         options[AUTO_TRANSLATE_OPT] = self.mAutomaticTranslationCheckbox.GetValue()
         options[AUTO_FILL_OPT] = self.mAutomaticFillCheckbox.GetValue()
         options[EXCLUDE_DNP_OPT] = self.mExcludeDnpCheckbox.GetValue()
+        options[USE_THT_ANCHOR_OPT] = self.mUseThtAnchorCheckbox.GetValue()
         options[OPEN_BROWSER_OPT] = self.mOpenBrowserCheckbox.GetValue()
         options[BACKUP_OPT] = self.mBackupCheckbox.GetValue()
 
@@ -135,6 +141,7 @@ class KiCadToJLCForm(wx.Frame):
         self.mAutomaticTranslationCheckbox.Hide()
         self.mAutomaticFillCheckbox.Hide()
         self.mExcludeDnpCheckbox.Hide()
+        self.mUseThtAnchorCheckbox.Hide()
         self.mOpenBrowserCheckbox.Hide()
         self.mBackupCheckbox.Hide()
         self.mGenerateButton.Hide()
