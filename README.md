@@ -48,6 +48,7 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 ☑ __Apply automatic translations__: Apply known translation fixes for common components.</br>
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
+☑ __Use footprint anchors for through-hole component positions__: When off, the bounding box center is used for THT components. When on, footprint origin is used. This is not relevant when FT Origin fields are present.</br>
 ☑ __Generate Backups__: Generate Backup zip for the production files.</br>
 
 ## Attributes
@@ -194,8 +195,8 @@ All the options from the GUI are also available via the cli interface:
 python3 -m plugins.cli -h
 
 usage: Fabrication Toolkit [-h] --path PATH [--additionalLayers LAYERS] [--user1VCut] [--user2AltVCut]
-                           [--autoTranslate] [--autoFill] [--excludeDNP] [--allActiveLayers] [--archiveName NAME]
-                           [--openBrowser] [--noBackup]
+                           [--autoTranslate] [--autoFill] [--excludeDNP] [--useThtAnchor] [--allActiveLayers]
+                           [--archiveName NAME] [--openBrowser] [--noBackup]
 
 Generates JLCPCB production files from a KiCAD board file
 
@@ -209,6 +210,7 @@ options:
   --autoTranslate, -t   Apply automatic position/rotation translations
   --autoFill, -f        Apply automatic fill for all zones
   --excludeDNP, -e      Exclude DNP components from BOM
+  --useThtAnchor        Use footprint anchors for through-hole component positions
   --allActiveLayers, -aaL
                         Export all active layers instead of only commonly used ones
   --archiveName NAME, -aN NAME
