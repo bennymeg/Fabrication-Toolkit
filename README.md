@@ -49,6 +49,7 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
 ☑ __Generate Backups__: Generate Backup zip for the production files.</br>
+☑ __Generate design file archive__: Archive the project design files (schematic, PCB, project and json files from the project folder) into the production folder as `<archive-name>_design_<YYYYMMDD>.zip`.</br>
 
 ## Attributes
 
