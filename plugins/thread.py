@@ -170,6 +170,19 @@ class ProcessThread(Thread):
             if os.path.exists(os.path.join(temp_dir, bomFileName)):
                 os.rename(os.path.join(temp_dir, bomFileName), os.path.join(temp_dir, ProcessManager.normalize_filename("_".join((baseName.strip() + '_bom.csv').split()))))
 
+        # Archive the project design files (schematic, PCB, project, json)
+        if self.options[DESIGN_ARCHIVE_OPT]:
+            self.progress(90)
+            design_base = ProcessManager.normalize_filename("_"
+                .join(("{}_design_{}".format(baseName.strip(), datetime.datetime.now().strftime('%Y%m%d'))).split()))
+            temp_dir_design = tempfile.mkdtemp()
+            for item in os.listdir(project_directory):
+                item_path = os.path.join(project_directory, item)
+                if os.path.isfile(item_path) and os.path.splitext(item)[1].lower() in designFileExtensions:
+                    shutil.copy2(item_path, temp_dir_design)
+            shutil.make_archive(os.path.join(temp_dir, design_base), 'zip', temp_dir_design)
+            shutil.rmtree(temp_dir_design)
+
         # Make a backup as long as the BACKUP_OPT flag is set.
         if not self.options[BACKUP_OPT]:
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')

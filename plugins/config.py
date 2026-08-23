@@ -12,6 +12,9 @@ bomRowLimit = 200
 
 optionsFileName = 'fabrication-toolkit-options.json'
 
+# Project design files that get archived with the production files
+designFileExtensions = ['.kicad_sch', '.kicad_pcb', '.kicad_pro', '.json']
+
 standardLayers = [ pcbnew.F_Cu, pcbnew.B_Cu,
                    pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.In4_Cu, pcbnew.In5_Cu,
                    pcbnew.In6_Cu, pcbnew.In7_Cu, pcbnew.In8_Cu, pcbnew.In9_Cu, pcbnew.In10_Cu,
