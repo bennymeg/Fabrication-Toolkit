@@ -199,6 +199,7 @@ class ProcessManager:
                 pass
 
             layer = self._get_layer_override_from_footprint(footprint)
+            lcsc_part_number = self._get_mpn_from_footprint(footprint)
 
             # mount_type = {
             #     0: 'smt',
@@ -223,13 +224,13 @@ class ProcessManager:
                 mid_x = (position[0] - self.board.GetDesignSettings().GetAuxOrigin()[0]) / 1000000.0
                 mid_y = (position[1] - self.board.GetDesignSettings().GetAuxOrigin()[1]) * -1.0 / 1000000.0
                 rotation = self._get_footprint_rotation(footprint)
-                rotation_offset_db = self._get_rotation_from_db(footprint_name, lib_nickname) # Try with lib_nickname if available
+                rotation_offset_db = self._get_rotation_from_db(footprint_name, lib_nickname, lcsc_part_number) # Try with lib_nickname if available
                 rotation_offset_manual = self._get_rotation_offset_from_footprint(footprint)
 
                 # position offset needs to take rotation into account
                 pos_offset = self._get_position_offset_from_footprint(footprint)
                 if auto_translate:
-                    pos_offset_db = self._get_position_offset_from_db(footprint_name, lib_nickname) # Try with lib_nickname if available
+                    pos_offset_db = self._get_position_offset_from_db(footprint_name, lib_nickname, lcsc_part_number) # Try with lib_nickname if available
                     pos_offset = (pos_offset[0] + pos_offset_db[0], pos_offset[1] + pos_offset_db[1])
 
                 rsin = math.sin(rotation / 180 * math.pi)
@@ -270,7 +271,7 @@ class ProcessManager:
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
                     same_value = component['Value'].upper() == footprint.GetValue().upper()
-                    same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+                    same_lcsc = component['LCSC Part #'] == lcsc_part_number
                     under_limit = component['Quantity'] < bomRowLimit
 
                     if same_footprint and same_value and same_lcsc and under_limit:
@@ -287,7 +288,7 @@ class ProcessManager:
                         'Quantity': 1,
                         'Value': footprint.GetValue(),
                         # 'Mount': mount_type,
-                        'LCSC Part #': self._get_mpn_from_footprint(footprint),
+                        'LCSC Part #': lcsc_part_number,
                     })
 
     def generate_positions(self, temp_dir):
@@ -330,6 +331,43 @@ class ProcessManager:
         return temp_file
 
     """ Private """
+
+    @staticmethod
+    def __parse_lcsc_reference(name: str) -> str:
+        '''Get the LCSC part number a transformations entry targets.
+
+        Entries like "C12345" (optionally anchored, e.g. "^C12345$") apply to a
+        single part instead of to a footprint name pattern.
+
+        Args:
+            name: The match expression of the entry
+
+        Returns:
+            The normalized part number, or None if the entry is a footprint pattern.
+        '''
+        match = re.match(r'\^?(C\d+)\$?$', name.strip(), re.IGNORECASE)
+
+        return match.group(1).upper() if match else None
+
+    def _get_db_entry_from_lcsc(self, lcsc: str) -> dict:
+        '''Get the database entry targeting a specific LCSC part number.
+
+        Args:
+            lcsc: The LCSC part number of the component
+
+        Returns:
+            The matching entry, or None if no entry targets this part number.
+        '''
+        if not lcsc:
+            return None
+
+        lcsc = lcsc.strip().upper()
+
+        for entry in self.__rotation_db.values():
+            if entry['lcsc'] is not None and entry['lcsc'] == lcsc:
+                return entry
+
+        return None
 
     def __read_rotation_db(self, filename: str = os.path.join(os.path.dirname(__file__), 'transformations.csv')) -> dict[str, float]:
         '''Read the rotations.cf config file so we know what rotations
@@ -387,18 +425,28 @@ class ProcessManager:
                     db[rowNum]['rotation'] = rotation
                     db[rowNum]['x'] = delta_x
                     db[rowNum]['y'] = delta_y
+                    db[rowNum]['lcsc'] = self.__parse_lcsc_reference(row['footprint'])
 
         return db
 
-    def _get_rotation_from_db(self, footprint: str, lib_nickname: str = None) -> float:
+    def _get_rotation_from_db(self, footprint: str, lib_nickname: str = None, lcsc: str = None) -> float:
         '''Get the rotation to be added from the database file.
 
         Args:
             footprint: The footprint name
             lib_nickname: The library nickname, if available
+            lcsc: The LCSC part number of the component, if available
         '''
+        # An entry targeting the exact part takes precedence over the footprint patterns.
+        lcsc_entry = self._get_db_entry_from_lcsc(lcsc)
+        if lcsc_entry is not None:
+            return float(lcsc_entry['rotation'])
+
         # First try with the standard approach for backward compatibility
         for entry in self.__rotation_db.items():
+            # Entries targeting a part number are never matched against footprint names.
+            if entry[1]['lcsc'] is not None:
+                continue
             # If the expression in the DB contains a :, search for it literally.
             if (re.search(':', entry[1]['name'])):
                 if (re.search(entry[1]['name'], footprint)):
@@ -418,21 +466,32 @@ class ProcessManager:
         # If no match found and we have a library nickname, try matching against that
         if lib_nickname:
             for entry in self.__rotation_db.items():
+                if entry[1]['lcsc'] is not None:
+                    continue
                 if (re.search(entry[1]['name'], lib_nickname)):
                     return float(entry[1]['rotation'])
 
         # Not found, no rotation.
         return 0.0
 
-    def _get_position_offset_from_db(self, footprint: str, lib_nickname: str = None) -> Tuple[float, float]:
+    def _get_position_offset_from_db(self, footprint: str, lib_nickname: str = None, lcsc: str = None) -> Tuple[float, float]:
         '''Get the position offset to be added from the database file.
 
         Args:
             footprint: The footprint name
             lib_nickname: The library nickname, if available
+            lcsc: The LCSC part number of the component, if available
         '''
+        # An entry targeting the exact part takes precedence over the footprint patterns.
+        lcsc_entry = self._get_db_entry_from_lcsc(lcsc)
+        if lcsc_entry is not None:
+            return ( float(lcsc_entry['x']), float(lcsc_entry['y']) )
+
         # First try with the standard approach for backward compatibility
         for entry in self.__rotation_db.items():
+            # Entries targeting a part number are never matched against footprint names.
+            if entry[1]['lcsc'] is not None:
+                continue
             # If the expression in the DB contains a :, search for it literally.
             if (re.search(':', entry[1]['name'])):
                 if (re.search(entry[1]['name'], footprint)):
@@ -452,6 +511,8 @@ class ProcessManager:
         # If no match found and we have a library nickname, try matching against that
         if lib_nickname:
             for entry in self.__rotation_db.items():
+                if entry[1]['lcsc'] is not None:
+                    continue
                 if (re.search(entry[1]['name'], lib_nickname)):
                     return (float(entry[1]['x']), float(entry[1]['y']))
 

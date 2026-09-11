@@ -182,6 +182,32 @@ _The fields will be queried in the order denoted above._
 _The fields will be queried in the order denoted above._
 
 
+### ⑦ Transformation Database Overrides
+The built-in `transformations.csv` database is applied to every component when the *auto translate* option is enabled. Each row holds a match expression, a rotation in degrees and a x,y position delta:
+
+```
+Regex To Match,Rotation,Delta X,Delta Y
+^SOT-23,180,0,0
+```
+
+Beside a footprint name regex, the first column also accepts an **LCSC part number** (e.g. `C12345`, optionally anchored as `^C12345$` and case insensitive) in order to transform one specific part rather than a whole footprint family:
+
+```
+Regex To Match,Rotation,Delta X,Delta Y
+^SOT-23,180,0,0
+C2040551,90,0,0.0635
+```
+
+The part number is taken from the same symbol fields used for the BOM (see [① Include Component Part Number in Production Files](#-include-component-part-number-in-production-files)).
+
+> [!NOTE]  
+> A row matching the component's LCSC part number takes precedence over the footprint name rows - its rotation and position delta replace them. Components without such a row keep matching by footprint name as before.
+
+The 'FT Rotation Offset'* and 'FT Position Offset'* fields are still applied on top of whichever row was matched.
+
+---
+
+
 ## CLI
 The plugin can also be used via the linux and windows command line. This can be particularly useful if you need to embed the plugin into an automation pipeline or environment.
 The plugin can be called with the command below:
