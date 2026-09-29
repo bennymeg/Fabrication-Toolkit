@@ -106,7 +106,7 @@ def get_plot_plan(board, active_only=True):
 def get_layer_names(board, active_only=True):
     """Returns a list of (active) layer names of the current board"""
     plotPlan = get_plot_plan(board, active_only)
-    return [layer_info[0] for layer_info in plotPlan]
+    return [layer_info[2] for layer_info in plotPlan]
 
 def print_cli_progress_bar(percent, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
     """
