@@ -18,8 +18,10 @@ if __name__ == '__main__':
     parser.add_argument("--allActiveLayers",    "-aaL",action="store_true", help="Export all active layers instead of only commonly used ones")
     parser.add_argument("--archiveName",        "-aN", type=str, help="Name of the generated archives", metavar="NAME")
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
-    parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Useful in CI/CD environment.")
+    parser.add_argument("--nonInteractive",     "-nI", action="store_true", help="Run in non-Interactive mode. Useful in CI/CD environment.")
     parser.add_argument("--noBackup",           "-nB", action="store_true", help="Do not create backup files")
+    parser.add_argument("--minimalFiles",       "-mF", action="store_true", help="Do not create files that are not needed for JLC PCB")
+    parser.add_argument("--outputFolder",       "-oF", type=str, help="Sets the output folder for the generated files")
     args = parser.parse_args()
 
     options = dict()
@@ -31,7 +33,9 @@ if __name__ == '__main__':
     options[ALL_ACTIVE_LAYERS_OPT] = args.allActiveLayers
     options[ARCHIVE_NAME] = args.archiveName
     options[EXTRA_LAYERS] = args.additionalLayers
-    options[BACKUP_OPT] = not args.noBackup
+    options[BACKUP_OPT] = args.noBackup
+    options[MINIMAL_FILES] = args.minimalFiles
+    options[OUTPUT_FOLDER] = args.outputFolder
     
     openBrowser = args.openBrowser
     nonInteractive = args.nonInteractive
