@@ -32,6 +32,14 @@ class ProcessManager:
     def normalize_filename(filename):
         return re.sub(r'[^\w\s\.\-]', '', filename)
 
+    @staticmethod
+    def _format_coordinate(value, precision=6):
+        '''Round off floating-point residue and render as fixed-point (never scientific) notation.'''
+        value = round(value, precision)
+        if value == 0:
+            value = 0.0  # avoid "-0"
+        return f'{value:.{precision}f}'.rstrip('0').rstrip('.') or '0'
+
     def update_zone_fills(self):
         '''Verify all zones have up-to-date fills.'''
         filler = pcbnew.ZONE_FILLER(self.board)
@@ -252,9 +260,9 @@ class ProcessManager:
 
                 self.components.append({
                     'Designator': designator,
-                    'Mid X': mid_x,
-                    'Mid Y': mid_y,
-                    'Rotation': rotation,
+                    'Mid X': self._format_coordinate(mid_x),
+                    'Mid Y': self._format_coordinate(mid_y),
+                    'Rotation': self._format_coordinate(rotation),
                     'Layer': layer,
                 })
 
