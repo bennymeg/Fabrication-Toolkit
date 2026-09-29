@@ -97,19 +97,6 @@ If the JLC preview shows a footprint like this, enter a rotation offset of -90 t
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation.png?raw=true" height=420>
 
-Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
-|KiCad footprint deg | x | y|
-|----|----|----|
-|0 deg, Front | right arrow | up arrow |
-|0 deg, Back | left arrow | down arrow |
-|180 deg, Front | left arrow | down arrow |
-|180 deg, Back | right arrow | up arrow |
-|90 deg, Front or Back | up arrow | left arrow |
-|-90 deg, Front or Back | down arrow | right arrow |
-
-> [!TIP]  
-> Single arrow press in JLC is 0.0635mm (= 1/400in) shift.
-
 #### Primary Fields*:
 | 'FT Rotation Offset' |
 | --- |
@@ -128,6 +115,16 @@ _The fields will be queried in the order denoted above._
 The position of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLCPCB used different variation of the same standard. To the exception cases: add an 'FT Position Offset'* field with an comma separated x,y position offset to correct it.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/position.png?raw=true" height=420>
+
+Use following table to quickly find out to which coordinate enter the correction based on JLC arrows clicks - depending on footprint rotation in KiCad PCB Editor status bar:
+|KiCad footprint deg | x | y|
+|----|----|----|
+|0 deg, Front | right arrow | up arrow |
+|0 deg, Back | left arrow | down arrow |
+|180 deg, Front | left arrow | down arrow |
+|180 deg, Back | right arrow | up arrow |
+|90 deg, Front or Back | up arrow | left arrow |
+|-90 deg, Front or Back | down arrow | right arrow |
 
 > [!TIP]  
 > Single arrow press in JLC equals to 0.0635mm (= 1/400in) shift.
