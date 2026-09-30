@@ -20,6 +20,7 @@ if __name__ == '__main__':
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
     parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Useful in CI/CD environment.")
     parser.add_argument("--noBackup",           "-nB", action="store_true", help="Do not create backup files")
+    parser.add_argument("--domesticFormat",     "-dF", action="store_true", help="Use domestic (CN) JLCPCB site BOM column names (Comment / 嘉立创元件编号)")
     args = parser.parse_args()
 
     options = dict()
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     options[ARCHIVE_NAME] = args.archiveName
     options[EXTRA_LAYERS] = args.additionalLayers
     options[BACKUP_OPT] = not args.noBackup
+    options[DOMESTIC_FORMAT_OPT] = args.domesticFormat
     
     openBrowser = args.openBrowser
     nonInteractive = args.nonInteractive
