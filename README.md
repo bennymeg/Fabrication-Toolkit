@@ -49,6 +49,7 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
 ☑ __Generate Backups__: Generate Backup zip for the production files.</br>
+☑ __Use domestic (CN) JLCPCB site BOM format__: Export the BOM with the column names required by the domestic JLCPCB site (www.jlc.com) - 'Comment' instead of 'Value' and '嘉立创元件编号' instead of 'LCSC Part #'. Leave unchecked for the global site (jlcpcb.com).</br>
 
 ## Attributes
 
@@ -215,6 +216,7 @@ options:
                         Name of the generated archives
   --openBrowser, -b     Open web browser with directory file overview after generation
   --noBackup, -nB       Do not create a backup of the project before generation
+  --domesticFormat, -dF Use domestic (CN) JLCPCB site BOM column names (Comment / 嘉立创元件编号)
 ```
 
 ### Notes

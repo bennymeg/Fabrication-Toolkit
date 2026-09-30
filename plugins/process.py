@@ -171,8 +171,16 @@ class ProcessManager:
 
         return position
 
-    def generate_tables(self, temp_dir, auto_translate, exclude_dnp):
+    def generate_tables(self, temp_dir, auto_translate, exclude_dnp, domestic_format=False):
         '''Generate the data tables.'''
+        # BOM column names differ between the global (jlcpcb.com) and the
+        # domestic (www.jlc.com) JLCPCB sites. The domestic site requires
+        # a 'Comment' column for the part value/specs and recognizes the
+        # part number under the '嘉立创元件编号' column name.
+        if domestic_format:
+            bom_value_key, bom_mpn_key = 'Comment', '嘉立创元件编号'
+        else:
+            bom_value_key, bom_mpn_key = 'Value', 'LCSC Part #'
         if hasattr(self.board, 'GetModules'):
             footprints = list(self.board.GetModules())
         else:
@@ -277,8 +285,8 @@ class ProcessManager:
                 insert = True
                 for component in self.bom:
                     same_footprint = component['Footprint'] == self._normalize_footprint_name(footprint_name)
-                    same_value = component['Value'].upper() == footprint.GetValue().upper()
-                    same_lcsc = component['LCSC Part #'] == self._get_mpn_from_footprint(footprint)
+                    same_value = component[bom_value_key].upper() == footprint.GetValue().upper()
+                    same_lcsc = component[bom_mpn_key] == self._get_mpn_from_footprint(footprint)
                     under_limit = component['Quantity'] < bomRowLimit
 
                     if same_footprint and same_value and same_lcsc and under_limit:
@@ -293,9 +301,9 @@ class ProcessManager:
                         'Designator': "{}{}{}".format(footprint.GetReference().upper(), "" if unique_id == "" else "_", unique_id),
                         'Footprint': self._normalize_footprint_name(footprint_name),
                         'Quantity': 1,
-                        'Value': footprint.GetValue(),
+                        bom_value_key: footprint.GetValue(),
                         # 'Mount': mount_type,
-                        'LCSC Part #': self._get_mpn_from_footprint(footprint),
+                        bom_mpn_key: self._get_mpn_from_footprint(footprint),
                     })
 
     def generate_positions(self, temp_dir):

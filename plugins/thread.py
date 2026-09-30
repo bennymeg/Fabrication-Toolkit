@@ -97,7 +97,7 @@ class ProcessThread(Thread):
 
             # generate data tables
             self.progress(50)
-            self.process_manager.generate_tables(temp_dir, self.options[AUTO_TRANSLATE_OPT], self.options[EXCLUDE_DNP_OPT])
+            self.process_manager.generate_tables(temp_dir, self.options[AUTO_TRANSLATE_OPT], self.options[EXCLUDE_DNP_OPT], self.options.get(DOMESTIC_FORMAT_OPT, False))
 
             # generate pick and place file
             self.progress(60)
