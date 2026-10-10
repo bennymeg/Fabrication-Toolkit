@@ -471,7 +471,7 @@ class ProcessManager:
         supplier_names = ['LCSC', 'JLCPCB']
         pn_abbrevs = ['Part #', 'Part', 'PN', 'P/N', 'Part No.', 'Part Number']
         keys = [(sn + " " + abr) for sn in supplier_names for abr in pn_abbrevs]
-        fallback_keys = ['LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
+        fallback_keys = ['lcsc#', 'LCSC', 'JLC', 'MPN', 'Mpn', 'mpn']
 
         if footprint_has_field(footprint, 'dnp'):
             return 'DNP'
