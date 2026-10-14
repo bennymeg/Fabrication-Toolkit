@@ -405,6 +405,11 @@ class ProcessManager:
             footprint: The footprint name
             lib_nickname: The library nickname, if available
         '''
+        # LCSC/EasyEDA footprints (library nickname like "C24639") already use
+        # JLCPCB's expected orientation, so skip the rotation correction database.
+        if lib_nickname and re.match(r'^C\d+$', lib_nickname):
+            return 0.0
+
         # First try with the standard approach for backward compatibility
         for entry in self.__rotation_db.items():
             # If the expression in the DB contains a :, search for it literally.
@@ -439,6 +444,10 @@ class ProcessManager:
             footprint: The footprint name
             lib_nickname: The library nickname, if available
         '''
+        # LCSC/EasyEDA footprints already use JLCPCB's expected orientation/position.
+        if lib_nickname and re.match(r'^C\d+$', lib_nickname):
+            return (0.0, 0.0)
+
         # First try with the standard approach for backward compatibility
         for entry in self.__rotation_db.items():
             # If the expression in the DB contains a :, search for it literally.
