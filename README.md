@@ -89,7 +89,7 @@ Select 'Exclude from position files' or 'Exclude from BOM' in the footprint's fa
 ---
 
 ### ③ Offset Component Rotation
-The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `rotations.cf` definitions. To the exception cases: add an 'FT Rotation Offset'* field - with positive values indicating counter-clockwise orientation offset in degrees.
+The rotation of components in KiCad Footprints does not always match the orientation in the JLC library because KiCad and JLC PCB used different variation of the same standard. Most of the rotations may be corrected by the `transformations.csv` definitions. Footprints imported from EasyEDA / LCSC (e.g. with easyeda2kicad or JLC2KiCad_lib) keep EasyEDA's names, such as `SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR`, and are already in JLC's orientation, so they get no correction. To the exception cases: add an 'FT Rotation Offset'* field - with positive values indicating counter-clockwise orientation offset in degrees.
 
 <img src="https://github.com/bennymeg/JLC-Plugin-for-KiCad/blob/master/assets/rotation-jlc.png?raw=true" height=164>
 
