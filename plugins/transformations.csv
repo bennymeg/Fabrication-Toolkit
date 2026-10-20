@@ -1,4 +1,5 @@
 "Regex To Match","Rotation","Delta X","Delta Y"
+"_L[0-9][0-9.]*-W[0-9]",0,0,0
 "^Bosch_LGA-",90,0,0
 "^CP_EIA-",180,0,0
 "^CP_Elec_",180,0,0
