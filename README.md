@@ -49,6 +49,7 @@ Options can be set in the dialog that appears when the plugin is invoked. They a
 ☑ __Apply automatic fill for all zones__: Refill all zones before generation production files.</br>
 ☑ __Exclude DNP components from BOM__: Exclude components the had been set a DNP from th BOM.</br>
 ☑ __Generate Backups__: Generate Backup zip for the production files.</br>
+☑ __Keep board solder mask settings__: Plot the solder mask with the board's own mask expansion, mask-to-copper clearance and minimum web width instead of the plugin's defaults (which zero the minimum web width so openings are never merged). Useful for flex boards, whose coverlay rules need merged openings.</br>
 
 ## Attributes
 
@@ -195,7 +196,7 @@ python3 -m plugins.cli -h
 
 usage: Fabrication Toolkit [-h] --path PATH [--additionalLayers LAYERS] [--user1VCut] [--user2AltVCut]
                            [--autoTranslate] [--autoFill] [--excludeDNP] [--allActiveLayers] [--archiveName NAME]
-                           [--openBrowser] [--noBackup]
+                           [--openBrowser] [--noBackup] [--keepMaskSettings]
 
 Generates JLCPCB production files from a KiCAD board file
 
@@ -215,6 +216,8 @@ options:
                         Name of the generated archives
   --openBrowser, -b     Open web browser with directory file overview after generation
   --noBackup, -nB       Do not create a backup of the project before generation
+  --keepMaskSettings, -kM
+                        Keep the board's solder mask expansion, clearance and minimum web width
 ```
 
 ### Notes

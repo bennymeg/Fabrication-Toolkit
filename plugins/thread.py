@@ -85,7 +85,8 @@ class ProcessThread(Thread):
             # generate gerber
             self.progress(20)
             self.process_manager.generate_gerber(temp_dir_gerber, self.options[EXTRA_LAYERS], self.options[EXTEND_EDGE_CUT_OPT],
-                                                 self.options[ALTERNATIVE_EDGE_CUT_OPT], self.options[ALL_ACTIVE_LAYERS_OPT])
+                                                 self.options[ALTERNATIVE_EDGE_CUT_OPT], self.options[ALL_ACTIVE_LAYERS_OPT],
+                                                 self.options.get(KEEP_MASK_SETTINGS_OPT, False))
 
             # generate drill file
             self.progress(30)

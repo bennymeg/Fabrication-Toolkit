@@ -53,14 +53,31 @@ class ProcessManager:
         # Finally rebuild the connectivity db
         self.board.BuildConnectivity()
 
-    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
+    def generate_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers, keep_mask_settings=False):
         '''Generate the Gerber files.'''
-        original_settings = self.board.GetDesignSettings()
         settings = self.board.GetDesignSettings()
-        settings.m_SolderMaskMargin = 50000
-        settings.m_SolderMaskToCopperClearance = 5000
-        settings.m_SolderMaskMinWidth = 0
 
+        # GetDesignSettings() returns a reference to the board's live settings,
+        # so save the original values to restore them after plotting.
+        # m_SolderMaskMargin does not exist in all KiCad versions, hence getattr.
+        original_solder_mask_margin = getattr(settings, 'm_SolderMaskMargin', None)
+        original_solder_mask_to_copper_clearance = settings.m_SolderMaskToCopperClearance
+        original_solder_mask_min_width = settings.m_SolderMaskMinWidth
+
+        if not keep_mask_settings:
+            settings.m_SolderMaskMargin = 50000
+            settings.m_SolderMaskToCopperClearance = 5000
+            settings.m_SolderMaskMinWidth = 0
+
+        try:
+            self._plot_gerber(temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers)
+        finally:
+            if original_solder_mask_margin is not None:
+                settings.m_SolderMaskMargin = original_solder_mask_margin
+            settings.m_SolderMaskToCopperClearance = original_solder_mask_to_copper_clearance
+            settings.m_SolderMaskMinWidth = original_solder_mask_min_width
+
+    def _plot_gerber(self, temp_dir, extra_layers, extend_edge_cuts, alternative_edge_cuts, all_active_layers):
         plot_controller = pcbnew.PLOT_CONTROLLER(self.board)
 
         plot_options = plot_controller.GetPlotOptions()
@@ -107,7 +124,6 @@ class ProcessManager:
                     plot_controller.PlotLayer()
 
         plot_controller.ClosePlot()
-        settings = original_settings
 
     def generate_drills(self, temp_dir):
         '''Generate the drill file.'''

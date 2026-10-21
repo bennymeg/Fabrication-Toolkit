@@ -20,6 +20,7 @@ if __name__ == '__main__':
     parser.add_argument("--openBrowser",        "-b",  action="store_true", help="Open webbrowser with directory file overview after generation")
     parser.add_argument("--nonInteractive",     "-nI" ,action="store_true", help="Run in non-Interactive mode. Useful in CI/CD environment.")
     parser.add_argument("--noBackup",           "-nB", action="store_true", help="Do not create backup files")
+    parser.add_argument("--keepMaskSettings",   "-kM", action="store_true", help="Keep the board's solder mask expansion, clearance and minimum web width")
     args = parser.parse_args()
 
     options = dict()
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     options[ARCHIVE_NAME] = args.archiveName
     options[EXTRA_LAYERS] = args.additionalLayers
     options[BACKUP_OPT] = not args.noBackup
+    options[KEEP_MASK_SETTINGS_OPT] = args.keepMaskSettings
     
     openBrowser = args.openBrowser
     nonInteractive = args.nonInteractive
